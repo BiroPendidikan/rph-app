@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPH Pintar Guru</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary: #1a2b4c;
@@ -20,1035 +19,637 @@
             --danger: #e74c3c;
             --warning: #f39c12;
         }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         body {
             background-color: var(--bg);
             color: var(--text);
             padding-bottom: 80px;
         }
-
-        /* Header */
         .header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: var(--white);
             padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            letter-spacing: 0.5px;
-        }
-        .header .subtitle {
-            font-size: 0.85rem;
-            margin-top: 5px;
-            opacity: 0.9;
-        }
-
-        /* Bottom Navigation */
+        .header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.5px; }
+        .header .subtitle { font-size: 0.85rem; margin-top: 5px; opacity: 0.9; }
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            display: flex;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--white); display: flex;
             border-top: 1px solid var(--border);
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
             z-index: 100;
         }
         .nav-btn {
-            flex: 1;
-            padding: 15px 0;
-            text-align: center;
-            cursor: pointer;
-            color: var(--grey);
-            transition: 0.3s;
-            border: none;
-            background: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            position: relative;
+            flex: 1; padding: 15px 0; text-align: center; cursor: pointer;
+            color: var(--grey); transition: 0.3s; border: none; background: none;
+            font-size: 0.9rem; font-weight: 500; position: relative;
         }
         .nav-btn.active {
-            color: var(--primary);
-            font-weight: bold;
-            background: rgba(74, 144, 226, 0.05);
+            color: var(--primary); font-weight: bold;
+            background: rgba(74,144,226,0.05);
         }
         .nav-btn.active::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 20%;
-            right: 20%;
-            height: 3px;
-            background: var(--accent);
-            border-radius: 0 0 3px 3px;
+            content: ''; position: absolute; top: 0; left: 20%; right: 20%;
+            height: 3px; background: var(--accent); border-radius: 0 0 3px 3px;
         }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Card */
+        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            background: var(--white); border-radius: 12px; padding: 20px;
+            margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border: 1px solid var(--border);
         }
-        .card h2 {
-            color: var(--primary);
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-        }
-
-        /* Form */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--primary);
-            font-size: 0.9rem;
-        }
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border 0.3s, box-shadow 0.3s;
+        .card h2 { color: var(--primary); margin-bottom: 20px; font-size: 1.3rem; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary); font-size: 0.9rem; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px; border: 1px solid var(--border);
+            border-radius: 8px; font-size: 1rem; transition: border 0.3s, box-shadow 0.3s;
             background: #fafafa;
         }
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
-            background: var(--white);
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none; border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(74,144,226,0.15); background: var(--white);
         }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-            font-family: inherit;
-        }
-        .time-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        /* Buttons */
+        .form-group textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.3s;
-            justify-content: center;
+            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 1rem; font-weight: 600; display: inline-flex; align-items: center;
+            gap: 8px; transition: 0.3s; justify-content: center;
         }
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: var(--white);
-        }
-        .btn-success {
-            background: var(--success);
-            color: var(--white);
-        }
-        .btn-danger {
-            background: var(--danger);
-            color: var(--white);
-        }
-        .btn-warning {
-            background: var(--warning);
-            color: var(--white);
-        }
-        .btn-ai {
-            background: var(--accent);
-            color: var(--white);
-            width: 100%;
-            justify-content: center;
-            margin-top: 8px;
-            font-size: 0.9rem;
-        }
-        .btn-ai:disabled {
-            background: #a0c4e8;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-        .btn-block {
-            display: block;
-            width: 100%;
-            text-align: center;
-        }
-        .btn-sm {
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            min-width: 40px;
-        }
-
-        /* RPH List */
-        .rph-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.2s;
-        }
-        .rph-item:hover {
-            background: #f8f9fa;
-        }
-        .rph-item:last-child {
-            border-bottom: none;
-        }
-        .rph-info h3 {
-            margin: 0 0 5px 0;
-            color: var(--primary);
-            font-size: 1.05rem;
-        }
-        .rph-info p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: var(--grey);
-        }
-        .rph-actions {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        /* Loading */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 10px;
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 0.85rem;
-        }
-        .loading.active {
-            display: block;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        /* Search Bar */
-        .search-bar {
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .search-bar input {
-            width: 100%;
-            padding: 12px 40px 12px 15px;
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            font-size: 0.95rem;
-            background: var(--white);
-            transition: 0.3s;
-        }
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-        }
-        .search-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--grey);
-            pointer-events: none;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--grey);
-        }
-        .empty-state .icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            z-index: 200;
-            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            font-weight: 500;
-            max-width: 90vw;
-        }
-        .toast.error {
-            background: var(--danger);
-        }
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes fadeOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-            }
-        }
-
-        /* PDF Template (Hidden) */
-        #pdf-template {
-            position: absolute;
-            left: -9999px;
-            top: 0;
-            width: 210mm;
-            font-family: 'Times New Roman', serif;
-            font-size: 11pt;
-            color: #000;
-            background: white;
-            padding: 15mm;
-        }
-        .pdf-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .pdf-header-text {
-            text-align: center;
-            flex: 1;
-        }
-        .pdf-header-text h2 {
-            margin: 0;
-            font-size: 14pt;
-        }
-        .pdf-header-text p {
-            margin: 2px 0;
-            font-size: 10pt;
-        }
-        .pdf-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .pdf-table th,
-        .pdf-table td {
-            border: 1px solid #000;
-            padding: 6px;
-            vertical-align: top;
-        }
-        .pdf-table th {
-            background: #f0f0f0;
-            width: 25%;
-            font-weight: bold;
-            font-size: 10pt;
-        }
-        .pdf-table td {
-            font-size: 10pt;
-        }
-        .pdf-signature {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-        }
-        .pdf-signature div {
-            text-align: center;
-            width: 45%;
-        }
-
-        /* Responsive */
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-success { background: var(--success); color: var(--white); }
+        .btn-danger { background: var(--danger); color: var(--white); }
+        .btn-warning { background: var(--warning); color: var(--white); }
+        .btn-ai { background: var(--accent); color: var(--white); width: 100%; justify-content: center; margin-top: 8px; font-size: 0.9rem; }
+        .btn-ai:disabled { background: #a0c4e8; cursor: not-allowed; opacity: 0.7; }
+        .btn-block { display: block; width: 100%; text-align: center; }
+        .btn-sm { padding: 8px 12px; font-size: 0.85rem; min-width: 40px; }
+        .rph-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border); transition: background 0.2s; }
+        .rph-item:hover { background: #f8f9fa; }
+        .rph-item:last-child { border-bottom: none; }
+        .rph-info h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 1.05rem; }
+        .rph-info p { margin: 0; font-size: 0.85rem; color: var(--grey); }
+        .rph-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        .loading { display: none; text-align: center; padding: 10px; color: var(--accent); font-weight: bold; font-size: 0.85rem; }
+        .loading.active { display: block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .search-bar { margin-bottom: 15px; position: relative; }
+        .search-bar input { width: 100%; padding: 12px 40px 12px 15px; border: 1px solid var(--border); border-radius: 25px; font-size: 0.95rem; background: var(--white); transition: 0.3s; }
+        .search-bar input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,144,226,0.1); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--grey); pointer-events: none; }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--grey); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 10px; }
+        .toast { position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 15px 20px; border-radius: 8px; z-index: 200; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: 500; max-width: 90vw; }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        #pdf-template { position: absolute; left: -9999px; top: 0; width: 210mm; font-family: 'Times New Roman', serif; font-size: 11pt; color: #000; background: white; padding: 15mm; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .pdf-header-text { text-align: center; flex: 1; }
+        .pdf-header-text h2 { margin: 0; font-size: 14pt; }
+        .pdf-header-text p { margin: 2px 0; font-size: 10pt; }
+        .pdf-table { width: 100%; border-collapse: collapse; }
+        .pdf-table th, .pdf-table td { border: 1px solid #000; padding: 6px; vertical-align: top; }
+        .pdf-table th { background: #f0f0f0; width: 25%; font-weight: bold; font-size: 10pt; }
+        .pdf-table td { font-size: 10pt; }
+        .pdf-signature { margin-top: 40px; display: flex; justify-content: space-between; }
+        .pdf-signature div { text-align: center; width: 45%; }
+        .download-worksheet-btn { background: #8e44ad; color: white; margin-top: 5px; width: 100%; }
         @media (max-width: 480px) {
-            .time-grid {
-                grid-template-columns: 1fr;
-            }
-            .rph-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            .rph-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            .header h1 {
-                font-size: 1.2rem;
-            }
-            .btn-sm {
-                padding: 8px 10px;
-                font-size: 0.8rem;
-            }
+            .time-grid { grid-template-columns: 1fr; }
+            .rph-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .rph-actions { width: 100%; justify-content: flex-end; }
+            .header h1 { font-size: 1.2rem; }
+            .btn-sm { padding: 8px 10px; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header">
-        <h1>📖 RPH Pintar Guru</h1>
-        <p class="subtitle">Dikuasakan oleh DeepSeek AI • Pendidikan Moral</p>
-    </div>
+<div class="header">
+    <h1>📖 RPH Pintar Guru</h1>
+    <p class="subtitle">Dikuasakan oleh DeepSeek AI • Pendidikan Moral</p>
+</div>
 
-    <!-- Tab: Senarai RPH -->
-    <div id="tab-list" class="tab-content active">
-        <div class="card">
-            <h2>📄 RPH Tersimpan</h2>
-            <!-- Search Bar -->
-            <div class="search-bar">
-                <input type="text" id="search-input" placeholder="🔍 Cari RPH (tajuk, kelas, tarikh)..." oninput="renderList()">
-                <span class="search-icon">🔍</span>
-            </div>
-            <!-- RPH List Container -->
-            <div id="rph-list-container">
-                <div class="empty-state">
-                    <div class="icon">📭</div>
-                    <p>Tiada RPH tersimpan.</p>
-                    <p style="font-size:0.8rem;">Klik <strong>+ Buat RPH</strong> untuk mula.</p>
-                </div>
+<!-- Tab Senarai -->
+<div id="tab-list" class="tab-content active">
+    <div class="card">
+        <h2>📄 RPH Tersimpan</h2>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="🔍 Cari RPH (tajuk, kelas, tarikh)..." oninput="renderList()">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div id="rph-list-container">
+            <div class="empty-state">
+                <div class="icon">📭</div>
+                <p>Tiada RPH tersimpan.</p>
+                <p style="font-size:0.8rem;">Klik <strong>+ Buat RPH</strong> untuk mula.</p>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Tab: Borang RPH -->
-    <div id="tab-form" class="tab-content">
-        <div class="card">
-            <h2 id="form-title">➕ Buat RPH Baru</h2>
-            <form id="rph-form">
-                <input type="hidden" id="rph-id">
+<!-- Tab Borang -->
+<div id="tab-form" class="tab-content">
+    <div class="card">
+        <h2 id="form-title">➕ Buat RPH Baru</h2>
+        <form id="rph-form">
+            <input type="hidden" id="rph-id">
+            <div class="time-grid">
+                <div class="form-group"><label>📅 Tarikh</label><input type="date" id="f-date" required></div>
+                <div class="form-group"><label>🏫 Kelas</label><input type="text" id="f-class" placeholder="cth: 6 Bestari" required></div>
+            </div>
+            <div class="time-grid">
+                <div class="form-group"><label>⏰ Masa Mula</label><input type="time" id="f-time-start" required></div>
+                <div class="form-group"><label>⏰ Masa Tamat</label><input type="time" id="f-time-end" required></div>
+            </div>
+            <div class="form-group"><label>🎯 Tema</label><input type="text" id="f-theme" placeholder="cth: Nilai Keluarga"></div>
+            <div class="time-grid">
+                <div class="form-group"><label>💎 Unit / Nilai</label><input type="text" id="f-unit" placeholder="cth: Kasih Sayang"></div>
+                <div class="form-group"><label>📝 Tajuk</label><input type="text" id="f-topic" placeholder="cth: Kebahagiaan Keluarga"></div>
+            </div>
+            <div class="time-grid">
+                <div class="form-group"><label>📋 Standard Kandungan</label><input type="text" id="f-sk" placeholder="cth: 1.1 ..."></div>
+                <div class="form-group"><label>📋 Standard Pembelajaran</label><input type="text" id="f-sp" placeholder="cth: 1.1.1 ..."></div>
+            </div>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
 
-                <!-- Maklumat Asas -->
-                <div class="time-grid">
-                    <div class="form-group">
-                        <label>📅 Tarikh</label>
-                        <input type="date" id="f-date" required>
-                    </div>
-                    <div class="form-group">
-                        <label>🏫 Kelas</label>
-                        <input type="text" id="f-class" placeholder="cth: 6 Bestari" required>
-                    </div>
-                </div>
-                <div class="time-grid">
-                    <div class="form-group">
-                        <label>⏰ Masa Mula</label>
-                        <input type="time" id="f-time-start" required>
-                    </div>
-                    <div class="form-group">
-                        <label>⏰ Masa Tamat</label>
-                        <input type="time" id="f-time-end" required>
-                    </div>
+            <!-- Objektif -->
+            <div class="form-group">
+                <label>🎯 Objektif Pembelajaran</label>
+                <textarea id="f-objectives" rows="3" placeholder="Pada akhir pembelajaran, murid dapat..."></textarea>
+                <button type="button" class="btn btn-ai" id="btn-obj" onclick="generateAI('objectives')">🤖 Jana Objektif dengan AI</button>
+                <div id="loading-objectives" class="loading">⏳ Menghubungi DeepSeek AI...</div>
+            </div>
+
+            <!-- Aktiviti -->
+            <div class="form-group">
+                <label>🎪 Aktiviti (5 Langkah)</label>
+                <textarea id="f-activities" rows="6" placeholder="Langkah 1: ..."></textarea>
+                <button type="button" class="btn btn-ai" id="btn-act" onclick="generateAI('activities')">🤖 Jana Aktiviti PAK21 + BBM/EMK/Penilaian</button>
+                <div id="loading-activities" class="loading">⏳ Menjana langkah, BBM, EMK, lembaran kerja...</div>
+            </div>
+
+            <!-- Kriteria Kejayaan -->
+            <div class="form-group">
+                <label>✅ Kriteria Kejayaan</label>
+                <textarea id="f-success" rows="2" placeholder="Murid berjaya jika..."></textarea>
+                <button type="button" class="btn btn-ai" id="btn-suc" onclick="generateAI('success')">🤖 Jana Kriteria Kejayaan</button>
+                <div id="loading-success" class="loading">⏳ Menghubungi DeepSeek AI...</div>
+            </div>
+
+            <!-- BBM -->
+            <div class="form-group">
+                <label>📦 BBM (Bahan Bantu Mengajar)</label>
+                <input type="text" id="f-bbm" placeholder="akan diisi automatik">
+            </div>
+
+            <!-- EMK & PAK21 -->
+            <div class="time-grid">
+                <div class="form-group">
+                    <label>🌐 EMK</label>
+                    <input type="text" id="f-emk" placeholder="akan diisi automatik">
                 </div>
                 <div class="form-group">
-                    <label>🎯 Tema</label>
-                    <input type="text" id="f-theme" placeholder="cth: Nilai Keluarga">
+                    <label>🧩 PAK21</label>
+                    <input type="text" id="f-pak21" placeholder="akan diisi automatik">
                 </div>
-                <div class="time-grid">
-                    <div class="form-group">
-                        <label>💎 Unit / Nilai</label>
-                        <input type="text" id="f-unit" placeholder="cth: Kasih Sayang">
-                    </div>
-                    <div class="form-group">
-                        <label>📝 Tajuk</label>
-                        <input type="text" id="f-topic" placeholder="cth: Kebahagiaan Keluarga">
-                    </div>
-                </div>
-                <div class="time-grid">
-                    <div class="form-group">
-                        <label>📋 Standard Kandungan</label>
-                        <input type="text" id="f-sk" placeholder="cth: 1.1 ...">
-                    </div>
-                    <div class="form-group">
-                        <label>📋 Standard Pembelajaran</label>
-                        <input type="text" id="f-sp" placeholder="cth: 1.1.1 ...">
-                    </div>
-                </div>
+            </div>
 
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
+            <!-- Penilaian -->
+            <div class="form-group">
+                <label>📊 Penilaian</label>
+                <input type="text" id="f-assessment" placeholder="akan diisi automatik">
+            </div>
 
-                <!-- Objektif -->
-                <div class="form-group">
-                    <label>🎯 Objektif Pembelajaran</label>
-                    <textarea id="f-objectives" rows="3" placeholder="Pada akhir pembelajaran, murid dapat..."></textarea>
-                    <button type="button" class="btn btn-ai" id="btn-obj" onclick="generateAI('objectives')">
-                        🤖 Jana Objektif dengan AI
-                    </button>
-                    <div id="loading-objectives" class="loading">⏳ Menghubungi DeepSeek AI...</div>
-                </div>
+            <!-- Refleksi -->
+            <div class="form-group">
+                <label>🪞 Refleksi</label>
+                <textarea id="f-reflection" rows="2" placeholder="Bilangan murid yang mencapai objektif..."></textarea>
+                <button type="button" class="btn btn-ai" id="btn-ref" onclick="generateAI('reflection')">🤖 Jana Refleksi</button>
+                <div id="loading-reflection" class="loading">⏳ Menghubungi DeepSeek AI...</div>
+            </div>
 
-                <!-- Aktiviti -->
-                <div class="form-group">
-                    <label>🎪 Aktiviti (5 Langkah)</label>
-                    <textarea id="f-activities" rows="6" placeholder="Langkah 1: ...\nLangkah 2: ...\n..."></textarea>
-                    <button type="button" class="btn btn-ai" id="btn-act" onclick="generateAI('activities')">
-                        🤖 Jana Aktiviti PAK21
-                    </button>
-                    <div id="loading-activities" class="loading">⏳ Menghubungi DeepSeek AI...</div>
-                </div>
-
-                <!-- Kriteria Kejayaan -->
-                <div class="form-group">
-                    <label>✅ Kriteria Kejayaan</label>
-                    <textarea id="f-success" rows="2" placeholder="Murid berjaya jika..."></textarea>
-                    <button type="button" class="btn btn-ai" id="btn-suc" onclick="generateAI('success')">
-                        🤖 Jana Kriteria Kejayaan
-                    </button>
-                    <div id="loading-success" class="loading">⏳ Menghubungi DeepSeek AI...</div>
-                </div>
-
-                <!-- BBM, EMK, PAK21 -->
-                <div class="form-group">
-                    <label>📦 BBM (Bahan Bantu Mengajar)</label>
-                    <input type="text" id="f-bbm" placeholder="cth: Kad gambar, slaid PowerPoint">
-                </div>
-                <div class="time-grid">
-                    <div class="form-group">
-                        <label>🌐 EMK</label>
-                        <input type="text" id="f-emk" placeholder="cth: TMK, Keusahawanan">
-                    </div>
-                    <div class="form-group">
-                        <label>🧩 PAK21</label>
-                        <input type="text" id="f-pak21" placeholder="cth: Think-Pair-Share">
-                    </div>
-                </div>
-
-                <!-- Penilaian -->
-                <div class="form-group">
-                    <label>📊 Penilaian</label>
-                    <input type="text" id="f-assessment" placeholder="cth: Pemerhatian, lembaran kerja">
-                </div>
-
-                <!-- Refleksi -->
-                <div class="form-group">
-                    <label>🪞 Refleksi</label>
-                    <textarea id="f-reflection" rows="2" placeholder="Bilangan murid yang mencapai objektif..."></textarea>
-                    <button type="button" class="btn btn-ai" id="btn-ref" onclick="generateAI('reflection')">
-                        🤖 Jana Refleksi
-                    </button>
-                    <div id="loading-reflection" class="loading">⏳ Menghubungi DeepSeek AI...</div>
-                </div>
-
-                <!-- Butang Simpan -->
-                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px; font-size: 1.1rem;">
-                    💾 Simpan RPH
+            <!-- Lembaran Kerja (muat turun) -->
+            <div class="form-group" id="worksheet-section" style="display:none;">
+                <label>📝 Lembaran Kerja</label>
+                <p style="font-size:0.85rem; color: var(--grey); margin-bottom:5px;">Lembaran kerja dijana automatik. Muat turun dalam format Word.</p>
+                <button type="button" class="btn download-worksheet-btn btn-block" id="btn-download-worksheet" onclick="downloadWorksheet()">
+                    ⬇️ Muat Turun Lembaran Kerja (Word)
                 </button>
-                <button type="button" class="btn btn-warning btn-block" style="margin-top: 8px;" onclick="resetForm()">
-                    🔄 Kosongkan Borang
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Bottom Navigation -->
-    <div class="bottom-nav">
-        <button class="nav-btn active" onclick="switchTab('list', this)">📄 Senarai</button>
-        <button class="nav-btn" onclick="switchTab('form', this); resetForm()">➕ Buat RPH</button>
-    </div>
-
-    <!-- PDF Template (Hidden) -->
-    <div id="pdf-template">
-        <div class="pdf-header">
-            <div style="width: 60px;"></div>
-            <div class="pdf-header-text">
-                <h2>KEMENTERIAN PENDIDIKAN MALAYSIA</h2>
-                <p>RANCANGAN PENGAJARAN HARIAN (RPH)</p>
-                <p><strong>MATA PELAJARAN: PENDIDIKAN MORAL</strong></p>
+                <input type="hidden" id="f-worksheet">
             </div>
-            <div style="width: 60px;"></div>
-        </div>
-        <table class="pdf-table">
-            <tr><th>Tarikh</th><td id="p-date"></td><th>Masa</th><td id="p-time"></td></tr>
-            <tr><th>Kelas</th><td id="p-class"></td><th>Bil. Murid</th><td>_______ orang</td></tr>
-            <tr><th>Tema</th><td id="p-theme" colspan="3"></td></tr>
-            <tr><th>Nilai / Unit</th><td id="p-unit"></td><th>Tajuk</th><td id="p-topic"></td></tr>
-            <tr><th>Std. Kandungan</th><td id="p-sk" colspan="3"></td></tr>
-            <tr><th>Std. Pembelajaran</th><td id="p-sp" colspan="3"></td></tr>
-            <tr><th>Objektif</th><td id="p-obj" colspan="3"></td></tr>
-            <tr><th>Aktiviti</th><td id="p-act" colspan="3"></td></tr>
-            <tr><th>Kriteria Kejayaan</th><td id="p-success" colspan="3"></td></tr>
-            <tr><th>BBM / EMK / PAK21</th><td id="p-bbm" colspan="3"></td></tr>
-            <tr><th>Penilaian</th><td id="p-assess" colspan="3"></td></tr>
-            <tr><th>Refleksi</th><td id="p-ref" colspan="3" style="height: 80px;"></td></tr>
-        </table>
-        <div class="pdf-signature">
-            <div>
-                <p>......................................</p>
-                <p>(Tandatangan Guru)</p>
-                <p>Nama: ________________________</p>
-            </div>
-            <div>
-                <p>......................................</p>
-                <p>(Guru Besar / PK)</p>
-                <p>Nama: ________________________</p>
-            </div>
-        </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px; font-size: 1.1rem;">💾 Simpan RPH</button>
+            <button type="button" class="btn btn-warning btn-block" style="margin-top: 8px;" onclick="resetForm()">🔄 Kosongkan Borang</button>
+        </form>
     </div>
+</div>
 
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <button class="nav-btn active" onclick="switchTab('list', this)">📄 Senarai</button>
+    <button class="nav-btn" onclick="switchTab('form', this); resetForm()">➕ Buat RPH</button>
+</div>
 
-    <script>
-        // ==================== KONFIGURASI ====================
-        // URL backend AI. Jika backend tidak tersedia, simulasi akan digunakan.
-        const BACKEND_URL = '/api/generate';
-        const USE_SIMULATION_FALLBACK = true; // Tukar ke false jika backend sebenar tersedia
+<!-- PDF Template -->
+<div id="pdf-template">
+    <div class="pdf-header">
+        <div style="width: 60px;"></div>
+        <div class="pdf-header-text">
+            <h2>KEMENTERIAN PENDIDIKAN MALAYSIA</h2>
+            <p>RANCANGAN PENGAJARAN HARIAN (RPH)</p>
+            <p><strong>MATA PELAJARAN: PENDIDIKAN MORAL</strong></p>
+        </div>
+        <div style="width: 60px;"></div>
+    </div>
+    <table class="pdf-table">
+        <tr><th>Tarikh</th><td id="p-date"></td><th>Masa</th><td id="p-time"></td></tr>
+        <tr><th>Kelas</th><td id="p-class"></td><th>Bil. Murid</th><td>_______ orang</td></tr>
+        <tr><th>Tema</th><td id="p-theme" colspan="3"></td></tr>
+        <tr><th>Nilai / Unit</th><td id="p-unit"></td><th>Tajuk</th><td id="p-topic"></td></tr>
+        <tr><th>Std. Kandungan</th><td id="p-sk" colspan="3"></td></tr>
+        <tr><th>Std. Pembelajaran</th><td id="p-sp" colspan="3"></td></tr>
+        <tr><th>Objektif</th><td id="p-obj" colspan="3"></td></tr>
+        <tr><th>Aktiviti</th><td id="p-act" colspan="3"></td></tr>
+        <tr><th>Kriteria Kejayaan</th><td id="p-success" colspan="3"></td></tr>
+        <tr><th>BBM / EMK / PAK21</th><td id="p-bbm" colspan="3"></td></tr>
+        <tr><th>Penilaian</th><td id="p-assess" colspan="3"></td></tr>
+        <tr><th>Refleksi</th><td id="p-ref" colspan="3" style="height: 80px;"></td></tr>
+    </table>
+    <div class="pdf-signature">
+        <div><p>......................................</p><p>(Tandatangan Guru)</p><p>Nama: ________________________</p></div>
+        <div><p>......................................</p><p>(Guru Besar / PK)</p><p>Nama: ________________________</p></div>
+    </div>
+</div>
 
-        // ==================== DATA ====================
-        let rphData = JSON.parse(localStorage.getItem('rphData')) || [];
+<!-- Toast Container -->
+<div id="toast-container"></div>
 
-        // ==================== FUNGSI UTAMA ====================
+<script>
+    const BACKEND_URL = '/api/generate';
+    const USE_SIMULATION_FALLBACK = true;
 
-        /** Simpan data ke localStorage */
-        function saveData() {
-            localStorage.setItem('rphData', JSON.stringify(rphData));
+    let rphData = JSON.parse(localStorage.getItem('rphData')) || [];
+
+    function saveData() { localStorage.setItem('rphData', JSON.stringify(rphData)); }
+
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        const tabEl = document.getElementById('tab-' + tabId);
+        if (tabEl) tabEl.classList.add('active');
+        if (btn) btn.classList.add('active');
+        if (tabId === 'list') renderList();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderList() {
+        const container = document.getElementById('rph-list-container');
+        const searchTerm = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+        let filtered = rphData;
+        if (searchTerm) {
+            filtered = rphData.filter(i => 
+                (i.topic || '').toLowerCase().includes(searchTerm) ||
+                (i.class || '').toLowerCase().includes(searchTerm) ||
+                (i.date || '').includes(searchTerm) ||
+                (i.theme || '').toLowerCase().includes(searchTerm) ||
+                (i.unit || '').toLowerCase().includes(searchTerm)
+            );
         }
-
-        /** Tukar tab aktif */
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            const tabEl = document.getElementById('tab-' + tabId);
-            if (tabEl) tabEl.classList.add('active');
-            if (btn) btn.classList.add('active');
-            if (tabId === 'list') renderList();
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        if (!filtered.length) {
+            container.innerHTML = `<div class="empty-state"><div class="icon">${searchTerm ? '🔍' : '📭'}</div><p>${searchTerm ? 'Tiada RPH sepadan.' : 'Tiada RPH tersimpan.'}</p></div>`;
+            return;
         }
-
-        /** Paparkan senarai RPH dengan carian */
-        function renderList() {
-            const container = document.getElementById('rph-list-container');
-            const searchTerm = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-
-            // Tapis data
-            let filtered = rphData;
-            if (searchTerm) {
-                filtered = rphData.filter(i => {
-                    return (
-                        (i.topic || '').toLowerCase().includes(searchTerm) ||
-                        (i.class || '').toLowerCase().includes(searchTerm) ||
-                        (i.date || '').includes(searchTerm) ||
-                        (i.theme || '').toLowerCase().includes(searchTerm) ||
-                        (i.unit || '').toLowerCase().includes(searchTerm)
-                    );
-                });
-            }
-
-            // Susun mengikut tarikh (terbaru dulu)
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            if (!filtered.length) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="icon">${searchTerm ? '🔍' : '📭'}</div>
-                        <p>${searchTerm ? 'Tiada RPH sepadan dengan carian.' : 'Tiada RPH tersimpan.'}</p>
-                        <p style="font-size:0.8rem;">${searchTerm ? 'Cuba kata kunci lain.' : 'Klik <strong>+ Buat RPH</strong> untuk mula.'}</p>
-                    </div>`;
-                return;
-            }
-
-            container.innerHTML = filtered.map(i => `
-                <div class="rph-item">
-                    <div class="rph-info">
-                        <h3>${escapeHTML(i.topic || 'Tiada Tajuk')}</h3>
-                        <p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)} | ⏰ ${i.time_start || '--'} - ${i.time_end || '--'}</p>
-                        ${i.unit ? `<p style="font-size:0.8rem;">💎 ${escapeHTML(i.unit)}</p>` : ''}
-                    </div>
-                    <div class="rph-actions">
-                        <button class="btn btn-sm btn-primary" title="Edit" onclick="editRPH('${i.id}')">✏️</button>
-                        <button class="btn btn-sm btn-success" title="Muat Turun PDF" onclick="downloadPDF('${i.id}')">📥</button>
-                        <button class="btn btn-sm btn-warning" title="Salin" onclick="duplicateRPH('${i.id}')">📋</button>
-                        <button class="btn btn-sm btn-danger" title="Padam" onclick="deleteRPH('${i.id}')">🗑️</button>
-                    </div>
+        container.innerHTML = filtered.map(i => `
+            <div class="rph-item">
+                <div class="rph-info">
+                    <h3>${escapeHTML(i.topic || 'Tiada Tajuk')}</h3>
+                    <p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)} | ⏰ ${i.time_start || '--'} - ${i.time_end || '--'}</p>
                 </div>
-            `).join('');
+                <div class="rph-actions">
+                    <button class="btn btn-sm btn-primary" onclick="editRPH('${i.id}')">✏️</button>
+                    <button class="btn btn-sm btn-success" onclick="downloadPDF('${i.id}')">📥</button>
+                    <button class="btn btn-sm btn-warning" onclick="duplicateRPH('${i.id}')">📋</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteRPH('${i.id}')">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    function resetForm() {
+        document.getElementById('rph-form').reset();
+        document.getElementById('rph-id').value = '';
+        document.getElementById('form-title').textContent = '➕ Buat RPH Baru';
+        document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('worksheet-section').style.display = 'none';
+        document.getElementById('f-worksheet').value = '';
+    }
+
+    function formatDate(d) {
+        if (!d) return '-';
+        const date = new Date(d);
+        if (isNaN(date.getTime())) return d;
+        return date.toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    // Simpan RPH (diubah suai untuk menyimpan worksheet)
+    document.getElementById('rph-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
+        const isNew = !document.getElementById('rph-id').value;
+        const rphEntry = {
+            id,
+            date: document.getElementById('f-date').value,
+            time_start: document.getElementById('f-time-start').value,
+            time_end: document.getElementById('f-time-end').value,
+            class: document.getElementById('f-class').value.trim(),
+            theme: document.getElementById('f-theme').value.trim(),
+            unit: document.getElementById('f-unit').value.trim(),
+            topic: document.getElementById('f-topic').value.trim(),
+            sk: document.getElementById('f-sk').value.trim(),
+            sp: document.getElementById('f-sp').value.trim(),
+            objectives: document.getElementById('f-objectives').value.trim(),
+            activities: document.getElementById('f-activities').value.trim(),
+            success: document.getElementById('f-success').value.trim(),
+            bbm: document.getElementById('f-bbm').value.trim(),
+            emk: document.getElementById('f-emk').value.trim(),
+            pak21: document.getElementById('f-pak21').value.trim(),
+            assessment: document.getElementById('f-assessment').value.trim(),
+            reflection: document.getElementById('f-reflection').value.trim(),
+            worksheet: document.getElementById('f-worksheet').value.trim()  // simpan kandungan worksheet
+        };
+        if (!rphEntry.date || !rphEntry.class) {
+            showToast('Sila isi Tarikh dan Kelas.', 'error');
+            return;
         }
+        const idx = rphData.findIndex(i => i.id === id);
+        if (idx !== -1) rphData[idx] = rphEntry;
+        else rphData.push(rphEntry);
+        saveData();
+        showToast(isNew ? '✅ RPH baharu disimpan!' : '✅ RPH dikemas kini!');
+        switchTab('list', document.querySelectorAll('.nav-btn')[0]);
+    });
 
-        /** Escape HTML untuk keselamatan */
-        function escapeHTML(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        /** Reset borang */
-        function resetForm() {
-            document.getElementById('rph-form').reset();
-            document.getElementById('rph-id').value = '';
-            document.getElementById('form-title').textContent = '➕ Buat RPH Baru';
-            // Reset date to today
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('f-date').value = today;
-        }
-
-        /** Format tarikh ke Bahasa Melayu */
-        function formatDate(d) {
-            if (!d) return '-';
-            const date = new Date(d);
-            if (isNaN(date.getTime())) return d;
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('ms-MY', options);
-        }
-
-        // ==================== CRUD OPERATIONS ====================
-
-        /** Simpan RPH (create/update) */
-        document.getElementById('rph-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
-            const isNew = !document.getElementById('rph-id').value;
-
-            const rphEntry = {
-                id,
-                date: document.getElementById('f-date').value,
-                time_start: document.getElementById('f-time-start').value,
-                time_end: document.getElementById('f-time-end').value,
-                class: document.getElementById('f-class').value.trim(),
-                theme: document.getElementById('f-theme').value.trim(),
-                unit: document.getElementById('f-unit').value.trim(),
-                topic: document.getElementById('f-topic').value.trim(),
-                sk: document.getElementById('f-sk').value.trim(),
-                sp: document.getElementById('f-sp').value.trim(),
-                objectives: document.getElementById('f-objectives').value.trim(),
-                activities: document.getElementById('f-activities').value.trim(),
-                success: document.getElementById('f-success').value.trim(),
-                bbm: document.getElementById('f-bbm').value.trim(),
-                emk: document.getElementById('f-emk').value.trim(),
-                pak21: document.getElementById('f-pak21').value.trim(),
-                assessment: document.getElementById('f-assessment').value.trim(),
-                reflection: document.getElementById('f-reflection').value.trim(),
-            };
-
-            // Validasi asas
-            if (!rphEntry.date || !rphEntry.class) {
-                showToast('Sila isi Tarikh dan Kelas.', 'error');
-                return;
-            }
-
-            const idx = rphData.findIndex(i => i.id === id);
-            if (idx !== -1) {
-                rphData[idx] = rphEntry;
-            } else {
-                rphData.push(rphEntry);
-            }
-
-            saveData();
-            showToast(isNew ? '✅ RPH baharu disimpan!' : '✅ RPH dikemas kini!');
-            switchTab('list', document.querySelectorAll('.nav-btn')[0]);
+    function editRPH(id) {
+        const entry = rphData.find(r => r.id === id);
+        if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
+        switchTab('form', document.querySelectorAll('.nav-btn')[1]);
+        document.getElementById('form-title').textContent = '✏️ Edit RPH';
+        const fields = ['date','time_start','time_end','class','theme','unit','topic','sk','sp','objectives','activities','success','bbm','emk','pak21','assessment','reflection','worksheet'];
+        fields.forEach(f => {
+            const el = document.getElementById('f-' + f);
+            if (el) el.value = entry[f] || '';
         });
-
-        /** Edit RPH */
-        function editRPH(id) {
-            const entry = rphData.find(r => r.id === id);
-            if (!entry) {
-                showToast('RPH tidak dijumpai.', 'error');
-                return;
-            }
-
-            switchTab('form', document.querySelectorAll('.nav-btn')[1]);
-            document.getElementById('form-title').textContent = '✏️ Edit RPH';
-
-            // Isi semua field
-            const fields = [
-                'date', 'time_start', 'time_end', 'class', 'theme', 'unit', 'topic',
-                'sk', 'sp', 'objectives', 'activities', 'success', 'bbm', 'emk',
-                'pak21', 'assessment', 'reflection'
-            ];
-            fields.forEach(field => {
-                const el = document.getElementById('f-' + field);
-                if (el) el.value = entry[field] || '';
-            });
-            document.getElementById('rph-id').value = entry.id;
-
-            // Scroll ke atas
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('rph-id').value = entry.id;
+        // paparkan bahagian worksheet jika ada kandungan
+        if (entry.worksheet) {
+            document.getElementById('worksheet-section').style.display = 'block';
+        } else {
+            document.getElementById('worksheet-section').style.display = 'none';
         }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-        /** Duplikat RPH */
-        function duplicateRPH(id) {
-            const original = rphData.find(r => r.id === id);
-            if (!original) {
-                showToast('RPH tidak dijumpai.', 'error');
-                return;
-            }
+    function duplicateRPH(id) {
+        const original = rphData.find(r => r.id === id);
+        if (!original) { showToast('RPH tidak dijumpai.', 'error'); return; }
+        const newEntry = { ...original, id: 'rph_' + Date.now() };
+        rphData.push(newEntry);
+        saveData();
+        renderList();
+        showToast('📋 RPH disalin!');
+    }
 
-            const newEntry = { ...original, id: 'rph_' + Date.now() };
-            rphData.push(newEntry);
+    function deleteRPH(id) {
+        const entry = rphData.find(r => r.id === id);
+        if (confirm(`Padam "${entry?.topic || 'RPH'}"?`)) {
+            rphData = rphData.filter(i => i.id !== id);
             saveData();
             renderList();
-            showToast('📋 RPH disalin!');
+            showToast('🗑️ RPH dipadam.');
         }
+    }
 
-        /** Padam RPH */
-        function deleteRPH(id) {
-            const entry = rphData.find(r => r.id === id);
-            const title = entry?.topic || 'RPH ini';
-            if (confirm(`Padam "${title}"?\nTindakan ini tidak boleh dikembalikan.`)) {
-                rphData = rphData.filter(i => i.id !== id);
-                saveData();
-                renderList();
-                showToast('🗑️ RPH dipadam.');
-            }
+    // ========== AI GENERATION (ENHANCED) ==========
+    function extractFromContext(context, key) {
+        const regex = new RegExp(`${key}:\\s*([^,]+)`);
+        const match = context.match(regex);
+        return match ? match[1].trim() : null;
+    }
+
+    function simulateAIResponse(type, context) {
+        const topic = extractFromContext(context, 'Tajuk') || 'nilai murni';
+        const unit = extractFromContext(context, 'Unit') || 'nilai';
+        const kelas = extractFromContext(context, 'Kelas') || 'murid';
+
+        switch (type) {
+            case 'objectives':
+                return {
+                    objectives: [
+                        `Pada akhir pembelajaran, murid dapat menyatakan maksud ${topic} dengan betul.`,
+                        `Pada akhir pembelajaran, murid dapat mengenal pasti sekurang-kurangnya 3 contoh ${topic} dalam kehidupan harian.`,
+                        `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} melalui ${topic} dalam situasi yang sesuai.`
+                    ]
+                };
+            case 'activities':
+                // Jana aktiviti + BBM + EMK + penilaian + lembaran kerja
+                const bbm = `Kad gambar, slaid PowerPoint, video pendek, lembaran kerja bertema ${topic}`;
+                const emk = "TMK, Nilai Murni, Keusahawanan";
+                const pak21 = "Think-Pair-Share, Perbincangan Kumpulan";
+                const assessment = `Pemerhatian perbincangan, hasil lembaran kerja, pembentangan kumpulan`;
+                const activities = [
+                    `Langkah 1 (Set Induksi - 5 minit): Guru menunjukkan video pendek tentang ${topic}. Murid memberi respons lisan.`,
+                    `Langkah 2 (Penerokaan - 10 minit): Murid dalam kumpulan kecil berbincang situasi berkaitan ${topic} menggunakan kaedah ${pak21}.`,
+                    `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan bentang hasil perbincangan. Guru menambah penjelasan konsep ${topic}.`,
+                    `Langkah 4 (Aplikasi - 10 minit): Murid melengkapkan lembaran kerja bertulis tentang ${topic} secara individu.`,
+                    `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi. Murid menyatakan satu nilai yang dipelajari.`
+                ];
+                // Jana kandungan lembaran kerja (HTML ringkas)
+                const worksheetContent = generateWorksheetContent(topic, unit, kelas);
+                return {
+                    activities,
+                    bbm,
+                    emk,
+                    pak21,
+                    assessment,
+                    worksheet: worksheetContent
+                };
+            case 'success':
+                return {
+                    successCriteria: [
+                        `Murid berjaya menyatakan maksud ${topic} dengan tepat.`,
+                        `Murid berjaya menyenaraikan sekurang-kurangnya 3 contoh ${topic}.`,
+                        `Murid berjaya menunjukkan sikap positif terhadap ${unit} dalam perbincangan.`
+                    ]
+                };
+            case 'reflection':
+                const bil = Math.floor(Math.random() * 10) + 20;
+                return {
+                    reflection: `Seramai ${bil}/${bil+2} murid (90%) mencapai objektif. Bimbingan tambahan untuk murid belum menguasai.`
+                };
+            default: return {};
         }
+    }
 
-        // ==================== AI GENERATION ====================
+    function generateWorksheetContent(topic, unit, kelas) {
+        // Hasilkan lembaran kerja dalam format HTML (untuk disimpan dan ditukar ke Word)
+        return `
+            <html>
+            <head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;line-height:1.6;margin:20px;} h2{text-align:center;} .header{text-align:center;margin-bottom:20px;} .question{margin-bottom:15px;} .lines{border-bottom:1px dashed #000;width:100%;height:20px;margin:5px 0;}</style></head>
+            <body>
+            <div class="header"><h2>Lembaran Kerja Pendidikan Moral</h2><p><strong>Tajuk: ${topic}</strong> | Unit: ${unit} | Kelas: ${kelas}</p></div>
+            <p><strong>Arahan:</strong> Jawab semua soalan dengan lengkap.</p>
+            <div class="question"><strong>1. Apakah maksud ${topic}?</strong><br><div class="lines"></div><div class="lines"></div></div>
+            <div class="question"><strong>2. Senaraikan tiga contoh ${topic} dalam kehidupan harian.</strong><br>a) <div class="lines"></div>b) <div class="lines"></div>c) <div class="lines"></div></div>
+            <div class="question"><strong>3. Mengapakah amalan ${topic} penting dalam keluarga?</strong><br><div class="lines"></div><div class="lines"></div><div class="lines"></div></div>
+            <div class="question"><strong>4. Lukiskan satu situasi yang menunjukkan nilai ${unit}.</strong><br><div style="border:1px solid #ccc;height:100px;width:100%;margin-top:5px;"></div></div>
+            <p style="text-align:center;margin-top:30px;">~ Selamat Menjawab ~</p>
+            </body>
+            </html>
+        `;
+    }
 
-        /** Simulasi AI (fallback jika backend tiada) */
-        function simulateAIResponse(type, context) {
-            // Parse context untuk dapatkan maklumat
-            const topic = extractFromContext(context, 'Tajuk') || 'nilai murni';
-            const unit = extractFromContext(context, 'Unit') || 'nilai';
-            const kelas = extractFromContext(context, 'Kelas') || 'murid';
+    async function generateAI(type) {
+        const context = `Tarikh: ${document.getElementById('f-date').value}, Kelas: ${document.getElementById('f-class').value}, Tema: ${document.getElementById('f-theme').value}, Unit: ${document.getElementById('f-unit').value}, Tajuk: ${document.getElementById('f-topic').value}`;
+        const loadingEl = document.getElementById(`loading-${type}`);
+        const btnEl = document.getElementById(`btn-${type === 'objectives' ? 'obj' : type === 'activities' ? 'act' : type === 'success' ? 'suc' : 'ref'}`);
+        if (loadingEl) loadingEl.classList.add('active');
+        if (btnEl) btnEl.disabled = true;
 
-            switch (type) {
-                case 'objectives':
-                    return {
-                        objectives: [
-                            `Pada akhir pembelajaran, murid dapat menyatakan maksud ${topic} dengan betul.`,
-                            `Pada akhir pembelajaran, murid dapat mengenal pasti sekurang-kurangnya 3 contoh ${topic} dalam kehidupan harian.`,
-                            `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} melalui ${topic} dalam situasi yang sesuai.`,
-                        ]
-                    };
-                case 'activities':
-                    return {
-                        activities: [
-                            `Langkah 1 (Set Induksi - 5 minit): Guru menunjukkan video pendek berkaitan ${topic}. Murid diminta memberi respons awal.`,
-                            `Langkah 2 (Penerokaan - 10 minit): Murid dalam kumpulan kecil berbincang tentang situasi yang berkaitan ${topic} menggunakan kaedah Think-Pair-Share.`,
-                            `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentangkan hasil perbincangan. Guru menambah dan menjelaskan konsep ${topic}.`,
-                            `Langkah 4 (Aplikasi - 10 minit): Murid melengkapkan lembaran kerja berkaitan ${topic} secara individu.`,
-                            `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi. Murid menyatakan satu nilai yang dipelajari hari ini.`,
-                        ]
-                    };
-                case 'success':
-                    return {
-                        successCriteria: [
-                            `Murid berjaya menyatakan maksud ${topic} dengan tepat.`,
-                            `Murid berjaya menyenaraikan sekurang-kurangnya 3 contoh ${topic}.`,
-                            `Murid berjaya menunjukkan sikap positif terhadap ${unit} dalam perbincangan.`,
-                        ]
-                    };
-                case 'reflection':
-                    const bil = Math.floor(Math.random() * 10) + 20;
-                    return {
-                        reflection: `Seramai ${bil}/${bil + Math.floor(Math.random() * 5)} orang murid (${Math.floor(Math.random() * 20 + 80)}%) mencapai objektif pembelajaran. Murid yang belum menguasai akan diberi bimbingan tambahan. Pengajaran berjalan lancar dengan penglibatan aktif murid dalam aktiviti PAK21.`,
-                    };
-                default:
-                    return { error: 'Jenis tidak dikenali.' };
-            }
-        }
-
-        /** Ekstrak nilai dari string context */
-        function extractFromContext(context, key) {
-            const regex = new RegExp(`${key}:\\s*([^,]+)`);
-            const match = context.match(regex);
-            return match ? match[1].trim() : null;
-        }
-
-        /** Jana kandungan menggunakan AI */
-        async function generateAI(type) {
-            const context = `Tarikh: ${document.getElementById('f-date').value}, Kelas: ${document.getElementById('f-class').value}, Tema: ${document.getElementById('f-theme').value}, Unit: ${document.getElementById('f-unit').value}, Tajuk: ${document.getElementById('f-topic').value}`;
-
-            // Tunjuk loading
-            const loadingEl = document.getElementById(`loading-${type}`);
-            const btnEl = document.getElementById(`btn-${type === 'objectives' ? 'obj' : type === 'activities' ? 'act' : type === 'success' ? 'suc' : 'ref'}`);
-            if (loadingEl) loadingEl.classList.add('active');
-            if (btnEl) btnEl.disabled = true;
-
-            try {
-                let result;
-
-                // Cuba panggil backend sebenar
-                if (!USE_SIMULATION_FALLBACK) {
-                    try {
-                        const response = await fetch(BACKEND_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ type, context }),
-                            signal: AbortSignal.timeout(15000), // 15 saat timeout
-                        });
-                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                        result = await response.json();
-                        if (result.error) throw new Error(result.error);
-                    } catch (fetchError) {
-                        console.warn('Backend tidak tersedia, guna simulasi:', fetchError.message);
-                        result = simulateAIResponse(type, context);
-                    }
-                } else {
-                    // Guna simulasi terus
-                    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200)); // Simulasi delay
+        try {
+            let result;
+            if (!USE_SIMULATION_FALLBACK) {
+                try {
+                    const response = await fetch(BACKEND_URL, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type, context }),
+                        signal: AbortSignal.timeout(15000)
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    result = await response.json();
+                    if (result.error) throw new Error(result.error);
+                } catch (fetchError) {
+                    console.warn('Backend tidak tersedia, guna simulasi:', fetchError.message);
                     result = simulateAIResponse(type, context);
                 }
-
-                // Isi field berdasarkan jenis
-                if (type === 'objectives' && result.objectives) {
-                    document.getElementById('f-objectives').value = result.objectives.join('\n');
-                }
-                if (type === 'activities' && result.activities) {
-                    document.getElementById('f-activities').value = result.activities.join('\n');
-                }
-                if (type === 'success' && result.successCriteria) {
-                    document.getElementById('f-success').value = result.successCriteria.join('\n');
-                }
-                if (type === 'reflection' && result.reflection) {
-                    document.getElementById('f-reflection').value = result.reflection;
-                }
-
-                showToast(`✅ Kandungan ${type} berjaya dijana!`);
-            } catch (error) {
-                console.error('Ralat AI:', error);
-                showToast(`❌ Ralat: ${error.message}`, 'error');
-            } finally {
-                if (loadingEl) loadingEl.classList.remove('active');
-                if (btnEl) btnEl.disabled = false;
-            }
-        }
-
-        // ==================== PDF GENERATION ====================
-
-        /** Muat turun RPH sebagai PDF */
-        function downloadPDF(id) {
-            const entry = rphData.find(r => r.id === id);
-            if (!entry) {
-                showToast('RPH tidak dijumpai.', 'error');
-                return;
+            } else {
+                await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
+                result = simulateAIResponse(type, context);
             }
 
-            // Isi template PDF
-            document.getElementById('p-date').innerText = formatDate(entry.date);
-            document.getElementById('p-time').innerText = `${entry.time_start || '--'} - ${entry.time_end || '--'}`;
-            document.getElementById('p-class').innerText = entry.class || '-';
-            document.getElementById('p-theme').innerText = entry.theme || '-';
-            document.getElementById('p-unit').innerText = entry.unit || '-';
-            document.getElementById('p-topic').innerText = entry.topic || '-';
-            document.getElementById('p-sk').innerText = entry.sk || '-';
-            document.getElementById('p-sp').innerText = entry.sp || '-';
-            document.getElementById('p-obj').innerHTML = (entry.objectives || '-').replace(/\n/g, '<br>');
-            document.getElementById('p-act').innerHTML = (entry.activities || '-').replace(/\n/g, '<br>');
-            document.getElementById('p-success').innerHTML = (entry.success || '-').replace(/\n/g, '<br>');
-            document.getElementById('p-bbm').innerHTML =
-                `BBM: ${entry.bbm || '-'}<br>EMK: ${entry.emk || '-'}<br>PAK21: ${entry.pak21 || '-'}`;
-            document.getElementById('p-assess').innerText = entry.assessment || '-';
-            document.getElementById('p-ref').innerText = entry.reflection || '-';
-
-            // Jana PDF
-            const opt = {
-                margin: 10,
-                filename: `RPH_${entry.class || 'Kelas'}_${entry.date || 'Tarikh'}.pdf`,
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            };
-
-            html2pdf().set(opt).from(document.getElementById('pdf-template')).save();
-            showToast('📥 PDF dimuat turun!');
-        }
-
-        // ==================== TOAST NOTIFICATION ====================
-
-        /** Paparkan notifikasi toast */
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-
-            // Auto remove selepas 3 saat
-            setTimeout(() => {
-                if (toast.parentNode) toast.parentNode.removeChild(toast);
-            }, 3000);
-        }
-
-        // ==================== INITIALIZATION ====================
-
-        /** Inisialisasi aplikasi */
-        function init() {
-            // Set tarikh default ke hari ini
-            const today = new Date().toISOString().split('T')[0];
-            const dateInput = document.getElementById('f-date');
-            if (dateInput && !dateInput.value) {
-                dateInput.value = today;
+            // Isi field berdasarkan jenis
+            if (type === 'objectives' && result.objectives) {
+                document.getElementById('f-objectives').value = result.objectives.join('\n');
             }
-
-            // Render senarai
-            renderList();
-
-            // Fokus search input jika ada
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        this.value = '';
-                        renderList();
-                        this.blur();
-                    }
-                });
+            if (type === 'activities' && result.activities) {
+                document.getElementById('f-activities').value = result.activities.join('\n');
+                // Auto isi BBM, EMK, PAK21, Penilaian
+                if (result.bbm) document.getElementById('f-bbm').value = result.bbm;
+                if (result.emk) document.getElementById('f-emk').value = result.emk;
+                if (result.pak21) document.getElementById('f-pak21').value = result.pak21;
+                if (result.assessment) document.getElementById('f-assessment').value = result.assessment;
+                // Simpan worksheet content dan tunjukkan butang muat turun
+                if (result.worksheet) {
+                    document.getElementById('f-worksheet').value = result.worksheet;
+                    document.getElementById('worksheet-section').style.display = 'block';
+                }
             }
-
-            console.log('📖 RPH Pintar Guru sedia digunakan.');
-            console.log(`📊 ${rphData.length} RPH tersimpan.`);
+            if (type === 'success' && result.successCriteria) {
+                document.getElementById('f-success').value = result.successCriteria.join('\n');
+            }
+            if (type === 'reflection' && result.reflection) {
+                document.getElementById('f-reflection').value = result.reflection;
+            }
+            showToast(`✅ Kandungan ${type} berjaya dijana!`);
+        } catch (error) {
+            console.error('Ralat AI:', error);
+            showToast(`❌ Ralat: ${error.message}`, 'error');
+        } finally {
+            if (loadingEl) loadingEl.classList.remove('active');
+            if (btnEl) btnEl.disabled = false;
         }
+    }
 
-        // Jalankan inisialisasi
-        init();
-    </script>
+    // Fungsi muat turun lembaran kerja sebagai dokumen Word (.doc)
+    function downloadWorksheet() {
+        const worksheetHTML = document.getElementById('f-worksheet').value;
+        if (!worksheetHTML) {
+            showToast('Tiada lembaran kerja. Jana aktiviti dahulu.', 'error');
+            return;
+        }
+        // Buat Blob dengan MIME type application/msword
+        const blob = new Blob([worksheetHTML], { type: 'application/msword' }); // .doc
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const topic = document.getElementById('f-topic').value || 'LembaranKerja';
+        a.href = url;
+        a.download = `Lembaran_Kerja_${topic.replace(/\s+/g, '_')}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('📝 Lembaran kerja dimuat turun!');
+    }
+
+    // PDF download (tidak berubah)
+    function downloadPDF(id) {
+        const entry = rphData.find(r => r.id === id);
+        if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
+        document.getElementById('p-date').innerText = formatDate(entry.date);
+        document.getElementById('p-time').innerText = `${entry.time_start || '--'} - ${entry.time_end || '--'}`;
+        document.getElementById('p-class').innerText = entry.class || '-';
+        document.getElementById('p-theme').innerText = entry.theme || '-';
+        document.getElementById('p-unit').innerText = entry.unit || '-';
+        document.getElementById('p-topic').innerText = entry.topic || '-';
+        document.getElementById('p-sk').innerText = entry.sk || '-';
+        document.getElementById('p-sp').innerText = entry.sp || '-';
+        document.getElementById('p-obj').innerHTML = (entry.objectives || '-').replace(/\n/g, '<br>');
+        document.getElementById('p-act').innerHTML = (entry.activities || '-').replace(/\n/g, '<br>');
+        document.getElementById('p-success').innerHTML = (entry.success || '-').replace(/\n/g, '<br>');
+        document.getElementById('p-bbm').innerHTML = `BBM: ${entry.bbm || '-'}<br>EMK: ${entry.emk || '-'}<br>PAK21: ${entry.pak21 || '-'}`;
+        document.getElementById('p-assess').innerText = entry.assessment || '-';
+        document.getElementById('p-ref').innerText = entry.reflection || '-';
+        const opt = { margin: 10, filename: `RPH_${entry.class}_${entry.date}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } };
+        html2pdf().set(opt).from(document.getElementById('pdf-template')).save();
+        showToast('📥 PDF dimuat turun!');
+    }
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+    }
+
+    function init() {
+        document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+        renderList();
+        document.getElementById('search-input')?.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { this.value = ''; renderList(); this.blur(); }
+        });
+    }
+    init();
+</script>
 </body>
 </html>
