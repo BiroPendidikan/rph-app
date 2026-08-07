@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPH Pintar Guru</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { --primary: #1a2b4c; --secondary: #2c3e6b; --accent: #4a90e2; --bg: #f4f6f9; --white: #ffffff; --text: #333333; --grey: #666666; --border: #dddddd; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
+        .header { background: var(--primary); color: var(--white); padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); display: flex; border-top: 1px solid var(--border); box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .nav-btn { flex: 1; padding: 15px 0; text-align: center; cursor: pointer; color: var(--grey); transition: 0.3s; border: none; background: none; font-size: 0.9rem; }
+        .nav-btn.active { color: var(--primary); font-weight: bold; border-top: 3px solid var(--accent); }
+        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: var(--white); border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary); font-size: 0.9rem; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; transition: border 0.3s; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); }
+        .form-group textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: var(--white); }
+        .btn-success { background: #27ae60; color: var(--white); }
+        .btn-danger { background: #e74c3c; color: var(--white); }
+        .btn-ai { background: var(--accent); color: var(--white); width: 100%; justify-content: center; margin-top: 8px; }
+        .btn-block { display: block; width: 100%; text-align: center; }
+        .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .rph-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border); }
+        .rph-item:last-child { border-bottom: none; }
+        .rph-info h3 { margin: 0 0 5px 0; color: var(--primary); }
+        .rph-info p { margin: 0; font-size: 0.85rem; color: var(--grey); }
+        .rph-actions { display: flex; gap: 8px; }
+        .btn-sm { padding: 8px 12px; font-size: 0.85rem; }
+        .loading { display: none; text-align: center; padding: 15px; color: var(--accent); font-weight: bold; }
+        #pdf-template { position: absolute; left: -9999px; top: 0; width: 210mm; font-family: 'Times New Roman', serif; font-size: 11pt; color: #000; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .pdf-header-text { text-align: center; flex: 1; }
+        .pdf-header-text h2 { margin: 0; font-size: 14pt; }
+        .pdf-header-text p { margin: 2px 0; font-size: 10pt; }
+        .pdf-table { width: 100%; border-collapse: collapse; }
+        .pdf-table th, .pdf-table td { border: 1px solid #000; padding: 6px; vertical-align: top; }
+        .pdf-table th { background: #f0f0f0; width: 25%; font-weight: bold; }
+        .pdf-signature { margin-top: 40px; display: flex; justify-content: space-between; }
+        .pdf-signature div { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>RPH Pintar Guru</h1>
+        <p style="font-size: 0.9rem; margin-top: 5px;">Dikuasakan oleh DeepSeek AI</p>
+    </div>
+
+    <div id="tab-list" class="tab-content active">
+        <h2 style="margin-bottom: 20px;">RPH Tersimpan</h2>
+        <div id="rph-list-container" class="card">
+            <p style="text-align:center; color: var(--grey);">Tiada RPH tersimpan.</p>
+        </div>
+    </div>
+
+    <div id="tab-form" class="tab-content">
+        <div class="card">
+            <h2 style="margin-bottom: 20px; color: var(--primary);">Borang RPH</h2>
+            <form id="rph-form">
+                <input type="hidden" id="rph-id">
+                <div class="time-grid">
+                    <div class="form-group"><label>Tarikh</label><input type="date" id="f-date" required></div>
+                    <div class="form-group"><label>Kelas</label><input type="text" id="f-class" placeholder="6 Bestari" required></div>
+                </div>
+                <div class="time-grid">
+                    <div class="form-group"><label>Masa Mula</label><input type="time" id="f-time-start" required></div>
+                    <div class="form-group"><label>Masa Tamat</label><input type="time" id="f-time-end" required></div>
+                </div>
+                <div class="form-group"><label>Tema</label><input type="text" id="f-theme" placeholder="Nilai Keluarga"></div>
+                <div class="time-grid">
+                    <div class="form-group"><label>Unit / Nilai</label><input type="text" id="f-unit" placeholder="Kasih Sayang"></div>
+                    <div class="form-group"><label>Tajuk</label><input type="text" id="f-topic" placeholder="Kebahagiaan Keluarga"></div>
+                </div>
+                <div class="time-grid">
+                    <div class="form-group"><label>Std. Kandungan</label><input type="text" id="f-sk"></div>
+                    <div class="form-group"><label>Std. Pembelajaran</label><input type="text" id="f-sp"></div>
+                </div>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border);">
+                <div class="form-group">
+                    <label>Objektif</label><textarea id="f-objectives" rows="3"></textarea>
+                    <button type="button" class="btn btn-ai" onclick="generateAI('objectives')">🤖 Jana Objektif</button>
+                    <div id="loading-objectives" class="loading">Menghubungi pelayan AI...</div>
+                </div>
+                <div class="form-group">
+                    <label>Aktiviti (5 Langkah)</label><textarea id="f-activities" rows="6"></textarea>
+                    <button type="button" class="btn btn-ai" onclick="generateAI('activities')">🤖 Jana Aktiviti PAK21</button>
+                    <div id="loading-activities" class="loading">Menghubungi pelayan AI...</div>
+                </div>
+                <div class="form-group">
+                    <label>Kriteria Kejayaan</label><textarea id="f-success" rows="2"></textarea>
+                    <button type="button" class="btn btn-ai" onclick="generateAI('success')">🤖 Jana Kriteria Kejayaan</button>
+                    <div id="loading-success" class="loading">Menghubungi pelayan AI...</div>
+                </div>
+                <div class="form-group"><label>BBM</label><input type="text" id="f-bbm"></div>
+                <div class="time-grid">
+                    <div class="form-group"><label>EMK</label><input type="text" id="f-emk"></div>
+                    <div class="form-group"><label>PAK21</label><input type="text" id="f-pak21"></div>
+                </div>
+                <div class="form-group"><label>Penilaian</label><input type="text" id="f-assessment"></div>
+                <div class="form-group">
+                    <label>Refleksi</label><textarea id="f-reflection" rows="2"></textarea>
+                    <button type="button" class="btn btn-ai" onclick="generateAI('reflection')">🤖 Jana Refleksi</button>
+                    <div id="loading-reflection" class="loading">Menghubungi pelayan AI...</div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">💾 Simpan RPH</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('list', this)">📄 Senarai</button>
+        <button class="nav-btn" onclick="switchTab('form', this); resetForm()">➕ Buat RPH</button>
+    </div>
+
+    <div id="pdf-template">
+        <div class="pdf-header">
+            <div style="width: 60px;"></div>
+            <div class="pdf-header-text">
+                <h2>KEMENTERIAN PENDIDIKAN MALAYSIA</h2>
+                <p>RANCANGAN PENGAJARAN HARIAN (RPH)</p>
+                <p><strong>MATA PELAJARAN: PENDIDIKAN MORAL</strong></p>
+            </div>
+            <div style="width: 60px;"></div>
+        </div>
+        <table class="pdf-table">
+            <tr><th>Tarikh</th><td id="p-date"></td><th>Masa</th><td id="p-time"></td></tr>
+            <tr><th>Kelas</th><td id="p-class"></td><th>Bil. Murid</th><td>_______ orang</td></tr>
+            <tr><th>Tema</th><td id="p-theme" colspan="3"></td></tr>
+            <tr><th>Nilai / Unit</th><td id="p-unit"></td><th>Tajuk</th><td id="p-topic"></td></tr>
+            <tr><th>Std. Kandungan</th><td id="p-sk" colspan="3"></td></tr>
+            <tr><th>Std. Pembelajaran</th><td id="p-sp" colspan="3"></td></tr>
+            <tr><th>Objektif</th><td id="p-obj" colspan="3"></td></tr>
+            <tr><th>Aktiviti</th><td id="p-act" colspan="3"></td></tr>
+            <tr><th>Kriteria Kejayaan</th><td id="p-success" colspan="3"></td></tr>
+            <tr><th>BBM / EMK / PAK21</th><td id="p-bbm" colspan="3"></td></tr>
+            <tr><th>Penilaian</th><td id="p-assess" colspan="3"></td></tr>
+            <tr><th>Refleksi</th><td id="p-ref" colspan="3" style="height: 80px;"></td></tr>
+        </table>
+        <div class="pdf-signature">
+            <div><p>......................................</p><p>(Tandatangan Guru)</p><p>Nama: ________________________</p></div>
+            <div><p>......................................</p><p>(Guru Besar / PK)</p><p>Nama: ________________________</p></div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = '/api/generate'; 
+        let rphData = JSON.parse(localStorage.getItem('rphData')) || [];
+
+        function saveData() { localStorage.setItem('rphData', JSON.stringify(rphData)); }
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            btn.classList.add('active');
+            if(tabId === 'list') renderList();
+        }
+        function renderList() {
+            const c = document.getElementById('rph-list-container');
+            if (!rphData.length) { c.innerHTML = '<p style="text-align:center; color: var(--grey);">Tiada RPH.</p>'; return; }
+            rphData.sort((a, b) => new Date(b.date) - new Date(a.date));
+            c.innerHTML = rphData.map(i => `<div class="rph-item"><div class="rph-info"><h3>${i.topic||'Tiada Tajuk'}</h3><p>${formatDate(i.date)} | ${i.class}</p></div><div class="rph-actions"><button class="btn btn-sm btn-primary" onclick="editRPH('${i.id}')">✏️</button><button class="btn btn-sm btn-success" onclick="downloadPDF('${i.id}')">📥 PDF</button><button class="btn btn-sm btn-danger" onclick="deleteRPH('${i.id}')">🗑️</button></div></div>`).join('');
+        }
+        function resetForm() { document.getElementById('rph-form').reset(); document.getElementById('rph-id').value = ''; }
+        document.getElementById('rph-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
+            const d = { id, date: document.getElementById('f-date').value, time_start: document.getElementById('f-time-start').value, time_end: document.getElementById('f-time-end').value, class: document.getElementById('f-class').value, theme: document.getElementById('f-theme').value, unit: document.getElementById('f-unit').value, topic: document.getElementById('f-topic').value, sk: document.getElementById('f-sk').value, sp: document.getElementById('f-sp').value, objectives: document.getElementById('f-objectives').value, activities: document.getElementById('f-activities').value, success: document.getElementById('f-success').value, bbm: document.getElementById('f-bbm').value, emk: document.getElementById('f-emk').value, pak21: document.getElementById('f-pak21').value, assessment: document.getElementById('f-assessment').value, reflection: document.getElementById('f-reflection').value };
+            const idx = rphData.findIndex(i => i.id === id);
+            if (idx !== -1) rphData[idx] = d; else rphData.push(d);
+            saveData(); alert('RPH disimpan!'); switchTab('list', document.querySelectorAll('.nav-btn')[0]);
+        });
+        function editRPH(id) {
+            const i = rphData.find(r => r.id === id); if (!i) return;
+            switchTab('form', document.querySelectorAll('.nav-btn')[1]);
+            Object.keys(i).forEach(k => { if(document.getElementById('f-'+k)) document.getElementById('f-'+k).value = i[k]; });
+            document.getElementById('rph-id').value = i.id;
+        }
+        function deleteRPH(id) { if(confirm('Padam RPH ini?')) { rphData = rphData.filter(i => i.id !== id); saveData(); renderList(); } }
+
+        async function generateAI(type) {
+            const ctx = `Tarikh: ${document.getElementById('f-date').value}, Kelas: ${document.getElementById('f-class').value}, Tema: ${document.getElementById('f-theme').value}, Unit: ${document.getElementById('f-unit').value}, Tajuk: ${document.getElementById('f-topic').value}`;
+            document.getElementById(`loading-${type}`).style.display = 'block';
+            try {
+                const r = await fetch(BACKEND_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, context: ctx }) });
+                const res = await r.json();
+                if (res.error) throw new Error(res.error);
+                if (type === 'objectives') document.getElementById('f-objectives').value = res.objectives.join('\n');
+                if (type === 'activities') document.getElementById('f-activities').value = res.activities.join('\n');
+                if (type === 'success') document.getElementById('f-success').value = res.successCriteria.join('\n');
+                if (type === 'reflection') document.getElementById('f-reflection').value = res.reflection;
+            } catch (e) { alert('Ralat: ' + e.message); } finally { document.getElementById(`loading-${type}`).style.display = 'none'; }
+        }
+
+        function downloadPDF(id) {
+            const i = rphData.find(r => r.id === id); if (!i) return;
+            document.getElementById('p-date').innerText = formatDate(i.date);
+            document.getElementById('p-time').innerText = `${i.time_start} - ${i.time_end}`;
+            document.getElementById('p-class').innerText = i.class;
+            document.getElementById('p-theme').innerText = i.theme;
+            document.getElementById('p-unit').innerText = i.unit;
+            document.getElementById('p-topic').innerText = i.topic;
+            document.getElementById('p-sk').innerText = i.sk;
+            document.getElementById('p-sp').innerText = i.sp;
+            document.getElementById('p-obj').innerHTML = i.objectives.replace(/\n/g, '<br>');
+            document.getElementById('p-act').innerHTML = i.activities.replace(/\n/g, '<br>');
+            document.getElementById('p-success').innerHTML = i.success.replace(/\n/g, '<br>');
+            document.getElementById('p-bbm').innerHTML = `BBM: ${i.bbm}<br>EMK: ${i.emk}<br>PAK21: ${i.pak21}`;
+            document.getElementById('p-assess').innerText = i.assessment;
+            document.getElementById('p-ref').innerText = i.reflection;
+            html2pdf().set({ margin: 10, filename: `RPH_${i.class}_${i.date}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' } }).from(document.getElementById('pdf-template')).save();
+        }
+        function formatDate(d) { if(!d) return '-'; return new Date(d).toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); }
+        renderList();
+    </script>
+</body>
+</html>
