@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RPH Pintar Guru</title>
-    <!-- Skrip untuk penjanaan PDF (kekal sebagai sandaran) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -63,12 +62,9 @@
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
 
-        /* Cetakan RPH (digunakan dalam tetingkap baharu) */
-        @media print {
-            body.print-mode { background: white; padding: 0; }
-            .print-container { width: 100%; max-width: 100%; margin: 0; padding: 10mm; }
-            .no-print { display: none; }
-        }
+        /* Gaya untuk butang muat turun lembaran kerja */
+        .worksheet-btn { background: #8e44ad; color: white; }
+        .worksheet-btn:hover { background: #732d91; }
     </style>
 </head>
 <body>
@@ -102,6 +98,8 @@
         <h2 id="form-title">➕ Buat RPH Baru</h2>
         <form id="rph-form">
             <input type="hidden" id="rph-id">
+            <input type="hidden" id="f-worksheet"> <!-- Simpan kandungan lembaran kerja -->
+
             <div class="time-grid">
                 <div class="form-group"><label>📅 Tarikh</label><input type="date" id="f-date" required></div>
                 <div class="form-group"><label>🏫 Kelas</label><input type="text" id="f-class" placeholder="cth: 6 Bestari" required></div>
@@ -131,8 +129,8 @@
             <div class="form-group">
                 <label>🎪 Aktiviti (termasuk Pembezaan)</label>
                 <textarea id="f-activities" rows="6"></textarea>
-                <button type="button" class="btn btn-ai" id="btn-act" onclick="generateAI('activities')">🤖 Jana Aktiviti PAK21 + Pembezaan Murid</button>
-                <div id="loading-activities" class="loading">⏳ Menjana langkah, pembezaan, BBM, EMK...</div>
+                <button type="button" class="btn btn-ai" id="btn-act" onclick="generateAI('activities')">🤖 Jana Aktiviti PAK21 + Pembezaan Murid + Lembaran Kerja</button>
+                <div id="loading-activities" class="loading">⏳ Menjana langkah, pembezaan, BBM, EMK, lembaran kerja...</div>
             </div>
 
             <div class="form-group">
@@ -154,6 +152,17 @@
                 <textarea id="f-reflection" rows="2"></textarea>
                 <button type="button" class="btn btn-ai" id="btn-ref" onclick="generateAI('reflection')">🤖 Jana Refleksi</button>
                 <div id="loading-reflection" class="loading">⏳ Menghubungi DeepSeek AI...</div>
+            </div>
+
+            <!-- Bahagian Lembaran Kerja 3 Kumpulan -->
+            <div class="form-group" id="worksheet-section" style="display:none;">
+                <label>📝 Lembaran Kerja (3 Kumpulan)</label>
+                <p style="font-size:0.85rem; color: var(--grey); margin-bottom:5px;">
+                    Lembaran kerja untuk murid lemah, sederhana dan pandai lengkap dengan TP telah dijana.
+                </p>
+                <button type="button" class="btn worksheet-btn btn-block" onclick="downloadWorksheet()">
+                    ⬇️ Muat Turun Lembaran Kerja (Word)
+                </button>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px; font-size: 1.1rem;">💾 Simpan RPH</button>
@@ -230,8 +239,10 @@
     function resetForm() {
         document.getElementById('rph-form').reset();
         document.getElementById('rph-id').value = '';
+        document.getElementById('f-worksheet').value = '';
         document.getElementById('form-title').textContent = '➕ Buat RPH Baru';
         document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('worksheet-section').style.display = 'none';
     }
 
     function formatDate(d) {
@@ -241,7 +252,7 @@
         return date.toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
 
-    // Simpan RPH
+    // Simpan RPH (termasuk worksheet)
     document.getElementById('rph-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
@@ -262,7 +273,8 @@
             emk: document.getElementById('f-emk').value.trim(),
             pak21: document.getElementById('f-pak21').value.trim(),
             assessment: document.getElementById('f-assessment').value.trim(),
-            reflection: document.getElementById('f-reflection').value.trim()
+            reflection: document.getElementById('f-reflection').value.trim(),
+            worksheet: document.getElementById('f-worksheet').value.trim() // simpan HTML lembaran kerja
         };
         if (!rphEntry.date || !rphEntry.class) {
             showToast('Sila isi Tarikh dan Kelas.', 'error'); return;
@@ -280,12 +292,18 @@
         if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
         switchTab('form', document.querySelectorAll('.nav-btn')[1]);
         document.getElementById('form-title').textContent = '✏️ Edit RPH';
-        const fields = ['date','time_start','time_end','class','theme','unit','topic','sk','sp','objectives','activities','success','bbm','emk','pak21','assessment','reflection'];
+        const fields = ['date','time_start','time_end','class','theme','unit','topic','sk','sp','objectives','activities','success','bbm','emk','pak21','assessment','reflection','worksheet'];
         fields.forEach(f => {
             const el = document.getElementById('f-' + f);
             if (el) el.value = entry[f] || '';
         });
         document.getElementById('rph-id').value = entry.id;
+        // Papar bahagian lembaran kerja jika ada kandungan
+        if (entry.worksheet) {
+            document.getElementById('worksheet-section').style.display = 'block';
+        } else {
+            document.getElementById('worksheet-section').style.display = 'none';
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -303,19 +321,17 @@
         }
     }
 
-    // ========== FUNGSI CETAK RPH (MENGGANTI MUAT TURUN PDF) ==========
+    // ========== FUNGSI CETAK RPH ==========
     function printRPH(id) {
         const entry = rphData.find(r => r.id === id);
         if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
 
-        // Bina tetingkap baharu untuk cetakan
         const printWindow = window.open('', '_blank', 'width=800,height=600');
         if (!printWindow) {
             showToast('Sila benarkan pop-up untuk mencetak.', 'error');
             return;
         }
 
-        // Kandungan HTML yang cantik untuk cetakan
         printWindow.document.write(`
             <!DOCTYPE html>
             <html>
@@ -323,34 +339,19 @@
                 <meta charset="UTF-8">
                 <title>Cetakan RPH - ${entry.topic || 'Pendidikan Moral'}</title>
                 <style>
-                    body {
-                        font-family: 'Times New Roman', Times, serif;
-                        font-size: 12pt;
-                        color: #000;
-                        margin: 20px;
-                        background: white;
-                    }
-                    .header {
-                        display: flex; justify-content: space-between; align-items: center;
-                        border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;
-                    }
+                    body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; color: #000; margin: 20px; background: white; }
+                    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
                     .header-text { text-align: center; flex: 1; }
                     .header-text h2 { margin: 0; font-size: 16pt; }
                     .header-text p { margin: 2px 0; font-size: 11pt; }
-                    table {
-                        width: 100%; border-collapse: collapse; margin-top: 10px;
-                    }
-                    th, td {
-                        border: 1px solid #000; padding: 8px; vertical-align: top;
-                    }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    th, td { border: 1px solid #000; padding: 8px; vertical-align: top; }
                     th { background: #f2f2f2; width: 25%; font-weight: bold; }
                     .signature { margin-top: 40px; display: flex; justify-content: space-between; }
                     .signature div { text-align: center; width: 45%; }
                     .no-print { margin-bottom: 10px; }
                     button { padding: 10px 20px; font-size: 14px; cursor: pointer; }
-                    @media print {
-                        button { display: none; }
-                    }
+                    @media print { button { display: none; } }
                 </style>
             </head>
             <body>
@@ -389,16 +390,58 @@
             </html>
         `);
         printWindow.document.close();
-        // Fokus dan tunggu sebentar sebelum cetakan automatik
         printWindow.focus();
         setTimeout(() => { printWindow.print(); }, 500);
     }
 
-    // ========== AI SIMULASI DENGAN PEMBEZAAN ==========
+    // ========== AI SIMULASI DENGAN LEMBARAN KERJA 3 KUMPULAN ==========
     function extractFromContext(ctx, key) {
         const regex = new RegExp(`${key}:\\s*([^,]+)`);
         const match = ctx.match(regex);
         return match ? match[1].trim() : null;
+    }
+
+    function generateWorksheetHTML(topic, unit, kelas) {
+        // Jana tiga set lembaran kerja dalam satu HTML
+        return `
+        <html>
+        <head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} h2{text-align:center;} .group-box{border:1px solid #000;padding:10px;margin-bottom:20px;} .group-box h3{background:#ddd;padding:5px;margin-top:0;} .tp-info{font-size:12px;color:#555;margin-bottom:10px;} .question{margin-bottom:10px;} .lines{border-bottom:1px dashed #000;width:100%;height:20px;margin:5px 0;}</style></head>
+        <body>
+        <h2>Lembaran Kerja Pendidikan Moral</h2>
+        <p><strong>Tajuk:</strong> ${topic} | <strong>Unit:</strong> ${unit} | <strong>Kelas:</strong> ${kelas}</p>
+
+        <!-- Kumpulan Lemah -->
+        <div class="group-box">
+            <h3>🔹 Kumpulan Lemah (TP 1-2)</h3>
+            <p class="tp-info">TP 1: Menyatakan maksud. TP 2: Memberi contoh mudah.</p>
+            <div class="question"><strong>1. Padankan gambar dengan nilai yang betul.</strong><br>(Ilustrasi disediakan oleh guru)<br><div class="lines"></div></div>
+            <div class="question"><strong>2. Tandakan (/) pada perlakuan yang menunjukkan ${topic}.</strong><br>
+                ☐ Menolong ibu bapa<br> ☐ Bergaduh dengan rakan<br> ☐ Berkongsi makanan
+            </div>
+        </div>
+
+        <!-- Kumpulan Sederhana -->
+        <div class="group-box">
+            <h3>🔹 Kumpulan Sederhana (TP 3-4)</h3>
+            <p class="tp-info">TP 3: Menjelaskan melalui contoh. TP 4: Menganalisis situasi.</p>
+            <div class="question"><strong>1. Tulis maksud ${topic} dalam ayat sendiri.</strong><br><div class="lines"></div><div class="lines"></div></div>
+            <div class="question"><strong>2. Berikan dua contoh ${topic} di sekolah.</strong><br>a) <div class="lines"></div>b) <div class="lines"></div></div>
+            <div class="question"><strong>3. Mengapakah ${topic} penting? Huraikan.</strong><br><div class="lines"></div><div class="lines"></div></div>
+        </div>
+
+        <!-- Kumpulan Pandai -->
+        <div class="group-box">
+            <h3>🔹 Kumpulan Pandai (TP 5-6)</h3>
+            <p class="tp-info">TP 5: Menilai dan merancang tindakan. TP 6: Mencipta penyelesaian.</p>
+            <div class="question"><strong>1. Baca situasi di bawah dan cadangkan cara mengamalkan ${topic}.</strong><br><em>"Rakan anda tidak mahu berkongsi alat tulis."</em><br><div class="lines"></div><div class="lines"></div></div>
+            <div class="question"><strong>2. Hasilkan peta minda tentang kepentingan ${topic} dalam masyarakat.</strong><br>(Gunakan kertas tambahan)</div>
+            <div class="question"><strong>3. Tulis sebuah pantun atau sajak pendek bertemakan ${topic}.</strong><br><div class="lines"></div><div class="lines"></div></div>
+        </div>
+
+        <p style="text-align:center;">~ Selamat Menjawab ~</p>
+        </body>
+        </html>
+        `;
     }
 
     function simulateAIResponse(type, context) {
@@ -417,7 +460,6 @@
                 };
 
             case 'activities':
-                // Aktiviti utama + pembezaan mengikut kumpulan
                 const mainSteps = [
                     `Langkah 1 (Set Induksi - 5 minit): Tontonan video pendek tentang ${topic}.`,
                     `Langkah 2 (Penerokaan - 10 minit): Perbincangan kumpulan menggunakan kaedah Think-Pair-Share.`,
@@ -443,20 +485,22 @@
                 `;
 
                 const activities = mainSteps.join('\n') + '\n' + differentiation;
+                const worksheetHTML = generateWorksheetHTML(topic, unit, kelas);
 
                 return {
                     activities,
-                    bbm: `Kad gambar, slaid PowerPoint, lembaran kerja (3 aras), video pendek, pen marker`,
+                    bbm: `Kad gambar, slaid PowerPoint, lembaran kerja 3 aras, video pendek`,
                     emk: "TMK, Keusahawanan, Nilai Murni",
                     pak21: "Think-Pair-Share, Pembelajaran Koperatif, Stesen Pembelajaran",
-                    assessment: "Pemerhatian, hasil kerja kumpulan (lemah/sederhana/pandai), refleksi lisan"
+                    assessment: "Pemerhatian, hasil kerja kumpulan (lemah/sederhana/pandai), refleksi lisan",
+                    worksheet: worksheetHTML
                 };
 
             case 'success':
                 return {
                     successCriteria: [
                         `Murid dapat menyatakan maksud ${topic} dengan tepat.`,
-                        `Murid dapat memberi sekurang-kurangnya 3 contoh ${topic} mengikut arus keupayaan.`,
+                        `Murid dapat memberi sekurang-kurangnya 3 contoh ${topic} mengikut aras keupayaan.`,
                         `Murid menunjukkan penglibatan aktif dalam aktiviti kumpulan.`
                     ]
                 };
@@ -481,7 +525,6 @@
         try {
             let result;
             if (!USE_SIMULATION_FALLBACK) {
-                // Panggilan backend sebenar (abaikan dalam demo)
                 result = simulateAIResponse(type, context);
             } else {
                 await new Promise(r => setTimeout(r, 800));
@@ -497,6 +540,11 @@
                 if (result.emk) document.getElementById('f-emk').value = result.emk;
                 if (result.pak21) document.getElementById('f-pak21').value = result.pak21;
                 if (result.assessment) document.getElementById('f-assessment').value = result.assessment;
+                // Simpan kandungan lembaran kerja dan papar bahagian muat turun
+                if (result.worksheet) {
+                    document.getElementById('f-worksheet').value = result.worksheet;
+                    document.getElementById('worksheet-section').style.display = 'block';
+                }
             }
             if (type === 'success' && result.successCriteria) {
                 document.getElementById('f-success').value = result.successCriteria.join('\n');
@@ -513,6 +561,26 @@
         }
     }
 
+    // Fungsi muat turun lembaran kerja sebagai Word (.doc)
+    function downloadWorksheet() {
+        const worksheetHTML = document.getElementById('f-worksheet').value;
+        if (!worksheetHTML) {
+            showToast('Tiada lembaran kerja. Jana aktiviti dahulu.', 'error');
+            return;
+        }
+        const blob = new Blob([worksheetHTML], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const topic = document.getElementById('f-topic').value || 'LembaranKerja';
+        a.href = url;
+        a.download = `Lembaran_Kerja_3_Kumpulan_${topic.replace(/\s+/g, '_')}.doc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('📝 Lembaran kerja 3 kumpulan dimuat turun!');
+    }
+
     function showToast(msg, type='success') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -522,7 +590,6 @@
         setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3000);
     }
 
-    // Inisialisasi
     function init() {
         document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
         renderList();
