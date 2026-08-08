@@ -139,11 +139,32 @@
                 <div id="loading-reflection" class="loading">⏳ Menghubungi DeepSeek AI...</div>
             </div>
 
+            <!-- Bahagian Lembaran Kerja 3 Kumpulan -->
             <div class="form-group" id="worksheet-section" style="display:none;">
                 <label>📝 Lembaran Kerja (3 Kumpulan)</label>
                 <p style="font-size:0.85rem; color: var(--grey);">Lembaran kerja pelbagai format sedia dimuat turun.</p>
                 <button type="button" class="btn worksheet-btn btn-block" onclick="downloadWorksheet()">⬇️ Muat Turun Lembaran Kerja (Word)</button>
             </div>
+
+            <!-- ===== BAHAGIAN TINDAKAN SUSULAN (BARU) ===== -->
+            <hr style="margin: 20px 0; border: 0; border-top: 2px solid var(--primary);">
+            <h3 style="color: var(--primary); margin-bottom: 15px;">🔄 Tindakan Susulan</h3>
+
+            <div class="form-group">
+                <label>🔹 Pemulihan (Murid belum mencapai objektif)</label>
+                <textarea id="f-remedial" rows="3" placeholder="Soalan ulangkaji / aktiviti pemulihan..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>🔹 Pengukuhan (Murid sederhana)</label>
+                <textarea id="f-reinforcement" rows="3" placeholder="Latihan pengukuhan..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>🔹 Pengayaan (Murid cemerlang)</label>
+                <textarea id="f-enrichment" rows="3" placeholder="Aktiviti pengayaan / cabaran tambahan..."></textarea>
+            </div>
+            <button type="button" class="btn btn-ai" id="btn-susulan" onclick="generateAI('susulan')">🤖 Jana Tindakan Susulan (Pemulihan, Pengukuhan, Pengayaan)</button>
+            <div id="loading-susulan" class="loading">⏳ Menjana soalan ulangkaji dan aktiviti ikut tahap...</div>
+            <!-- ===== TAMAT BAHAGIAN TINDAKAN SUSULAN ===== -->
 
             <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">💾 Simpan RPH</button>
             <button type="button" class="btn btn-warning btn-block" style="margin-top: 8px;" onclick="resetForm()">🔄 Kosongkan Borang</button>
@@ -206,6 +227,7 @@
         if (isNaN(date.getTime())) return d;
         return date.toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
+    // Simpan RPH termasuk tindakan susulan
     document.getElementById('rph-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
@@ -218,7 +240,11 @@
             success: document.getElementById('f-success').value.trim(), bbm: document.getElementById('f-bbm').value.trim(),
             emk: document.getElementById('f-emk').value.trim(), pak21: document.getElementById('f-pak21').value.trim(),
             assessment: document.getElementById('f-assessment').value.trim(), reflection: document.getElementById('f-reflection').value.trim(),
-            worksheet: document.getElementById('f-worksheet').value.trim()
+            worksheet: document.getElementById('f-worksheet').value.trim(),
+            // Tindakan susulan
+            remedial: document.getElementById('f-remedial').value.trim(),
+            reinforcement: document.getElementById('f-reinforcement').value.trim(),
+            enrichment: document.getElementById('f-enrichment').value.trim()
         };
         if (!rphEntry.date || !rphEntry.class) { showToast('Sila isi Tarikh dan Kelas.', 'error'); return; }
         const idx = rphData.findIndex(i => i.id === id);
@@ -230,7 +256,7 @@
         if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
         switchTab('form', document.querySelectorAll('.nav-btn')[1]);
         document.getElementById('form-title').textContent = '✏️ Edit RPH';
-        ['date','time_start','time_end','class','theme','unit','topic','sk','sp','objectives','activities','success','bbm','emk','pak21','assessment','reflection','worksheet'].forEach(f => {
+        ['date','time_start','time_end','class','theme','unit','topic','sk','sp','objectives','activities','success','bbm','emk','pak21','assessment','reflection','worksheet','remedial','reinforcement','enrichment'].forEach(f => {
             const el = document.getElementById('f-' + f); if (el) el.value = entry[f] || '';
         });
         document.getElementById('rph-id').value = entry.id;
@@ -244,86 +270,44 @@
     function deleteRPH(id) {
         if (confirm('Padam RPH ini?')) { rphData = rphData.filter(i => i.id !== id); saveData(); renderList(); showToast('🗑️ RPH dipadam.'); }
     }
+    // Cetakan dengan tindakan susulan
     function printRPH(id) {
         const entry = rphData.find(r => r.id === id); if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
         const printWindow = window.open('', '_blank', 'width=800,height=600');
         if (!printWindow) { showToast('Sila benarkan pop-up.', 'error'); return; }
-        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cetakan RPH</title><style>body{font-family:'Times New Roman',Times,serif;font-size:12pt;margin:20px;background:white;} .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;} .header-text{text-align:center;flex:1;} .header-text h2{margin:0;font-size:16pt;} .header-text p{margin:2px 0;font-size:11pt;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #000;padding:8px;vertical-align:top;} th{background:#f2f2f2;width:25%;font-weight:bold;} .signature{margin-top:40px;display:flex;justify-content:space-between;} .signature div{text-align:center;width:45%;} button{padding:10px 20px;font-size:14px;cursor:pointer;} @media print{button{display:none;}}</style></head><body><div style="text-align:right;margin-bottom:10px;"><button onclick="window.print()">🖨️ Cetak Halaman Ini</button><button onclick="window.close()">❌ Tutup</button></div><div class="header"><div style="width:60px;"></div><div class="header-text"><h2>KEMENTERIAN PENDIDIKAN MALAYSIA</h2><p>RANCANGAN PENGAJARAN HARIAN (RPH)</p><p><strong>MATA PELAJARAN: PENDIDIKAN MORAL</strong></p></div><div style="width:60px;"></div></div><table><tr><th>Tarikh</th><td>${formatDate(entry.date)}</td><th>Masa</th><td>${entry.time_start||'--'} - ${entry.time_end||'--'}</td></tr><tr><th>Kelas</th><td>${entry.class||'-'}</td><th>Bil. Murid</th><td>_______ orang</td></tr><tr><th>Tema</th><td colspan="3">${entry.theme||'-'}</td></tr><tr><th>Nilai / Unit</th><td>${entry.unit||'-'}</td><th>Tajuk</th><td>${entry.topic||'-'}</td></tr><tr><th>Std. Kandungan</th><td colspan="3">${entry.sk||'-'}</td></tr><tr><th>Std. Pembelajaran</th><td colspan="3">${entry.sp||'-'}</td></tr><tr><th>Objektif</th><td colspan="3">${(entry.objectives||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Aktiviti</th><td colspan="3">${(entry.activities||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Kriteria Kejayaan</th><td colspan="3">${(entry.success||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>BBM / EMK / PAK21</th><td colspan="3">BBM: ${entry.bbm||'-'}<br>EMK: ${entry.emk||'-'}<br>PAK21: ${entry.pak21||'-'}</td></tr><tr><th>Penilaian</th><td colspan="3">${entry.assessment||'-'}</td></tr><tr><th>Refleksi</th><td colspan="3">${entry.reflection||'-'}</td></tr></table><div class="signature"><div><p>......................................</p><p>(Tandatangan Guru)</p></div><div><p>......................................</p><p>(Guru Besar / PK)</p></div></div></body></html>`);
+        const susulanHtml = `
+            <tr><th>Tindakan Susulan<br>(Pemulihan)</th><td colspan="3">${(entry.remedial||'-').replace(/\n/g,'<br>')}</td></tr>
+            <tr><th>Pengukuhan</th><td colspan="3">${(entry.reinforcement||'-').replace(/\n/g,'<br>')}</td></tr>
+            <tr><th>Pengayaan</th><td colspan="3">${(entry.enrichment||'-').replace(/\n/g,'<br>')}</td></tr>`;
+        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cetakan RPH</title><style>body{font-family:'Times New Roman',Times,serif;font-size:12pt;margin:20px;background:white;} .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;} .header-text{text-align:center;flex:1;} .header-text h2{margin:0;font-size:16pt;} .header-text p{margin:2px 0;font-size:11pt;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #000;padding:8px;vertical-align:top;} th{background:#f2f2f2;width:25%;font-weight:bold;} .signature{margin-top:40px;display:flex;justify-content:space-between;} .signature div{text-align:center;width:45%;} button{padding:10px 20px;font-size:14px;cursor:pointer;} @media print{button{display:none;}}</style></head><body><div style="text-align:right;margin-bottom:10px;"><button onclick="window.print()">🖨️ Cetak Halaman Ini</button><button onclick="window.close()">❌ Tutup</button></div><div class="header"><div style="width:60px;"></div><div class="header-text"><h2>KEMENTERIAN PENDIDIKAN MALAYSIA</h2><p>RANCANGAN PENGAJARAN HARIAN (RPH)</p><p><strong>MATA PELAJARAN: PENDIDIKAN MORAL</strong></p></div><div style="width:60px;"></div></div><table><tr><th>Tarikh</th><td>${formatDate(entry.date)}</td><th>Masa</th><td>${entry.time_start||'--'} - ${entry.time_end||'--'}</td></tr><tr><th>Kelas</th><td>${entry.class||'-'}</td><th>Bil. Murid</th><td>_______ orang</td></tr><tr><th>Tema</th><td colspan="3">${entry.theme||'-'}</td></tr><tr><th>Nilai / Unit</th><td>${entry.unit||'-'}</td><th>Tajuk</th><td>${entry.topic||'-'}</td></tr><tr><th>Std. Kandungan</th><td colspan="3">${entry.sk||'-'}</td></tr><tr><th>Std. Pembelajaran</th><td colspan="3">${entry.sp||'-'}</td></tr><tr><th>Objektif</th><td colspan="3">${(entry.objectives||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Aktiviti</th><td colspan="3">${(entry.activities||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Kriteria Kejayaan</th><td colspan="3">${(entry.success||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>BBM / EMK / PAK21</th><td colspan="3">BBM: ${entry.bbm||'-'}<br>EMK: ${entry.emk||'-'}<br>PAK21: ${entry.pak21||'-'}</td></tr><tr><th>Penilaian</th><td colspan="3">${entry.assessment||'-'}</td></tr><tr><th>Refleksi</th><td colspan="3">${entry.reflection||'-'}</td></tr>${susulanHtml}</table><div class="signature"><div><p>......................................</p><p>(Tandatangan Guru)</p></div><div><p>......................................</p><p>(Guru Besar / PK)</p></div></div></body></html>`);
         printWindow.document.close(); printWindow.focus(); setTimeout(() => { printWindow.print(); }, 500);
     }
 
-    // ========== VARIASI PAK21, PEMBEZAAN, DAN LEMBARAN KERJA ==========
+    // ========== VARIASI PAK21, PEMBEZAAN, LEMBARAN KERJA (seperti sebelumnya) ==========
     function extractFromContext(ctx, key) {
         const regex = new RegExp(`${key}:\\s*([^,]+)`);
         const match = ctx.match(regex);
         return match ? match[1].trim() : null;
     }
-
-    // Koleksi teknik PAK21 dan padanan langkah
     const pak21Options = [
-        { name: "Think-Pair-Share", steps: [
-            "Langkah 1: Guru kemukakan soalan, murid fikir sendiri.",
-            "Langkah 2: Murid berbincang secara berpasangan.",
-            "Langkah 3: Perkongsian jawapan bersama kelas."
-        ]},
-        { name: "Round Table", steps: [
-            "Langkah 1: Setiap kumpulan diberi kertas besar dan pen.",
-            "Langkah 2: Murid bergilir menulis idea secara bergilir.",
-            "Langkah 3: Kumpulan bentang dan bandingkan jawapan."
-        ]},
-        { name: "Gallery Walk", steps: [
-            "Langkah 1: Hasil kerja kumpulan ditampal di dinding.",
-            "Langkah 2: Murid berjalan dan memberi komen menggunakan sticky note.",
-            "Langkah 3: Refleksi dan perbincangan kelas."
-        ]},
-        { name: "Jigsaw", steps: [
-            "Langkah 1: Murid dalam kumpulan pakar belajar subtopik berbeza.",
-            "Langkah 2: Kembali ke kumpulan asal untuk berkongsi.",
-            "Langkah 3: Kuiz keseluruhan untuk menguji pemahaman."
-        ]},
-        { name: "Role Play (Main Peranan)", steps: [
-            "Langkah 1: Guru beri situasi berkaitan tajuk.",
-            "Langkah 2: Murid melakonkan situasi dengan dialog.",
-            "Langkah 3: Perbincangan nilai daripada lakonan."
-        ]},
-        { name: "Stesen Pembelajaran", steps: [
-            "Langkah 1: Sediakan 3-4 stesen dengan aktiviti berbeza.",
-            "Langkah 2: Murid bergerak secara bergilir menyelesaikan tugasan.",
-            "Langkah 3: Perkongsian dapatan di setiap stesen."
-        ]}
+        { name: "Think-Pair-Share", steps: ["Langkah 1: Guru kemukakan soalan, murid fikir sendiri.","Langkah 2: Murid berbincang secara berpasangan.","Langkah 3: Perkongsian jawapan bersama kelas."] },
+        { name: "Round Table", steps: ["Langkah 1: Setiap kumpulan diberi kertas besar dan pen.","Langkah 2: Murid bergilir menulis idea secara bergilir.","Langkah 3: Kumpulan bentang dan bandingkan jawapan."] },
+        { name: "Gallery Walk", steps: ["Langkah 1: Hasil kerja kumpulan ditampal di dinding.","Langkah 2: Murid berjalan dan memberi komen menggunakan sticky note.","Langkah 3: Refleksi dan perbincangan kelas."] },
+        { name: "Jigsaw", steps: ["Langkah 1: Murid dalam kumpulan pakar belajar subtopik berbeza.","Langkah 2: Kembali ke kumpulan asal untuk berkongsi.","Langkah 3: Kuiz keseluruhan untuk menguji pemahaman."] },
+        { name: "Role Play (Main Peranan)", steps: ["Langkah 1: Guru beri situasi berkaitan tajuk.","Langkah 2: Murid melakonkan situasi dengan dialog.","Langkah 3: Perbincangan nilai daripada lakonan."] },
+        { name: "Stesen Pembelajaran", steps: ["Langkah 1: Sediakan 3-4 stesen dengan aktiviti berbeza.","Langkah 2: Murid bergerak secara bergilir menyelesaikan tugasan.","Langkah 3: Perkongsian dapatan di setiap stesen."] }
     ];
-
-    // Kaedah pembezaan (tugasan berbeza untuk 3 kumpulan)
     const differentiationOptions = [
-        {
-            lemah: "Padankan gambar dengan nilai yang betul. Gunakan kad bergambar.",
-            sederhana: "Tulis dua contoh perlakuan yang menunjukkan nilai tersebut dalam kehidupan seharian.",
-            pandai: "Bincangkan satu situasi konflik moral dan cadangkan penyelesaian berdasarkan nilai tersebut."
-        },
-        {
-            lemah: "Isi tempat kosong dengan perkataan yang sesuai (pilihan diberi).",
-            sederhana: "Lengkapkan peta minda tentang ciri-ciri nilai murni yang dipelajari.",
-            pandai: "Hasilkan sebuah komik pendek yang menggambarkan amalan nilai dalam masyarakat."
-        },
-        {
-            lemah: "Susun kad perkataan menjadi ayat lengkap tentang nilai.",
-            sederhana: "Tulis perenggan pendek tentang kepentingan nilai kepada diri sendiri.",
-            pandai: "Cipta sebuah sajak atau lagu pendek bertemakan nilai tersebut."
-        }
+        { lemah: "Padankan gambar dengan nilai yang betul. Gunakan kad bergambar.", sederhana: "Tulis dua contoh perlakuan yang menunjukkan nilai tersebut.", pandai: "Bincangkan satu situasi konflik moral dan cadangkan penyelesaian." },
+        { lemah: "Isi tempat kosong dengan perkataan yang sesuai (pilihan diberi).", sederhana: "Lengkapkan peta minda tentang ciri-ciri nilai murni.", pandai: "Hasilkan sebuah komik pendek yang menggambarkan amalan nilai." },
+        { lemah: "Susun kad perkataan menjadi ayat lengkap tentang nilai.", sederhana: "Tulis perenggan pendek tentang kepentingan nilai.", pandai: "Cipta sebuah sajak atau lagu pendek bertemakan nilai tersebut." }
     ];
-
-    // Format lembaran kerja (HTML template berbeza)
     function generateWorksheetHTML(topic, unit, kelas, variationIndex) {
-        // variationIndex digunakan untuk pilih template berbeza
         const templates = [
-            // Template 1: Soalan objektif + subjektif
             `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} h2{text-align:center;} .group-box{border:1px solid #000;padding:10px;margin-bottom:20px;} .group-box h3{background:#ddd;padding:5px;} .tp-info{font-size:12px;color:#555;} .question{margin-bottom:10px;} .lines{border-bottom:1px dashed #000;width:100%;height:20px;margin:5px 0;}</style></head><body><h2>Lembaran Kerja Pendidikan Moral</h2><p><strong>Tajuk:</strong> ${topic} | <strong>Unit:</strong> ${unit} | <strong>Kelas:</strong> ${kelas}</p><div class="group-box"><h3>🔹 Kumpulan Lemah (TP 1-2)</h3><p class="tp-info">TP 1: Menyatakan maksud. TP 2: Memberi contoh.</p><div class="question"><strong>1. Padankan gambar dengan nilai.</strong><br>(Gambar disediakan)<div class="lines"></div></div><div class="question"><strong>2. Tandakan (/) pada perlakuan baik.</strong><br>☐ Menolong ibu bapa<br>☐ Bergaduh<br>☐ Berkongsi</div></div><div class="group-box"><h3>🔹 Kumpulan Sederhana (TP 3-4)</h3><p class="tp-info">TP 3: Menjelaskan. TP 4: Menganalisis.</p><div class="question"><strong>1. Apakah maksud ${topic}?</strong><div class="lines"></div></div><div class="question"><strong>2. Beri dua contoh ${topic} di sekolah.</strong><br>a) <div class="lines"></div>b) <div class="lines"></div></div></div><div class="group-box"><h3>🔹 Kumpulan Pandai (TP 5-6)</h3><p class="tp-info">TP 5: Menilai. TP 6: Mencipta.</p><div class="question"><strong>1. Selesaikan situasi:</strong> "Rakan anda enggan berkongsi." <div class="lines"></div></div><div class="question"><strong>2. Hasilkan peta minda tentang kepentingan ${topic}.</strong> (Gunakan kertas lain)</div></div></body></html>`,
-            // Template 2: Jadual dan esei pendek
             `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} table{width:100%;border-collapse:collapse;margin-bottom:20px;} th,td{border:1px solid #000;padding:8px;text-align:left;} h2{text-align:center;} .group-box{margin-bottom:20px;}</style></head><body><h2>Lembaran Kerja ${topic}</h2><div class="group-box"><h3>Kumpulan Lemah (TP 1-2)</h3><table><tr><th>Bil</th><th>Perlakuan</th><th>Baik / Tidak</th></tr><tr><td>1</td><td>Menolong rakan</td><td></td></tr><tr><td>2</td><td>Membuli</td><td></td></tr></table></div><div class="group-box"><h3>Kumpulan Sederhana (TP 3-4)</h3><p>Terangkan mengapa ${topic} penting dalam keluarga.</p><div style="border:1px solid #000;min-height:80px;padding:5px;"></div></div><div class="group-box"><h3>Kumpulan Pandai (TP 5-6)</h3><p>Tulis dialog antara dua rakan tentang amalan ${topic}.</p><div style="border:1px solid #000;min-height:100px;padding:5px;"></div></div></body></html>`,
-            // Template 3: Aktiviti kreatif + refleksi
             `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} h2{text-align:center;} .group-box{border:1px solid #ccc;padding:10px;margin-bottom:15px;border-radius:5px;} h3{margin-top:0;}</style></head><body><h2>Lembaran Kerja Kreatif</h2><p><strong>${topic}</strong></p><div class="group-box"><h3>🔹 Lemah</h3><p>Warnakan gambar yang menunjukkan ${topic}.</p><div style="border:1px dashed #000;height:100px;text-align:center;padding-top:40px;">[Ruang lukisan]</div></div><div class="group-box"><h3>🔹 Sederhana</h3><p>Lukis poster ringkas tentang ${topic}.</p><div style="border:1px dashed #000;height:150px;"></div></div><div class="group-box"><h3>🔹 Pandai</h3><p>Tulis sebuah cerita pendek bertemakan ${topic}.</p><div style="border:1px solid #000;min-height:120px;padding:5px;"></div></div></body></html>`
         ];
-        // Pilih template berdasarkan variationIndex
         return templates[variationIndex % templates.length];
     }
 
@@ -340,13 +324,9 @@
                     `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} dalam situasi harian.`
                 ]};
             case 'activities': {
-                // Pilih rawak teknik PAK21
                 const randomPak = pak21Options[Math.floor(Math.random() * pak21Options.length)];
-                // Pilih rawak kaedah pembezaan
                 const randomDiff = differentiationOptions[Math.floor(Math.random() * differentiationOptions.length)];
-                // Pilih rawak indeks untuk lembaran kerja (0-2)
                 const worksheetIndex = Math.floor(Math.random() * 3);
-
                 const mainSteps = [
                     `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek tentang ${topic}. Murid memberi respons lisan.`,
                     `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${randomPak.name}.`,
@@ -358,14 +338,11 @@
                     `    🔹 Kumpulan Pandai: ${randomDiff.pandai}`,
                     `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi. Murid menyatakan satu nilai yang dipelajari.`
                 ];
-
-                const activities = mainSteps.join('\n');
-                const bbm = "Kad gambar, slaid, video, lembaran kerja 3 aras, sticky note (jika Gallery Walk)";
+                const bbm = "Kad gambar, slaid, video, lembaran kerja 3 aras, sticky note";
                 const emk = "TMK, Keusahawanan, Nilai Murni";
                 const assessment = "Pemerhatian aktiviti kumpulan, hasil lembaran kerja, pembentangan, refleksi lisan";
                 const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex);
-
-                return { activities, bbm, emk, pak21: randomPak.name, assessment, worksheet: worksheetHTML };
+                return { activities: mainSteps.join('\n'), bbm, emk, pak21: randomPak.name, assessment, worksheet: worksheetHTML };
             }
             case 'success':
                 return { successCriteria: [
@@ -376,6 +353,13 @@
             case 'reflection':
                 const bil = Math.floor(Math.random() * 10) + 20;
                 return { reflection: `Seramai ${bil}/${bil+2} murid mencapai objektif. Murid lemah dibantu, murid pandai diberi pengayaan.` };
+            case 'susulan':
+                // Jana tindakan susulan
+                return {
+                    remedial: `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} di rumah.`,
+                    reinforcement: `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil: "Mengapa kita perlu mengamalkan ${topic}?"`,
+                    enrichment: `1. Hasilkan sebuah komik pendek tentang konflik moral dan penyelesaiannya berkaitan ${topic}.\n2. Jalankan projek mini: "Kempen ${topic} di sekolah" (poster, pengumuman).\n3. Tulis refleksi peribadi: Bagaimana saya boleh menjadi agen perubahan dengan ${topic}.`
+                };
             default: return {};
         }
     }
@@ -383,7 +367,8 @@
     async function generateAI(type) {
         const context = `Tarikh: ${document.getElementById('f-date').value}, Kelas: ${document.getElementById('f-class').value}, Tema: ${document.getElementById('f-theme').value}, Unit: ${document.getElementById('f-unit').value}, Tajuk: ${document.getElementById('f-topic').value}`;
         const loadingEl = document.getElementById(`loading-${type}`);
-        const btnEl = document.getElementById(`btn-${type==='objectives'?'obj':type==='activities'?'act':type==='success'?'suc':'ref'}`);
+        const btnMap = { objectives:'obj', activities:'act', success:'suc', reflection:'ref', susulan:'susulan' };
+        const btnEl = document.getElementById('btn-' + (btnMap[type] || type));
         if (loadingEl) loadingEl.classList.add('active');
         if (btnEl) btnEl.disabled = true;
         try {
@@ -401,6 +386,11 @@
                 }
             } else if (type === 'success') document.getElementById('f-success').value = result.successCriteria.join('\n');
             else if (type === 'reflection') document.getElementById('f-reflection').value = result.reflection;
+            else if (type === 'susulan') {
+                document.getElementById('f-remedial').value = result.remedial || '';
+                document.getElementById('f-reinforcement').value = result.reinforcement || '';
+                document.getElementById('f-enrichment').value = result.enrichment || '';
+            }
             showToast(`✅ Kandungan ${type} dijana!`);
         } catch (e) { showToast(`❌ Ralat: ${e.message}`, 'error'); }
         finally {
@@ -411,14 +401,14 @@
 
     function downloadWorksheet() {
         const worksheetHTML = document.getElementById('f-worksheet').value;
-        if (!worksheetHTML) { showToast('Tiada lembaran kerja. Jana aktiviti dahulu.', 'error'); return; }
+        if (!worksheetHTML) { showToast('Tiada lembaran kerja.', 'error'); return; }
         const blob = new Blob([worksheetHTML], { type: 'application/msword' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         const topic = document.getElementById('f-topic').value || 'LembaranKerja';
         a.href = url; a.download = `Lembaran_Kerja_${topic.replace(/\s+/g,'_')}.doc`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        showToast('📝 Lembaran kerja pelbagai format dimuat turun!');
+        showToast('📝 Lembaran kerja dimuat turun!');
     }
 
     function showToast(msg, type='success') {
