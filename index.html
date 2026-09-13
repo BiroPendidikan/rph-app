@@ -64,13 +64,14 @@
         .worksheet-btn { background: #8e44ad; color: white; }
         .worksheet-btn:hover { background: #732d91; }
 
-        /* ===== TAMBAHAN: Gaya Rancangan Tahunan ===== */
-        .annual-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.82rem; }
-        .annual-table th, .annual-table td { border: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
-        .annual-table th { background: var(--primary); color: white; font-size: 0.78rem; }
+        /* ===== Gaya Rancangan Tahunan ===== */
+        .annual-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.78rem; min-width: 1100px; }
+        .annual-table th, .annual-table td { border: 1px solid var(--border); padding: 7px; text-align: left; vertical-align: top; }
+        .annual-table th { background: var(--primary); color: white; font-size: 0.75rem; }
         .annual-table tr.holiday { background: #fff3cd; font-style: italic; color: #856404; }
         .annual-table tr:nth-child(even):not(.holiday) { background: #f8f9fa; }
         .annual-table tr:hover:not(.holiday) { background: #eef3f9; }
+        .annual-table td.sp-cell { font-family: 'Courier New', monospace; font-size: 0.75rem; color: #2c3e6b; }
         .saved-annual-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
         .saved-annual-item:last-child { border-bottom: none; }
         .saved-annual-info h4 { color: var(--primary); margin-bottom: 3px; font-size: 0.95rem; }
@@ -153,31 +154,19 @@
                 <div id="loading-reflection" class="loading">⏳ Menghubungi DeepSeek AI...</div>
             </div>
 
-            <!-- Bahagian Lembaran Kerja 3 Kumpulan -->
             <div class="form-group" id="worksheet-section" style="display:none;">
                 <label>📝 Lembaran Kerja (3 Kumpulan)</label>
                 <p style="font-size:0.85rem; color: var(--grey);">Lembaran kerja pelbagai format sedia dimuat turun.</p>
                 <button type="button" class="btn worksheet-btn btn-block" onclick="downloadWorksheet()">⬇️ Muat Turun Lembaran Kerja (Word)</button>
             </div>
 
-            <!-- ===== BAHAGIAN TINDAKAN SUSULAN ===== -->
             <hr style="margin: 20px 0; border: 0; border-top: 2px solid var(--primary);">
             <h3 style="color: var(--primary); margin-bottom: 15px;">🔄 Tindakan Susulan</h3>
-
-            <div class="form-group">
-                <label>🔹 Pemulihan (Murid belum mencapai objektif)</label>
-                <textarea id="f-remedial" rows="3" placeholder="Soalan ulangkaji / aktiviti pemulihan..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>🔹 Pengukuhan (Murid sederhana)</label>
-                <textarea id="f-reinforcement" rows="3" placeholder="Latihan pengukuhan..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>🔹 Pengayaan (Murid cemerlang)</label>
-                <textarea id="f-enrichment" rows="3" placeholder="Aktiviti pengayaan / cabaran tambahan..."></textarea>
-            </div>
-            <button type="button" class="btn btn-ai" id="btn-susulan" onclick="generateAI('susulan')">🤖 Jana Tindakan Susulan (Pemulihan, Pengukuhan, Pengayaan)</button>
-            <div id="loading-susulan" class="loading">⏳ Menjana soalan ulangkaji dan aktiviti ikut tahap...</div>
+            <div class="form-group"><label>🔹 Pemulihan (Murid belum mencapai objektif)</label><textarea id="f-remedial" rows="3"></textarea></div>
+            <div class="form-group"><label>🔹 Pengukuhan (Murid sederhana)</label><textarea id="f-reinforcement" rows="3"></textarea></div>
+            <div class="form-group"><label>🔹 Pengayaan (Murid cemerlang)</label><textarea id="f-enrichment" rows="3"></textarea></div>
+            <button type="button" class="btn btn-ai" id="btn-susulan" onclick="generateAI('susulan')">🤖 Jana Tindakan Susulan</button>
+            <div id="loading-susulan" class="loading">⏳ Menjana soalan ulangkaji...</div>
 
             <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">💾 Simpan RPH</button>
             <button type="button" class="btn btn-warning btn-block" style="margin-top: 8px;" onclick="resetForm()">🔄 Kosongkan Borang</button>
@@ -185,12 +174,12 @@
     </div>
 </div>
 
-<!-- ========== TAMBAHAN: Tab Rancangan Tahunan ========== -->
+<!-- Tab Rancangan Tahunan -->
 <div id="tab-annual" class="tab-content">
     <div class="card">
-        <h2>📅 Rancangan Pengajaran Tahunan</h2>
+        <h2>📅 Rancangan Pengajaran Tahunan (RPT)</h2>
         <p style="font-size:0.85rem; color: var(--grey); margin-bottom: 15px;">
-            AI akan menyusun semua tajuk buku teks mengikut minggu persekolahan sepanjang tahun secara automatik.
+            AI akan menyusun tajuk buku teks, Standard Kandungan & Pembelajaran, serta aktiviti PAK21 <strong>berbeza-beza</strong> mengikut minggu persekolahan.
         </p>
         <form id="annual-form" onsubmit="generateAnnualPlan(event)">
             <div class="time-grid">
@@ -203,35 +192,34 @@
             </div>
             <div class="form-group">
                 <label>🚫 Minggu Cuti (nombor minggu, pisah dengan koma)</label>
-                <input type="text" id="a-holidays" placeholder="cth: 8,9,20,21">
+                <input type="text" id="a-holidays" placeholder="cth: 11,12,20,21,22,34,35,47,48,49,50,51,52">
             </div>
             <div class="form-group">
                 <label>📚 Senarai Tajuk Buku Teks (satu tajuk per baris)</label>
-                <textarea id="a-topics" rows="10" placeholder="Nilai Kepercayaan kepada Tuhan&#10;Nilai Baik Hati&#10;Nilai Bertanggungjawab&#10;Nilai Hemah Tinggi&#10;Nilai Kasih Sayang&#10;Nilai Keadilan&#10;Nilai Kebebasan&#10;Nilai Keberanian&#10;Nilai Kerjasama&#10;Nilai Toleransi"></textarea>
+                <textarea id="a-topics" rows="10" placeholder="Kepercayaan kepada Tuhan&#10;Baik Hati&#10;Bertanggungjawab&#10;Berterima Kasih&#10;Hemah Tinggi&#10;Hormat&#10;Kasih Sayang&#10;Keadilan&#10;Keberanian&#10;Kejujuran&#10;Kerajinan&#10;Kerjasama&#10;Kesederhanaan&#10;Toleransi"></textarea>
             </div>
-            <button type="submit" class="btn btn-ai" id="btn-annual">🤖 Susun Rancangan Tahunan Automatik</button>
-            <div id="loading-annual" class="loading">⏳ AI sedang menyusun minggu & tajuk...</div>
+            <button type="submit" class="btn btn-ai" id="btn-annual">🤖 Susun RPT Automatik (SK + SP + PAK21 Pelbagai)</button>
+            <div id="loading-annual" class="loading">⏳ AI sedang menyusun minggu, SK, SP & aktiviti...</div>
         </form>
     </div>
 
     <div class="card" id="annual-result-card" style="display:none;">
-        <h2>📋 Hasil Rancangan Tahunan</h2>
+        <h2>📋 Hasil Rancangan Pengajaran Tahunan</h2>
         <div id="annual-summary" class="annual-summary"></div>
         <div style="overflow-x:auto;">
             <div id="annual-result"></div>
         </div>
-        <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;" onclick="printAnnualPlan()">🖨️ Cetak Rancangan Tahunan</button>
-        <button type="button" class="btn btn-success btn-block" style="margin-top:8px;" onclick="saveAnnualPlan()">💾 Simpan Rancangan</button>
+        <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;" onclick="printAnnualPlan()">🖨️ Cetak RPT</button>
+        <button type="button" class="btn btn-success btn-block" style="margin-top:8px;" onclick="saveAnnualPlan()">💾 Simpan RPT</button>
     </div>
 
     <div class="card">
-        <h2>📚 Rancangan Tahunan Tersimpan</h2>
+        <h2>📚 RPT Tersimpan</h2>
         <div id="saved-annual-container">
             <p style="color:var(--grey); text-align:center; font-size:0.9rem;">Tiada rancangan tersimpan.</p>
         </div>
     </div>
 </div>
-<!-- ========== TAMAT Tab Rancangan Tahunan ========== -->
 
 <div class="bottom-nav">
     <button class="nav-btn active" onclick="switchTab('list', this)">📄 Senarai</button>
@@ -245,12 +233,193 @@
     const BACKEND_URL = '/api/generate';
     const USE_SIMULATION_FALLBACK = true;
     let rphData = JSON.parse(localStorage.getItem('rphData')) || [];
-    // ===== TAMBAHAN: Data Rancangan Tahunan =====
     let annualPlans = JSON.parse(localStorage.getItem('annualPlans')) || [];
     let currentAnnualResult = null;
 
+    // ============================================================
+    // ===== TAMBAHAN BAHARU: PANGKALAN DATA SK/SP PENDIDIKAN MORAL
+    // ============================================================
+    // Struktur: nama nilai → { bil, sk, sp[], objektif[] }
+    const moralValueDB = {
+        "Kepercayaan kepada Tuhan": {
+            bil: 1,
+            sk: "1. Kepercayaan kepada Tuhan",
+            sp: ["1.1", "1.2", "1.3", "1.4", "1.5"],
+            spDesc: [
+                "Menyatakan kepentingan kepercayaan kepada Tuhan.",
+                "Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.",
+                "Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.",
+                "Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.",
+                "Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."
+            ]
+        },
+        "Baik Hati": {
+            bil: 2,
+            sk: "2. Baik Hati",
+            sp: ["2.1", "2.2", "2.3", "2.4"],
+            spDesc: [
+                "Menyatakan maksud baik hati.",
+                "Menjelaskan cara membantu individu dan masyarakat.",
+                "Mengamalkan sikap baik hati tanpa mengira latar belakang.",
+                "Menghayati nilai baik hati untuk perpaduan negara."
+            ]
+        },
+        "Bertanggungjawab": {
+            bil: 3,
+            sk: "3. Bertanggungjawab",
+            sp: ["3.1", "3.2", "3.3", "3.4"],
+            spDesc: [
+                "Menyatakan tanggungjawab sebagai warganegara.",
+                "Menjelaskan kepentingan melaksanakan tanggungjawab.",
+                "Melaksanakan tanggungjawab terhadap negara.",
+                "Menghayati tanggungjawab menjaga nama baik negara."
+            ]
+        },
+        "Berterima Kasih": {
+            bil: 4,
+            sk: "4. Berterima Kasih",
+            sp: ["4.1", "4.2", "4.3"],
+            spDesc: [
+                "Menyatakan penghargaan kepada pihak yang berjasa.",
+                "Menghargai sumbangan semua pihak dalam pembangunan negara.",
+                "Menghayati nilai berterima kasih dalam masyarakat majmuk."
+            ]
+        },
+        "Hemah Tinggi": {
+            bil: 5,
+            sk: "5. Hemah Tinggi",
+            sp: ["5.1", "5.2", "5.3", "5.4"],
+            spDesc: [
+                "Menyatakan maksud hemah tinggi.",
+                "Menjelaskan cara berbudi bahasa dalam pelbagai situasi.",
+                "Mengamalkan hemah tinggi untuk meningkatkan imej negara.",
+                "Menghayati nilai hemah tinggi dalam kehidupan harian."
+            ]
+        },
+        "Hormat": {
+            bil: 6,
+            sk: "6. Hormat",
+            sp: ["6.1", "6.2", "6.3"],
+            spDesc: [
+                "Menyatakan kepentingan hormat-menghormati.",
+                "Menghormati lambang negara, pemimpin dan individu.",
+                "Menghayati nilai hormat untuk kesejahteraan negara."
+            ]
+        },
+        "Kasih Sayang": {
+            bil: 7,
+            sk: "7. Kasih Sayang",
+            sp: ["7.1", "7.2", "7.3", "7.4"],
+            spDesc: [
+                "Menyatakan maksud kasih sayang.",
+                "Menjelaskan cara menyayangi negara (patriotisme).",
+                "Mengamalkan kasih sayang untuk keharmonian masyarakat.",
+                "Menghayati nilai kasih sayang terhadap negara."
+            ]
+        },
+        "Keadilan": {
+            bil: 8,
+            sk: "8. Keadilan",
+            sp: ["8.1", "8.2", "8.3"],
+            spDesc: [
+                "Menyatakan maksud keadilan.",
+                "Menjelaskan cara bersikap adil dalam semua urusan.",
+                "Menghayati nilai keadilan untuk kesejahteraan negara."
+            ]
+        },
+        "Keberanian": {
+            bil: 9,
+            sk: "9. Keberanian",
+            sp: ["9.1", "9.2", "9.3"],
+            spDesc: [
+                "Menyatakan maksud keberanian.",
+                "Menjelaskan cara berani mempertahankan maruah negara.",
+                "Menghayati nilai keberanian dalam kehidupan."
+            ]
+        },
+        "Kejujuran": {
+            bil: 10,
+            sk: "10. Kejujuran",
+            sp: ["10.1", "10.2", "10.3"],
+            spDesc: [
+                "Menyatakan maksud kejujuran.",
+                "Menjelaskan kepentingan amanah dan jujur.",
+                "Menghayati nilai kejujuran terhadap masyarakat dan negara."
+            ]
+        },
+        "Kerajinan": {
+            bil: 11,
+            sk: "11. Kerajinan",
+            sp: ["11.1", "11.2", "11.3"],
+            spDesc: [
+                "Menyatakan maksud kerajinan.",
+                "Menjelaskan cara berusaha gigih untuk kejayaan.",
+                "Menghayati nilai kerajinan untuk pembangunan negara."
+            ]
+        },
+        "Kerjasama": {
+            bil: 12,
+            sk: "12. Kerjasama",
+            sp: ["12.1", "12.2", "12.3", "12.4"],
+            spDesc: [
+                "Menyatakan maksud kerjasama.",
+                "Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.",
+                "Mengamalkan kerjasama untuk perpaduan kaum.",
+                "Menghayati nilai kerjasama untuk keharmonian negara."
+            ]
+        },
+        "Kesederhanaan": {
+            bil: 13,
+            sk: "13. Kesederhanaan",
+            sp: ["13.1", "13.2", "13.3"],
+            spDesc: [
+                "Menyatakan maksud kesederhanaan.",
+                "Menjelaskan cara mengawal diri dalam pelbagai situasi.",
+                "Menghayati nilai kesederhanaan untuk perpaduan negara."
+            ]
+        },
+        "Toleransi": {
+            bil: 14,
+            sk: "14. Toleransi",
+            sp: ["14.1", "14.2", "14.3", "14.4"],
+            spDesc: [
+                "Menyatakan maksud toleransi.",
+                "Menjelaskan cara bertolak ansur sesama jiran dan rakan.",
+                "Mengamalkan toleransi untuk memupuk perpaduan kaum.",
+                "Menghayati nilai toleransi untuk keharmonian negara."
+            ]
+        }
+    };
+
+    // Kumpulan aktiviti PAK21 yang pelbagai
+    const pak21Activities = [
+        { name: "Think-Pair-Share", template: (topik) => `Guru kemukakan soalan tentang ${topik}, murid fikir sendiri, kemudian berbincang dengan pasangan dan berkongsi dengan kelas.` },
+        { name: "Gallery Walk", template: (topik) => `Setiap kumpulan hasilkan poster tentang ${topik}, tampal di dinding, dan murid berjalan memberi komen dengan sticky note.` },
+        { name: "Role Play", template: (topik) => `Murid melakonkan situasi harian yang menggambarkan nilai ${topik} dan berbincang nilai yang dipelajari.` },
+        { name: "Jigsaw", template: (topik) => `Murid dipecahkan kepada kumpulan pakar yang mempelajari aspek berbeza ${topik}, kemudian berkongsi dalam kumpulan asal.` },
+        { name: "Round Table", template: (topik) => `Setiap kumpulan diberi kertas besar, murid bergilir menulis idea tentang ${topik} sehingga lengkap.` },
+        { name: "Stesen Pembelajaran", template: (topik) => `Sediakan 3-4 stesen dengan aktiviti berbeza tentang ${topik}, murid bergerak secara bergilir.` },
+        { name: "Pembelajaran Berasaskan Projek", template: (topik) => `Murid hasilkan projek mini (poster / video pendek / buku skrap) berkaitan ${topik} dan bentangkan.` },
+        { name: "Perbincangan Kumpulan (Cooperative)", template: (topik) => `Murid dalam kumpulan kecil berbincang tentang kes ${topik} dan membentangkan hasil perbincangan.` },
+        { name: "Main Peranan (Simulasi)", template: (topik) => `Guru sediakan senario, murid main peranan untuk mempraktikkan nilai ${topik} dan refleksi bersama.` },
+        { name: "Hot Seat", template: (topik) => `Seorang murid duduk di 'hot seat' menjawab soalan tentang ${topik} daripada rakan-rakan.` },
+        { name: "Peta Minda Kreatif", template: (topik) => `Murid dalam kumpulan menghasilkan peta minda kreatif tentang kepentingan ${topik} dalam masyarakat.` },
+        { name: "Debat Mini", template: (topik) => `Dua kumpulan berdebat secara sihat tentang isu berkaitan ${topik}, murid lain menjadi hakim.` },
+        { name: "Pembentangan Video", template: (topik) => `Murid rakam video pendek 1 minit menunjukkan amalan ${topik} dalam kehidupan sebenar dan bentangkan.` },
+        { name: "Pembelajaran Berasaskan Masalah", template: (topik) => `Murid diberi masalah berkaitan ${topik} dan perlu mencari penyelesaian secara berkumpulan.` },
+        { name: "Six Thinking Hats", template: (topik) => `Murid menilai situasi berkaitan ${topik} menggunakan 6 topi pemikiran yang berbeza.` },
+        { name: "Two Stars and a Wish", template: (topik) => `Murid memberi maklum balas tentang ${topik}: 2 perkara baik + 1 cadangan penambahbaikan.` },
+        { name: "Inside-Outside Circle", template: (topik) => `Murid membentuk dua bulatan, berkongsi pandangan tentang ${topik} kepada pasangan berbeza setiap pusingan.` },
+        { name: "Fan-N-Pick", template: (topik) => `Setiap kumpulan pilih kad soalan tentang ${topik}, jawab secara bergilir dan berkongsi jawapan.` },
+        { name: "Numbered Heads Together", template: (topik) => `Murid bernombor dalam kumpulan, nombor yang dipanggil akan menjawab soalan tentang ${topik}.` },
+        { name: "Kelas Berbalik (Flipped)", template: (topik) => `Murid menonton bahan tentang ${topik} di rumah, dalam kelas berbincang dan aplikasi melalui aktiviti.` }
+    ];
+
+    // ============================================================
+    // ===== AKHIR TAMBAHAN BAHARU =====
+    // ============================================================
+
     function saveData() { localStorage.setItem('rphData', JSON.stringify(rphData)); }
-    // ===== TAMBAHAN: Simpan Rancangan Tahunan =====
     function saveAnnualData() { localStorage.setItem('annualPlans', JSON.stringify(annualPlans)); }
 
     function switchTab(tabId, btn) {
@@ -260,7 +429,7 @@
         if (tabEl) tabEl.classList.add('active');
         if (btn) btn.classList.add('active');
         if (tabId === 'list') renderList();
-        if (tabId === 'annual') renderSavedAnnual();   // ===== TAMBAHAN =====
+        if (tabId === 'annual') renderSavedAnnual();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function renderList() {
@@ -296,7 +465,6 @@
         if (isNaN(date.getTime())) return d;
         return date.toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
-    // ===== TAMBAHAN: Format tarikh pendek untuk jadual tahunan =====
     function formatShortDate(d) {
         if (!d) return '-';
         const date = new Date(d);
@@ -491,16 +659,59 @@
     }
 
     // ===================================================================
-    // ========== TAMBAHAN BAHARU: RANCANGAN TAHUNAN PINTAR ==========
+    // ===== RANCANGAN TAHUNAN (RPT) DENGAN SK/SP & PAK21 PELBAGAI =====
     // ===================================================================
 
     function parseTopics(raw) {
         return raw.split('\n').map(t => t.trim()).filter(t => t.length > 0);
     }
-
     function parseHolidays(raw) {
         if (!raw || !raw.trim()) return [];
         return raw.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n > 0);
+    }
+
+    // Cari padanan nilai dalam DB (fleksibel: padan substring)
+    function lookupValueDB(topic) {
+        if (!topic) return null;
+        const cleanTopic = topic.replace(/^\d+[\.\)]\s*/, '').trim();
+        // Cuba padan tepat dulu
+        if (moralValueDB[cleanTopic]) return moralValueDB[cleanTopic];
+        // Cuba padan substring (case-insensitive)
+        const lower = cleanTopic.toLowerCase();
+        for (const key of Object.keys(moralValueDB)) {
+            if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) {
+                return moralValueDB[key];
+            }
+        }
+        // Cuba padan perkataan kunci
+        for (const key of Object.keys(moralValueDB)) {
+            const words = key.toLowerCase().split(/\s+/);
+            if (words.some(w => w.length > 3 && lower.includes(w))) {
+                return moralValueDB[key];
+            }
+        }
+        return null;
+    }
+
+    // Jana aktiviti PAK21 berbeza mengikut indeks (elak ulangan berturutan)
+    function generateVariedActivity(topic, weekIndex) {
+        // Guna indeks minggu untuk pilih aktiviti dari senarai tanpa ulangan berturutan
+        // + sedikit randomisasi supaya lebih dinamik
+        const total = pak21Activities.length;
+        // Putaran asas
+        const baseIdx = weekIndex % total;
+        // Tambah offset berdasarkan topik supaya lebih pelbagai
+        const topicHash = (topic || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+        let pickIdx = (baseIdx + topicHash) % total;
+        // Pastikan tidak sama dengan pilihan sebelum (jika weekIndex > 0)
+        if (weekIndex > 0 && pickIdx === (weekIndex - 1) % total) {
+            pickIdx = (pickIdx + 1) % total;
+        }
+        const chosen = pak21Activities[pickIdx];
+        return {
+            name: chosen.name,
+            detail: chosen.template(topic)
+        };
     }
 
     function simulateAnnualPlan(topics, totalWeeks, holidays, startDateStr) {
@@ -520,14 +731,17 @@
             weekStart.setDate(startDate.getDate() + (w - 1) * 7);
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekStart.getDate() + 4);
-
             const dateRange = `${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}`;
 
             if (holidays.includes(w)) {
                 plan.push({
                     week: w, dates: dateRange,
                     topic: '🛑 CUTI SEKOLAH',
-                    objective: '-', activities: '-',
+                    sk: '-', sp: '-',
+                    spDesc: '-',
+                    objective: '-',
+                    pak21Name: '-',
+                    pak21Detail: '-',
                     isHoliday: true
                 });
                 continue;
@@ -537,17 +751,32 @@
             if (topicIdx >= topics.length) topicIdx = topics.length - 1;
             const topic = topics[topicIdx];
 
-            const objective = `Murid dapat memahami dan mengamalkan ${topic} dalam kehidupan harian.`;
-            const activities = [
-                `Perbincangan berkaitan ${topic}`,
-                `Aktiviti PAK21 (contoh: role play, gallery walk)`,
-                `Lembaran kerja / kuiz`,
-                `Refleksi nilai`
-            ].join('; ');
+            // Cari SK/SP dalam DB
+            const db = lookupValueDB(topic);
+            let skText = db ? db.sk : `${topic}`;
+            let spCodes = db ? db.sp.slice() : ['X.1'];
+            let spDescs = db ? db.spDesc.slice() : [`Menyatakan maksud ${topic}.`];
+
+            // Jika ada beberapa minggu untuk topik sama, putarkan SP agar berbeza setiap minggu
+            const subIdx = teachingIdx % spCodes.length;
+            const spCode = spCodes[subIdx];
+            const spDesc = spDescs[subIdx];
+
+            // Jana aktiviti PAK21 berbeza mengikut minggu
+            const activity = generateVariedActivity(topic, teachingIdx);
+
+            const objective = `Murid dapat ${spDesc ? spDesc.toLowerCase() : 'memahami dan mengamalkan ' + topic} dalam kehidupan harian.`;
 
             plan.push({
-                week: w, dates: dateRange, topic: topic,
-                objective: objective, activities: activities,
+                week: w,
+                dates: dateRange,
+                topic: topic,
+                sk: skText,
+                sp: spCode,
+                spDesc: spDesc,
+                objective: objective,
+                pak21Name: activity.name,
+                pak21Detail: activity.detail,
                 isHoliday: false
             });
 
@@ -559,7 +788,6 @@
 
     function generateAnnualPlan(event) {
         event.preventDefault();
-
         const year = document.getElementById('a-year').value;
         const kelas = document.getElementById('a-class').value.trim();
         const startDate = document.getElementById('a-start').value;
@@ -588,7 +816,7 @@
                 renderAnnualResult(currentAnnualResult);
                 loadingEl.classList.remove('active');
                 btnEl.disabled = false;
-                showToast('✅ Rancangan tahunan berjaya disusun!');
+                showToast('✅ RPT berjaya disusun dengan SK/SP & PAK21 pelbagai!');
             } catch (e) {
                 loadingEl.classList.remove('active');
                 btnEl.disabled = false;
@@ -604,18 +832,27 @@
 
         const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
         const holidayWeeks = data.plan.filter(p => p.isHoliday).length;
+        // Kira bilangan PAK21 unik yang digunakan
+        const uniquePak = new Set(data.plan.filter(p => !p.isHoliday).map(p => p.pak21Name)).size;
 
         summaryEl.innerHTML = `
             <div>Tahun: <span>${data.year}</span></div>
             <div>Kelas: <span>${escapeHTML(data.kelas)}</span></div>
-            <div>Jumlah Minggu: <span>${data.totalWeeks}</span></div>
             <div>Minggu Pengajaran: <span>${teachingWeeks}</span></div>
             <div>Minggu Cuti: <span>${holidayWeeks}</span></div>
             <div>Jumlah Tajuk: <span>${data.topics.length}</span></div>
+            <div>PAK21 Unik: <span>${uniquePak}</span></div>
         `;
 
         let html = '<table class="annual-table"><thead><tr>';
-        html += '<th style="width:8%;">Minggu</th><th style="width:18%;">Tarikh</th><th style="width:25%;">Tajuk</th><th style="width:25%;">Objektif</th><th style="width:24%;">Cadangan Aktiviti</th>';
+        html += '<th style="width:5%;">Mg</th>';
+        html += '<th style="width:11%;">Tarikh</th>';
+        html += '<th style="width:15%;">Tajuk / Nilai</th>';
+        html += '<th style="width:13%;">Std. Kandungan</th>';
+        html += '<th style="width:6%;">SP</th>';
+        html += '<th style="width:17%;">Standard Pembelajaran</th>';
+        html += '<th style="width:14%;">Objektif</th>';
+        html += '<th style="width:19%;">Aktiviti PAK21</th>';
         html += '</tr></thead><tbody>';
 
         data.plan.forEach(row => {
@@ -624,8 +861,11 @@
             html += `<td><strong>${row.week}</strong></td>`;
             html += `<td>${row.dates}</td>`;
             html += `<td>${escapeHTML(row.topic)}</td>`;
+            html += `<td>${escapeHTML(row.sk)}</td>`;
+            html += `<td class="sp-cell">${row.sp || '-'}</td>`;
+            html += `<td>${escapeHTML(row.spDesc)}</td>`;
             html += `<td>${escapeHTML(row.objective)}</td>`;
-            html += `<td>${escapeHTML(row.activities)}</td>`;
+            html += `<td><strong>${escapeHTML(row.pak21Name)}</strong><br><span style="font-size:0.72rem;color:#555;">${escapeHTML(row.pak21Detail)}</span></td>`;
             html += '</tr>';
         });
 
@@ -638,7 +878,7 @@
         if (!currentAnnualResult) { showToast('Tiada rancangan untuk dicetak.', 'error'); return; }
         const data = currentAnnualResult;
 
-        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        const printWindow = window.open('', '_blank', 'width=1100,height=800');
         if (!printWindow) { showToast('Sila benarkan pop-up.', 'error'); return; }
 
         const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
@@ -651,22 +891,24 @@
                 <td style="text-align:center;"><strong>${r.week}</strong></td>
                 <td>${r.dates}</td>
                 <td>${r.topic}</td>
+                <td>${r.sk || '-'}</td>
+                <td style="text-align:center;font-family:'Courier New',monospace;">${r.sp || '-'}</td>
+                <td>${r.spDesc || '-'}</td>
                 <td>${r.objective}</td>
-                <td>${r.activities}</td>
+                <td><strong>${r.pak21Name || '-'}</strong><br><span style="font-size:8pt;color:#555;">${r.pak21Detail || ''}</span></td>
             </tr>`;
         });
 
-        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rancangan Tahunan ${data.year}</title>
+        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RPT ${data.year}</title>
         <style>
-            body{font-family:'Times New Roman',Times,serif;font-size:11pt;margin:15mm;background:white;}
-            .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px;}
-            .header-text{text-align:center;flex:1;}
-            .header-text h2{margin:0;font-size:15pt;}
-            .header-text p{margin:2px 0;font-size:10pt;}
-            .summary{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:15px;font-size:10pt;}
+            body{font-family:'Times New Roman',Times,serif;font-size:10pt;margin:12mm;background:white;}
+            .header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px;}
+            .header h2{margin:0;font-size:15pt;}
+            .header p{margin:2px 0;font-size:10pt;}
+            .summary{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:12px;font-size:9pt;}
             .summary span{font-weight:bold;}
             table{width:100%;border-collapse:collapse;}
-            th,td{border:1px solid #000;padding:6px;vertical-align:top;font-size:10pt;}
+            th,td{border:1px solid #000;padding:5px;vertical-align:top;font-size:9pt;}
             th{background:#e8e8e8;font-weight:bold;text-align:center;}
             .signature{margin-top:40px;display:flex;justify-content:space-between;}
             .signature div{text-align:center;width:45%;}
@@ -678,13 +920,9 @@
             <button onclick="window.close()">❌ Tutup</button>
         </div>
         <div class="header">
-            <div style="width:60px;"></div>
-            <div class="header-text">
-                <h2>RANCANGAN PENGAJARAN TAHUNAN</h2>
-                <p>PENDIDIKAN MORAL</p>
-                <p><strong>TAHUN ${data.year} • KELAS ${data.kelas}</strong></p>
-            </div>
-            <div style="width:60px;"></div>
+            <h2>RANCANGAN PENGAJARAN TAHUNAN (RPT)</h2>
+            <p>PENDIDIKAN MORAL • KSSR TAHUN 6</p>
+            <p><strong>TAHUN ${data.year} • KELAS ${data.kelas}</strong></p>
         </div>
         <div class="summary">
             <div>Jumlah Minggu: <span>${data.totalWeeks}</span></div>
@@ -694,11 +932,14 @@
         </div>
         <table>
             <thead><tr>
-                <th style="width:7%;">Minggu</th>
-                <th style="width:16%;">Tarikh</th>
-                <th style="width:24%;">Tajuk</th>
-                <th style="width:26%;">Objektif</th>
-                <th style="width:27%;">Cadangan Aktiviti</th>
+                <th style="width:4%;">Mg</th>
+                <th style="width:9%;">Tarikh</th>
+                <th style="width:13%;">Tajuk / Nilai</th>
+                <th style="width:12%;">Std. Kandungan</th>
+                <th style="width:5%;">SP</th>
+                <th style="width:17%;">Standard Pembelajaran</th>
+                <th style="width:15%;">Objektif</th>
+                <th style="width:25%;">Aktiviti PAK21</th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>
@@ -718,7 +959,7 @@
         annualPlans.push(currentAnnualResult);
         saveAnnualData();
         renderSavedAnnual();
-        showToast('💾 Rancangan tahunan disimpan!');
+        showToast('💾 RPT disimpan!');
     }
 
     function renderSavedAnnual() {
@@ -757,7 +998,7 @@
         document.getElementById('a-topics').value = plan.topics.join('\n');
         renderAnnualResult(plan);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        showToast('📂 Rancangan dimuatkan!');
+        showToast('📂 RPT dimuatkan!');
     }
 
     function printSavedAnnual(idx) {
@@ -768,21 +1009,21 @@
     }
 
     function deleteAnnualPlan(idx) {
-        if (!confirm('Padam rancangan tahunan ini?')) return;
+        if (!confirm('Padam RPT ini?')) return;
         annualPlans.splice(idx, 1);
         saveAnnualData();
         renderSavedAnnual();
-        showToast('🗑️ Rancangan dipadam.');
+        showToast('🗑️ RPT dipadam.');
     }
 
     // ===================================================================
-    // ========== TAMAT TAMBAHAN RANCANGAN TAHUNAN ==========
+    // ===== TAMAT RANCANGAN TAHUNAN =====
     // ===================================================================
 
     function init() {
         document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
         renderList();
-        renderSavedAnnual();   // ===== TAMBAHAN =====
+        renderSavedAnnual();
         document.getElementById('search-input')?.addEventListener('keydown', function(e) { if (e.key === 'Escape') { this.value = ''; renderList(); this.blur(); } });
     }
     init();
