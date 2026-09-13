@@ -63,6 +63,20 @@
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .worksheet-btn { background: #8e44ad; color: white; }
         .worksheet-btn:hover { background: #732d91; }
+
+        /* ===== TAMBAHAN: Gaya Rancangan Tahunan ===== */
+        .annual-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.82rem; }
+        .annual-table th, .annual-table td { border: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+        .annual-table th { background: var(--primary); color: white; font-size: 0.78rem; }
+        .annual-table tr.holiday { background: #fff3cd; font-style: italic; color: #856404; }
+        .annual-table tr:nth-child(even):not(.holiday) { background: #f8f9fa; }
+        .annual-table tr:hover:not(.holiday) { background: #eef3f9; }
+        .saved-annual-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
+        .saved-annual-item:last-child { border-bottom: none; }
+        .saved-annual-info h4 { color: var(--primary); margin-bottom: 3px; font-size: 0.95rem; }
+        .saved-annual-info p { font-size: 0.8rem; color: var(--grey); }
+        .annual-summary { display: flex; gap: 15px; flex-wrap: wrap; padding: 12px; background: #f0f4fa; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; }
+        .annual-summary span { color: var(--primary); font-weight: 600; }
     </style>
 </head>
 <body>
@@ -146,7 +160,7 @@
                 <button type="button" class="btn worksheet-btn btn-block" onclick="downloadWorksheet()">⬇️ Muat Turun Lembaran Kerja (Word)</button>
             </div>
 
-            <!-- ===== BAHAGIAN TINDAKAN SUSULAN (BARU) ===== -->
+            <!-- ===== BAHAGIAN TINDAKAN SUSULAN ===== -->
             <hr style="margin: 20px 0; border: 0; border-top: 2px solid var(--primary);">
             <h3 style="color: var(--primary); margin-bottom: 15px;">🔄 Tindakan Susulan</h3>
 
@@ -164,7 +178,6 @@
             </div>
             <button type="button" class="btn btn-ai" id="btn-susulan" onclick="generateAI('susulan')">🤖 Jana Tindakan Susulan (Pemulihan, Pengukuhan, Pengayaan)</button>
             <div id="loading-susulan" class="loading">⏳ Menjana soalan ulangkaji dan aktiviti ikut tahap...</div>
-            <!-- ===== TAMAT BAHAGIAN TINDAKAN SUSULAN ===== -->
 
             <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">💾 Simpan RPH</button>
             <button type="button" class="btn btn-warning btn-block" style="margin-top: 8px;" onclick="resetForm()">🔄 Kosongkan Borang</button>
@@ -172,9 +185,58 @@
     </div>
 </div>
 
+<!-- ========== TAMBAHAN: Tab Rancangan Tahunan ========== -->
+<div id="tab-annual" class="tab-content">
+    <div class="card">
+        <h2>📅 Rancangan Pengajaran Tahunan</h2>
+        <p style="font-size:0.85rem; color: var(--grey); margin-bottom: 15px;">
+            AI akan menyusun semua tajuk buku teks mengikut minggu persekolahan sepanjang tahun secara automatik.
+        </p>
+        <form id="annual-form" onsubmit="generateAnnualPlan(event)">
+            <div class="time-grid">
+                <div class="form-group"><label>📆 Tahun</label><input type="number" id="a-year" value="2026" min="2020" max="2100" required></div>
+                <div class="form-group"><label>🏫 Kelas</label><input type="text" id="a-class" placeholder="cth: 6 Bestari" required></div>
+            </div>
+            <div class="time-grid">
+                <div class="form-group"><label>🗓️ Tarikh Mula Persekolahan</label><input type="date" id="a-start" required></div>
+                <div class="form-group"><label>📊 Jumlah Minggu Persekolahan</label><input type="number" id="a-weeks" value="42" min="1" max="52" required></div>
+            </div>
+            <div class="form-group">
+                <label>🚫 Minggu Cuti (nombor minggu, pisah dengan koma)</label>
+                <input type="text" id="a-holidays" placeholder="cth: 8,9,20,21">
+            </div>
+            <div class="form-group">
+                <label>📚 Senarai Tajuk Buku Teks (satu tajuk per baris)</label>
+                <textarea id="a-topics" rows="10" placeholder="Nilai Kepercayaan kepada Tuhan&#10;Nilai Baik Hati&#10;Nilai Bertanggungjawab&#10;Nilai Hemah Tinggi&#10;Nilai Kasih Sayang&#10;Nilai Keadilan&#10;Nilai Kebebasan&#10;Nilai Keberanian&#10;Nilai Kerjasama&#10;Nilai Toleransi"></textarea>
+            </div>
+            <button type="submit" class="btn btn-ai" id="btn-annual">🤖 Susun Rancangan Tahunan Automatik</button>
+            <div id="loading-annual" class="loading">⏳ AI sedang menyusun minggu & tajuk...</div>
+        </form>
+    </div>
+
+    <div class="card" id="annual-result-card" style="display:none;">
+        <h2>📋 Hasil Rancangan Tahunan</h2>
+        <div id="annual-summary" class="annual-summary"></div>
+        <div style="overflow-x:auto;">
+            <div id="annual-result"></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;" onclick="printAnnualPlan()">🖨️ Cetak Rancangan Tahunan</button>
+        <button type="button" class="btn btn-success btn-block" style="margin-top:8px;" onclick="saveAnnualPlan()">💾 Simpan Rancangan</button>
+    </div>
+
+    <div class="card">
+        <h2>📚 Rancangan Tahunan Tersimpan</h2>
+        <div id="saved-annual-container">
+            <p style="color:var(--grey); text-align:center; font-size:0.9rem;">Tiada rancangan tersimpan.</p>
+        </div>
+    </div>
+</div>
+<!-- ========== TAMAT Tab Rancangan Tahunan ========== -->
+
 <div class="bottom-nav">
     <button class="nav-btn active" onclick="switchTab('list', this)">📄 Senarai</button>
     <button class="nav-btn" onclick="switchTab('form', this); resetForm()">➕ Buat RPH</button>
+    <button class="nav-btn" onclick="switchTab('annual', this)">📅 Tahunan</button>
 </div>
 
 <div id="toast-container"></div>
@@ -183,8 +245,14 @@
     const BACKEND_URL = '/api/generate';
     const USE_SIMULATION_FALLBACK = true;
     let rphData = JSON.parse(localStorage.getItem('rphData')) || [];
+    // ===== TAMBAHAN: Data Rancangan Tahunan =====
+    let annualPlans = JSON.parse(localStorage.getItem('annualPlans')) || [];
+    let currentAnnualResult = null;
 
     function saveData() { localStorage.setItem('rphData', JSON.stringify(rphData)); }
+    // ===== TAMBAHAN: Simpan Rancangan Tahunan =====
+    function saveAnnualData() { localStorage.setItem('annualPlans', JSON.stringify(annualPlans)); }
+
     function switchTab(tabId, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -192,6 +260,7 @@
         if (tabEl) tabEl.classList.add('active');
         if (btn) btn.classList.add('active');
         if (tabId === 'list') renderList();
+        if (tabId === 'annual') renderSavedAnnual();   // ===== TAMBAHAN =====
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function renderList() {
@@ -227,7 +296,14 @@
         if (isNaN(date.getTime())) return d;
         return date.toLocaleDateString('ms-MY', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
-    // Simpan RPH termasuk tindakan susulan
+    // ===== TAMBAHAN: Format tarikh pendek untuk jadual tahunan =====
+    function formatShortDate(d) {
+        if (!d) return '-';
+        const date = new Date(d);
+        if (isNaN(date.getTime())) return d;
+        return date.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short' });
+    }
+
     document.getElementById('rph-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
@@ -241,7 +317,6 @@
             emk: document.getElementById('f-emk').value.trim(), pak21: document.getElementById('f-pak21').value.trim(),
             assessment: document.getElementById('f-assessment').value.trim(), reflection: document.getElementById('f-reflection').value.trim(),
             worksheet: document.getElementById('f-worksheet').value.trim(),
-            // Tindakan susulan
             remedial: document.getElementById('f-remedial').value.trim(),
             reinforcement: document.getElementById('f-reinforcement').value.trim(),
             enrichment: document.getElementById('f-enrichment').value.trim()
@@ -270,7 +345,6 @@
     function deleteRPH(id) {
         if (confirm('Padam RPH ini?')) { rphData = rphData.filter(i => i.id !== id); saveData(); renderList(); showToast('🗑️ RPH dipadam.'); }
     }
-    // Cetakan dengan tindakan susulan
     function printRPH(id) {
         const entry = rphData.find(r => r.id === id); if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
         const printWindow = window.open('', '_blank', 'width=800,height=600');
@@ -283,7 +357,7 @@
         printWindow.document.close(); printWindow.focus(); setTimeout(() => { printWindow.print(); }, 500);
     }
 
-    // ========== VARIASI PAK21, PEMBEZAAN, LEMBARAN KERJA (seperti sebelumnya) ==========
+    // ========== VARIASI PAK21, PEMBEZAAN, LEMBARAN KERJA ==========
     function extractFromContext(ctx, key) {
         const regex = new RegExp(`${key}:\\s*([^,]+)`);
         const match = ctx.match(regex);
@@ -354,7 +428,6 @@
                 const bil = Math.floor(Math.random() * 10) + 20;
                 return { reflection: `Seramai ${bil}/${bil+2} murid mencapai objektif. Murid lemah dibantu, murid pandai diberi pengayaan.` };
             case 'susulan':
-                // Jana tindakan susulan
                 return {
                     remedial: `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} di rumah.`,
                     reinforcement: `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil: "Mengapa kita perlu mengamalkan ${topic}?"`,
@@ -417,9 +490,299 @@
         container.appendChild(toast); setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3000);
     }
 
+    // ===================================================================
+    // ========== TAMBAHAN BAHARU: RANCANGAN TAHUNAN PINTAR ==========
+    // ===================================================================
+
+    function parseTopics(raw) {
+        return raw.split('\n').map(t => t.trim()).filter(t => t.length > 0);
+    }
+
+    function parseHolidays(raw) {
+        if (!raw || !raw.trim()) return [];
+        return raw.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n > 0);
+    }
+
+    function simulateAnnualPlan(topics, totalWeeks, holidays, startDateStr) {
+        const plan = [];
+        const startDate = new Date(startDateStr);
+
+        const teachingWeekNumbers = [];
+        for (let w = 1; w <= totalWeeks; w++) {
+            if (!holidays.includes(w)) teachingWeekNumbers.push(w);
+        }
+
+        const weeksPerTopic = teachingWeekNumbers.length / topics.length;
+
+        let teachingIdx = 0;
+        for (let w = 1; w <= totalWeeks; w++) {
+            const weekStart = new Date(startDate);
+            weekStart.setDate(startDate.getDate() + (w - 1) * 7);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 4);
+
+            const dateRange = `${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}`;
+
+            if (holidays.includes(w)) {
+                plan.push({
+                    week: w, dates: dateRange,
+                    topic: '🛑 CUTI SEKOLAH',
+                    objective: '-', activities: '-',
+                    isHoliday: true
+                });
+                continue;
+            }
+
+            let topicIdx = Math.floor(teachingIdx / weeksPerTopic);
+            if (topicIdx >= topics.length) topicIdx = topics.length - 1;
+            const topic = topics[topicIdx];
+
+            const objective = `Murid dapat memahami dan mengamalkan ${topic} dalam kehidupan harian.`;
+            const activities = [
+                `Perbincangan berkaitan ${topic}`,
+                `Aktiviti PAK21 (contoh: role play, gallery walk)`,
+                `Lembaran kerja / kuiz`,
+                `Refleksi nilai`
+            ].join('; ');
+
+            plan.push({
+                week: w, dates: dateRange, topic: topic,
+                objective: objective, activities: activities,
+                isHoliday: false
+            });
+
+            teachingIdx++;
+        }
+
+        return plan;
+    }
+
+    function generateAnnualPlan(event) {
+        event.preventDefault();
+
+        const year = document.getElementById('a-year').value;
+        const kelas = document.getElementById('a-class').value.trim();
+        const startDate = document.getElementById('a-start').value;
+        const totalWeeks = parseInt(document.getElementById('a-weeks').value);
+        const holidaysRaw = document.getElementById('a-holidays').value;
+        const topicsRaw = document.getElementById('a-topics').value;
+
+        const topics = parseTopics(topicsRaw);
+        const holidays = parseHolidays(holidaysRaw);
+
+        if (!topics.length) { showToast('Sila masukkan sekurang-kurangnya 1 tajuk buku teks.', 'error'); return; }
+        if (!startDate) { showToast('Sila pilih tarikh mula persekolahan.', 'error'); return; }
+
+        const loadingEl = document.getElementById('loading-annual');
+        const btnEl = document.getElementById('btn-annual');
+        loadingEl.classList.add('active');
+        btnEl.disabled = true;
+
+        setTimeout(() => {
+            try {
+                const plan = simulateAnnualPlan(topics, totalWeeks, holidays, startDate);
+                currentAnnualResult = {
+                    year, kelas, startDate, totalWeeks, holidays, topics, plan,
+                    generatedAt: new Date().toISOString()
+                };
+                renderAnnualResult(currentAnnualResult);
+                loadingEl.classList.remove('active');
+                btnEl.disabled = false;
+                showToast('✅ Rancangan tahunan berjaya disusun!');
+            } catch (e) {
+                loadingEl.classList.remove('active');
+                btnEl.disabled = false;
+                showToast('❌ Ralat: ' + e.message, 'error');
+            }
+        }, 900);
+    }
+
+    function renderAnnualResult(data) {
+        const card = document.getElementById('annual-result-card');
+        const summaryEl = document.getElementById('annual-summary');
+        const resultEl = document.getElementById('annual-result');
+
+        const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
+        const holidayWeeks = data.plan.filter(p => p.isHoliday).length;
+
+        summaryEl.innerHTML = `
+            <div>Tahun: <span>${data.year}</span></div>
+            <div>Kelas: <span>${escapeHTML(data.kelas)}</span></div>
+            <div>Jumlah Minggu: <span>${data.totalWeeks}</span></div>
+            <div>Minggu Pengajaran: <span>${teachingWeeks}</span></div>
+            <div>Minggu Cuti: <span>${holidayWeeks}</span></div>
+            <div>Jumlah Tajuk: <span>${data.topics.length}</span></div>
+        `;
+
+        let html = '<table class="annual-table"><thead><tr>';
+        html += '<th style="width:8%;">Minggu</th><th style="width:18%;">Tarikh</th><th style="width:25%;">Tajuk</th><th style="width:25%;">Objektif</th><th style="width:24%;">Cadangan Aktiviti</th>';
+        html += '</tr></thead><tbody>';
+
+        data.plan.forEach(row => {
+            const cls = row.isHoliday ? ' class="holiday"' : '';
+            html += `<tr${cls}>`;
+            html += `<td><strong>${row.week}</strong></td>`;
+            html += `<td>${row.dates}</td>`;
+            html += `<td>${escapeHTML(row.topic)}</td>`;
+            html += `<td>${escapeHTML(row.objective)}</td>`;
+            html += `<td>${escapeHTML(row.activities)}</td>`;
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        resultEl.innerHTML = html;
+        card.style.display = 'block';
+    }
+
+    function printAnnualPlan() {
+        if (!currentAnnualResult) { showToast('Tiada rancangan untuk dicetak.', 'error'); return; }
+        const data = currentAnnualResult;
+
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        if (!printWindow) { showToast('Sila benarkan pop-up.', 'error'); return; }
+
+        const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
+        const holidayWeeks = data.plan.filter(p => p.isHoliday).length;
+
+        let rows = '';
+        data.plan.forEach(r => {
+            const style = r.isHoliday ? 'background:#fff3cd; font-style:italic;' : '';
+            rows += `<tr style="${style}">
+                <td style="text-align:center;"><strong>${r.week}</strong></td>
+                <td>${r.dates}</td>
+                <td>${r.topic}</td>
+                <td>${r.objective}</td>
+                <td>${r.activities}</td>
+            </tr>`;
+        });
+
+        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Rancangan Tahunan ${data.year}</title>
+        <style>
+            body{font-family:'Times New Roman',Times,serif;font-size:11pt;margin:15mm;background:white;}
+            .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px;}
+            .header-text{text-align:center;flex:1;}
+            .header-text h2{margin:0;font-size:15pt;}
+            .header-text p{margin:2px 0;font-size:10pt;}
+            .summary{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:15px;font-size:10pt;}
+            .summary span{font-weight:bold;}
+            table{width:100%;border-collapse:collapse;}
+            th,td{border:1px solid #000;padding:6px;vertical-align:top;font-size:10pt;}
+            th{background:#e8e8e8;font-weight:bold;text-align:center;}
+            .signature{margin-top:40px;display:flex;justify-content:space-between;}
+            .signature div{text-align:center;width:45%;}
+            button{padding:10px 20px;font-size:14px;cursor:pointer;margin-right:5px;}
+            @media print{button{display:none;}}
+        </style></head><body>
+        <div style="text-align:right;margin-bottom:10px;">
+            <button onclick="window.print()">🖨️ Cetak</button>
+            <button onclick="window.close()">❌ Tutup</button>
+        </div>
+        <div class="header">
+            <div style="width:60px;"></div>
+            <div class="header-text">
+                <h2>RANCANGAN PENGAJARAN TAHUNAN</h2>
+                <p>PENDIDIKAN MORAL</p>
+                <p><strong>TAHUN ${data.year} • KELAS ${data.kelas}</strong></p>
+            </div>
+            <div style="width:60px;"></div>
+        </div>
+        <div class="summary">
+            <div>Jumlah Minggu: <span>${data.totalWeeks}</span></div>
+            <div>Minggu Pengajaran: <span>${teachingWeeks}</span></div>
+            <div>Minggu Cuti: <span>${holidayWeeks}</span></div>
+            <div>Jumlah Tajuk: <span>${data.topics.length}</span></div>
+        </div>
+        <table>
+            <thead><tr>
+                <th style="width:7%;">Minggu</th>
+                <th style="width:16%;">Tarikh</th>
+                <th style="width:24%;">Tajuk</th>
+                <th style="width:26%;">Objektif</th>
+                <th style="width:27%;">Cadangan Aktiviti</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+        <div class="signature">
+            <div><p>......................................</p><p>(Tandatangan Guru)</p></div>
+            <div><p>......................................</p><p>(Guru Besar / PK)</p></div>
+        </div>
+        </body></html>`);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => { printWindow.print(); }, 500);
+    }
+
+    function saveAnnualPlan() {
+        if (!currentAnnualResult) { showToast('Tiada rancangan untuk disimpan.', 'error'); return; }
+        annualPlans = annualPlans.filter(p => !(p.year === currentAnnualResult.year && p.kelas === currentAnnualResult.kelas));
+        annualPlans.push(currentAnnualResult);
+        saveAnnualData();
+        renderSavedAnnual();
+        showToast('💾 Rancangan tahunan disimpan!');
+    }
+
+    function renderSavedAnnual() {
+        const container = document.getElementById('saved-annual-container');
+        if (!annualPlans.length) {
+            container.innerHTML = '<p style="color:var(--grey); text-align:center; font-size:0.9rem;">Tiada rancangan tersimpan.</p>';
+            return;
+        }
+        const sorted = [...annualPlans].sort((a,b) => b.year - a.year);
+        container.innerHTML = sorted.map((p) => {
+            const realIdx = annualPlans.indexOf(p);
+            return `
+            <div class="saved-annual-item">
+                <div class="saved-annual-info">
+                    <h4>📚 ${p.year} • ${escapeHTML(p.kelas)}</h4>
+                    <p>${p.topics.length} tajuk • ${p.totalWeeks} minggu • Dijana: ${new Date(p.generatedAt).toLocaleDateString('ms-MY')}</p>
+                </div>
+                <div class="rph-actions">
+                    <button class="btn btn-sm btn-primary" onclick="loadAnnualPlan(${realIdx})">📂</button>
+                    <button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printSavedAnnual(${realIdx})">🖨️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteAnnualPlan(${realIdx})">🗑️</button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function loadAnnualPlan(idx) {
+        const plan = annualPlans[idx];
+        if (!plan) return;
+        currentAnnualResult = plan;
+        document.getElementById('a-year').value = plan.year;
+        document.getElementById('a-class').value = plan.kelas;
+        document.getElementById('a-start').value = plan.startDate;
+        document.getElementById('a-weeks').value = plan.totalWeeks;
+        document.getElementById('a-holidays').value = (plan.holidays || []).join(',');
+        document.getElementById('a-topics').value = plan.topics.join('\n');
+        renderAnnualResult(plan);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('📂 Rancangan dimuatkan!');
+    }
+
+    function printSavedAnnual(idx) {
+        const plan = annualPlans[idx];
+        if (!plan) return;
+        currentAnnualResult = plan;
+        printAnnualPlan();
+    }
+
+    function deleteAnnualPlan(idx) {
+        if (!confirm('Padam rancangan tahunan ini?')) return;
+        annualPlans.splice(idx, 1);
+        saveAnnualData();
+        renderSavedAnnual();
+        showToast('🗑️ Rancangan dipadam.');
+    }
+
+    // ===================================================================
+    // ========== TAMAT TAMBAHAN RANCANGAN TAHUNAN ==========
+    // ===================================================================
+
     function init() {
         document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
         renderList();
+        renderSavedAnnual();   // ===== TAMBAHAN =====
         document.getElementById('search-input')?.addEventListener('keydown', function(e) { if (e.key === 'Escape') { this.value = ''; renderList(); this.blur(); } });
     }
     init();
