@@ -88,6 +88,56 @@
         .time-per-day h5 { color: var(--primary); font-size: 0.85rem; margin-bottom: 8px; }
         .time-per-day .time-grid { grid-template-columns: 1fr 1fr; }
 
+        /* ===== TAMBAHAN: Panel masa per hari ===== */
+        .day-time-list {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .day-time-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 12px;
+            border-left: 4px solid var(--accent);
+            display: none;
+        }
+        .day-time-item.active {
+            display: block;
+            animation: fadeIn 0.2s;
+        }
+        .day-time-item h6 {
+            color: var(--primary);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .day-time-item h6 .day-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+        .day-time-item .time-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .day-time-item .form-group {
+            margin-bottom: 0;
+        }
+        .day-time-item .form-group label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .day-time-item .form-group input {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+
         /* ===== TAMBAHAN: Fokus Tahun ===== */
         .year-badge {
             display: inline-block;
@@ -142,7 +192,6 @@
             <input type="hidden" id="rph-id">
             <input type="hidden" id="f-worksheet">
 
-            <!-- TAMBAHAN: Pemilih Tahun -->
             <div class="form-group">
                 <label>🎓 Tahun</label>
                 <select id="f-year" onchange="updateFocusInfo('f')">
@@ -231,7 +280,6 @@
                 <div class="form-group"><label>🏫 Kelas</label><input type="text" id="a-class" placeholder="cth: 6 Bestari" required></div>
             </div>
 
-            <!-- TAMBAHAN: Pemilih Tahun untuk RPT -->
             <div class="form-group">
                 <label>🎓 Tahun (Fokus)</label>
                 <select id="a-tahun" onchange="updateFocusInfo('a')">
@@ -271,25 +319,59 @@
         <div id="batch-config" class="batch-config">
             <h4>⚙️ Tetapan Jana RPH Setahun</h4>
             <p style="font-size:0.8rem; color: var(--grey); margin-bottom: 12px;">
-                Pilih <strong>hari PdPC dalam seminggu</strong> (boleh pilih lebih daripada satu).
+                Pilih <strong>hari PdPC</strong>. Setiap hari boleh mempunyai <strong>masa berbeza</strong>.
             </p>
             <div class="form-group">
                 <label>📅 Hari PdPC dalam Seminggu (boleh pilih banyak)</label>
                 <div class="days-grid">
-                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-1" value="1" checked> Isnin</label>
-                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-2" value="2"> Selasa</label>
-                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-3" value="3"> Rabu</label>
-                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-4" value="4"> Khamis</label>
-                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-5" value="5"> Jumaat</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-1" value="1" checked onchange="toggleDayTime(1)"> Isnin</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-2" value="2" onchange="toggleDayTime(2)"> Selasa</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-3" value="3" onchange="toggleDayTime(3)"> Rabu</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-4" value="4" onchange="toggleDayTime(4)"> Khamis</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-5" value="5" onchange="toggleDayTime(5)"> Jumaat</label>
                 </div>
             </div>
-            <div class="time-per-day">
-                <h5>⏰ Masa PdPC (untuk semua hari)</h5>
-                <div class="time-grid">
-                    <div class="form-group" style="margin-bottom:0;"><label>Masa Mula</label><input type="time" id="batch-time-start" value="08:00"></div>
-                    <div class="form-group" style="margin-bottom:0;"><label>Masa Tamat</label><input type="time" id="batch-time-end" value="09:00"></div>
+
+            <!-- ===== PERUBAHAN UTAMA: Masa berbeza setiap hari ===== -->
+            <div class="day-time-list">
+                <div class="day-time-item active" id="time-1">
+                    <h6><span class="day-dot"></span>⏰ Masa PdPC — Isnin</h6>
+                    <div class="time-grid">
+                        <div class="form-group"><label>Mula</label><input type="time" id="time-1-start" value="08:00"></div>
+                        <div class="form-group"><label>Tamat</label><input type="time" id="time-1-end" value="09:00"></div>
+                    </div>
+                </div>
+                <div class="day-time-item" id="time-2">
+                    <h6><span class="day-dot"></span>⏰ Masa PdPC — Selasa</h6>
+                    <div class="time-grid">
+                        <div class="form-group"><label>Mula</label><input type="time" id="time-2-start" value="08:00"></div>
+                        <div class="form-group"><label>Tamat</label><input type="time" id="time-2-end" value="09:00"></div>
+                    </div>
+                </div>
+                <div class="day-time-item" id="time-3">
+                    <h6><span class="day-dot"></span>⏰ Masa PdPC — Rabu</h6>
+                    <div class="time-grid">
+                        <div class="form-group"><label>Mula</label><input type="time" id="time-3-start" value="08:00"></div>
+                        <div class="form-group"><label>Tamat</label><input type="time" id="time-3-end" value="09:00"></div>
+                    </div>
+                </div>
+                <div class="day-time-item" id="time-4">
+                    <h6><span class="day-dot"></span>⏰ Masa PdPC — Khamis</h6>
+                    <div class="time-grid">
+                        <div class="form-group"><label>Mula</label><input type="time" id="time-4-start" value="08:00"></div>
+                        <div class="form-group"><label>Tamat</label><input type="time" id="time-4-end" value="09:00"></div>
+                    </div>
+                </div>
+                <div class="day-time-item" id="time-5">
+                    <h6><span class="day-dot"></span>⏰ Masa PdPC — Jumaat</h6>
+                    <div class="time-grid">
+                        <div class="form-group"><label>Mula</label><input type="time" id="time-5-start" value="08:00"></div>
+                        <div class="form-group"><label>Tamat</label><input type="time" id="time-5-end" value="09:00"></div>
+                    </div>
                 </div>
             </div>
+            <!-- ===== TAMAT PERUBAHAN ===== -->
+
             <button type="button" class="btn btn-danger btn-block" style="margin-top: 12px;" onclick="confirmGenerateAllRPH()">🚀 Jana Semua RPH Sekarang</button>
         </div>
     </div>
@@ -317,186 +399,47 @@
     let annualPlans = JSON.parse(localStorage.getItem('annualPlans')) || [];
     let currentAnnualResult = null;
 
-    // ================================================================
-    // ===== PANGKALAN DATA SK/SP PENDIDIKAN MORAL (2 TAHUN) =====
-    // ================================================================
-
-    // ===== TAHUN 6 — FOKUS: KESAN & IMPAK KEPADA NEGARA =====
+    // ===== PANGKALAN DATA SK/SP =====
     const moralValueDB_T6 = {
         "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: [
-            "Menyatakan kepentingan kepercayaan kepada Tuhan.",
-            "Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.",
-            "Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.",
-            "Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.",
-            "Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."
-        ]},
-        "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: [
-            "Menyatakan maksud baik hati.",
-            "Menjelaskan cara membantu individu dan masyarakat.",
-            "Mengamalkan sikap baik hati tanpa mengira latar belakang.",
-            "Menghayati nilai baik hati untuk perpaduan negara."
-        ]},
-        "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: [
-            "Menyatakan tanggungjawab sebagai warganegara.",
-            "Menjelaskan kepentingan melaksanakan tanggungjawab.",
-            "Melaksanakan tanggungjawab terhadap negara.",
-            "Menghayati tanggungjawab menjaga nama baik negara."
-        ]},
-        "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: [
-            "Menyatakan penghargaan kepada pihak yang berjasa.",
-            "Menghargai sumbangan semua pihak dalam pembangunan negara.",
-            "Menghayati nilai berterima kasih dalam masyarakat majmuk."
-        ]},
-        "Hemah Tinggi": { bil: 5, sk: "5. Hemah Tinggi", sp: ["5.1","5.2","5.3","5.4"], spDesc: [
-            "Menyatakan maksud hemah tinggi.",
-            "Menjelaskan cara berbudi bahasa dalam pelbagai situasi.",
-            "Mengamalkan hemah tinggi untuk meningkatkan imej negara.",
-            "Menghayati nilai hemah tinggi dalam kehidupan harian."
-        ]},
-        "Hormat": { bil: 6, sk: "6. Hormat", sp: ["6.1","6.2","6.3"], spDesc: [
-            "Menyatakan kepentingan hormat-menghormati.",
-            "Menghormati lambang negara, pemimpin dan individu.",
-            "Menghayati nilai hormat untuk kesejahteraan negara."
-        ]},
-        "Kasih Sayang": { bil: 7, sk: "7. Kasih Sayang", sp: ["7.1","7.2","7.3","7.4"], spDesc: [
-            "Menyatakan maksud kasih sayang.",
-            "Menjelaskan cara menyayangi negara (patriotisme).",
-            "Mengamalkan kasih sayang untuk keharmonian masyarakat.",
-            "Menghayati nilai kasih sayang terhadap negara."
-        ]},
-        "Keadilan": { bil: 8, sk: "8. Keadilan", sp: ["8.1","8.2","8.3"], spDesc: [
-            "Menyatakan maksud keadilan.",
-            "Menjelaskan cara bersikap adil dalam semua urusan.",
-            "Menghayati nilai keadilan untuk kesejahteraan negara."
-        ]},
-        "Keberanian": { bil: 9, sk: "9. Keberanian", sp: ["9.1","9.2","9.3"], spDesc: [
-            "Menyatakan maksud keberanian.",
-            "Menjelaskan cara berani mempertahankan maruah negara.",
-            "Menghayati nilai keberanian dalam kehidupan."
-        ]},
-        "Kejujuran": { bil: 10, sk: "10. Kejujuran", sp: ["10.1","10.2","10.3"], spDesc: [
-            "Menyatakan maksud kejujuran.",
-            "Menjelaskan kepentingan amanah dan jujur.",
-            "Menghayati nilai kejujuran terhadap masyarakat dan negara."
-        ]},
-        "Kerajinan": { bil: 11, sk: "11. Kerajinan", sp: ["11.1","11.2","11.3"], spDesc: [
-            "Menyatakan maksud kerajinan.",
-            "Menjelaskan cara berusaha gigih untuk kejayaan.",
-            "Menghayati nilai kerajinan untuk pembangunan negara."
-        ]},
-        "Kerjasama": { bil: 12, sk: "12. Kerjasama", sp: ["12.1","12.2","12.3","12.4"], spDesc: [
-            "Menyatakan maksud kerjasama.",
-            "Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.",
-            "Mengamalkan kerjasama untuk perpaduan kaum.",
-            "Menghayati nilai kerjasama untuk keharmonian negara."
-        ]},
-        "Kesederhanaan": { bil: 13, sk: "13. Kesederhanaan", sp: ["13.1","13.2","13.3"], spDesc: [
-            "Menyatakan maksud kesederhanaan.",
-            "Menjelaskan cara mengawal diri dalam pelbagai situasi.",
-            "Menghayati nilai kesederhanaan untuk perpaduan negara."
-        ]},
-        "Toleransi": { bil: 14, sk: "14. Toleransi", sp: ["14.1","14.2","14.3","14.4"], spDesc: [
-            "Menyatakan maksud toleransi.",
-            "Menjelaskan cara bertolak ansur sesama jiran dan rakan.",
-            "Mengamalkan toleransi untuk memupuk perpaduan kaum.",
-            "Menghayati nilai toleransi untuk keharmonian negara."
-        ]}
+            "Menyatakan kepentingan kepercayaan kepada Tuhan.","Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.","Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.","Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.","Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."]},
+        "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: ["Menyatakan maksud baik hati.","Menjelaskan cara membantu individu dan masyarakat.","Mengamalkan sikap baik hati tanpa mengira latar belakang.","Menghayati nilai baik hati untuk perpaduan negara."]},
+        "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: ["Menyatakan tanggungjawab sebagai warganegara.","Menjelaskan kepentingan melaksanakan tanggungjawab.","Melaksanakan tanggungjawab terhadap negara.","Menghayati tanggungjawab menjaga nama baik negara."]},
+        "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: ["Menyatakan penghargaan kepada pihak yang berjasa.","Menghargai sumbangan semua pihak dalam pembangunan negara.","Menghayati nilai berterima kasih dalam masyarakat majmuk."]},
+        "Hemah Tinggi": { bil: 5, sk: "5. Hemah Tinggi", sp: ["5.1","5.2","5.3","5.4"], spDesc: ["Menyatakan maksud hemah tinggi.","Menjelaskan cara berbudi bahasa dalam pelbagai situasi.","Mengamalkan hemah tinggi untuk meningkatkan imej negara.","Menghayati nilai hemah tinggi dalam kehidupan harian."]},
+        "Hormat": { bil: 6, sk: "6. Hormat", sp: ["6.1","6.2","6.3"], spDesc: ["Menyatakan kepentingan hormat-menghormati.","Menghormati lambang negara, pemimpin dan individu.","Menghayati nilai hormat untuk kesejahteraan negara."]},
+        "Kasih Sayang": { bil: 7, sk: "7. Kasih Sayang", sp: ["7.1","7.2","7.3","7.4"], spDesc: ["Menyatakan maksud kasih sayang.","Menjelaskan cara menyayangi negara (patriotisme).","Mengamalkan kasih sayang untuk keharmonian masyarakat.","Menghayati nilai kasih sayang terhadap negara."]},
+        "Keadilan": { bil: 8, sk: "8. Keadilan", sp: ["8.1","8.2","8.3"], spDesc: ["Menyatakan maksud keadilan.","Menjelaskan cara bersikap adil dalam semua urusan.","Menghayati nilai keadilan untuk kesejahteraan negara."]},
+        "Keberanian": { bil: 9, sk: "9. Keberanian", sp: ["9.1","9.2","9.3"], spDesc: ["Menyatakan maksud keberanian.","Menjelaskan cara berani mempertahankan maruah negara.","Menghayati nilai keberanian dalam kehidupan."]},
+        "Kejujuran": { bil: 10, sk: "10. Kejujuran", sp: ["10.1","10.2","10.3"], spDesc: ["Menyatakan maksud kejujuran.","Menjelaskan kepentingan amanah dan jujur.","Menghayati nilai kejujuran terhadap masyarakat dan negara."]},
+        "Kerajinan": { bil: 11, sk: "11. Kerajinan", sp: ["11.1","11.2","11.3"], spDesc: ["Menyatakan maksud kerajinan.","Menjelaskan cara berusaha gigih untuk kejayaan.","Menghayati nilai kerajinan untuk pembangunan negara."]},
+        "Kerjasama": { bil: 12, sk: "12. Kerjasama", sp: ["12.1","12.2","12.3","12.4"], spDesc: ["Menyatakan maksud kerjasama.","Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.","Mengamalkan kerjasama untuk perpaduan kaum.","Menghayati nilai kerjasama untuk keharmonian negara."]},
+        "Kesederhanaan": { bil: 13, sk: "13. Kesederhanaan", sp: ["13.1","13.2","13.3"], spDesc: ["Menyatakan maksud kesederhanaan.","Menjelaskan cara mengawal diri dalam pelbagai situasi.","Menghayati nilai kesederhanaan untuk perpaduan negara."]},
+        "Toleransi": { bil: 14, sk: "14. Toleransi", sp: ["14.1","14.2","14.3","14.4"], spDesc: ["Menyatakan maksud toleransi.","Menjelaskan cara bertolak ansur sesama jiran dan rakan.","Mengamalkan toleransi untuk memupuk perpaduan kaum.","Menghayati nilai toleransi untuk keharmonian negara."]}
     };
 
-    // ===== TAHUN 5 — FOKUS: KESAN & IMPAK DALAM KEHIDUPAN BERMASYARAKAT =====
     const moralValueDB_T5 = {
         "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: [
-            "Menyatakan kepentingan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.",
-            "Menjelaskan cara menunjukkan kepercayaan kepada Tuhan terhadap masyarakat.",
-            "Mengamalkan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.",
-            "Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan masyarakat.",
-            "Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian masyarakat."
-        ]},
-        "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: [
-            "Menyatakan maksud baik hati.",
-            "Menjelaskan cara membantu jiran dan rakan.",
-            "Mengamalkan sikap baik hati dalam masyarakat.",
-            "Menghayati nilai baik hati untuk kesejahteraan masyarakat."
-        ]},
-        "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: [
-            "Menyatakan tanggungjawab sebagai ahli masyarakat.",
-            "Menjelaskan kepentingan melaksanakan tanggungjawab dalam masyarakat.",
-            "Melaksanakan tanggungjawab terhadap masyarakat.",
-            "Menghayati tanggungjawab untuk kesejahteraan masyarakat."
-        ]},
-        "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: [
-            "Menyatakan penghargaan kepada ahli masyarakat.",
-            "Menghargai sumbangan masyarakat dalam kehidupan seharian.",
-            "Menghayati nilai berterima kasih dalam kehidupan bermasyarakat."
-        ]},
-        "Hemah Tinggi": { bil: 5, sk: "5. Hemah Tinggi", sp: ["5.1","5.2","5.3","5.4"], spDesc: [
-            "Menyatakan maksud hemah tinggi.",
-            "Menjelaskan cara berbudi bahasa dalam masyarakat.",
-            "Mengamalkan hemah tinggi dalam kehidupan bermasyarakat.",
-            "Menghayati nilai hemah tinggi untuk kesejahteraan masyarakat."
-        ]},
-        "Hormat": { bil: 6, sk: "6. Hormat", sp: ["6.1","6.2","6.3"], spDesc: [
-            "Menyatakan kepentingan hormat-menghormati dalam masyarakat.",
-            "Menghormati ahli masyarakat dan jiran tetangga.",
-            "Menghayati nilai hormat untuk keharmonian masyarakat."
-        ]},
-        "Kasih Sayang": { bil: 7, sk: "7. Kasih Sayang", sp: ["7.1","7.2","7.3","7.4"], spDesc: [
-            "Menyatakan maksud kasih sayang.",
-            "Menjelaskan cara menyayangi ahli masyarakat.",
-            "Mengamalkan kasih sayang dalam kehidupan bermasyarakat.",
-            "Menghayati nilai kasih sayang terhadap masyarakat."
-        ]},
-        "Keadilan": { bil: 8, sk: "8. Keadilan", sp: ["8.1","8.2","8.3"], spDesc: [
-            "Menyatakan maksud keadilan.",
-            "Menjelaskan cara bersikap adil dalam masyarakat.",
-            "Menghayati nilai keadilan untuk kesejahteraan masyarakat."
-        ]},
-        "Keberanian": { bil: 9, sk: "9. Keberanian", sp: ["9.1","9.2","9.3"], spDesc: [
-            "Menyatakan maksud keberanian.",
-            "Menjelaskan cara berani menegakkan kebenaran dalam masyarakat.",
-            "Menghayati nilai keberanian dalam kehidupan bermasyarakat."
-        ]},
-        "Kejujuran": { bil: 10, sk: "10. Kejujuran", sp: ["10.1","10.2","10.3"], spDesc: [
-            "Menyatakan maksud kejujuran.",
-            "Menjelaskan kepentingan amanah dalam masyarakat.",
-            "Menghayati nilai kejujuran dalam kehidupan bermasyarakat."
-        ]},
-        "Kerajinan": { bil: 11, sk: "11. Kerajinan", sp: ["11.1","11.2","11.3"], spDesc: [
-            "Menyatakan maksud kerajinan.",
-            "Menjelaskan cara berusaha gigih untuk kesejahteraan masyarakat.",
-            "Menghayati nilai kerajinan dalam kehidupan bermasyarakat."
-        ]},
-        "Kerjasama": { bil: 12, sk: "12. Kerjasama", sp: ["12.1","12.2","12.3","12.4"], spDesc: [
-            "Menyatakan maksud kerjasama.",
-            "Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.",
-            "Mengamalkan kerjasama untuk kesejahteraan masyarakat.",
-            "Menghayati nilai kerjasama dalam kehidupan bermasyarakat."
-        ]},
-        "Kesederhanaan": { bil: 13, sk: "13. Kesederhanaan", sp: ["13.1","13.2","13.3"], spDesc: [
-            "Menyatakan maksud kesederhanaan.",
-            "Menjelaskan cara mengawal diri dalam masyarakat.",
-            "Menghayati nilai kesederhanaan untuk kesejahteraan masyarakat."
-        ]},
-        "Toleransi": { bil: 14, sk: "14. Toleransi", sp: ["14.1","14.2","14.3","14.4"], spDesc: [
-            "Menyatakan maksud toleransi.",
-            "Menjelaskan cara bertolak ansur sesama jiran dan rakan.",
-            "Mengamalkan toleransi dalam kehidupan bermasyarakat.",
-            "Menghayati nilai toleransi untuk keharmonian masyarakat."
-        ]}
+            "Menyatakan kepentingan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.","Menjelaskan cara menunjukkan kepercayaan kepada Tuhan terhadap masyarakat.","Mengamalkan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.","Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan masyarakat.","Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian masyarakat."]},
+        "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: ["Menyatakan maksud baik hati.","Menjelaskan cara membantu jiran dan rakan.","Mengamalkan sikap baik hati dalam masyarakat.","Menghayati nilai baik hati untuk kesejahteraan masyarakat."]},
+        "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: ["Menyatakan tanggungjawab sebagai ahli masyarakat.","Menjelaskan kepentingan melaksanakan tanggungjawab dalam masyarakat.","Melaksanakan tanggungjawab terhadap masyarakat.","Menghayati tanggungjawab untuk kesejahteraan masyarakat."]},
+        "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: ["Menyatakan penghargaan kepada ahli masyarakat.","Menghargai sumbangan masyarakat dalam kehidupan seharian.","Menghayati nilai berterima kasih dalam kehidupan bermasyarakat."]},
+        "Hemah Tinggi": { bil: 5, sk: "5. Hemah Tinggi", sp: ["5.1","5.2","5.3","5.4"], spDesc: ["Menyatakan maksud hemah tinggi.","Menjelaskan cara berbudi bahasa dalam masyarakat.","Mengamalkan hemah tinggi dalam kehidupan bermasyarakat.","Menghayati nilai hemah tinggi untuk kesejahteraan masyarakat."]},
+        "Hormat": { bil: 6, sk: "6. Hormat", sp: ["6.1","6.2","6.3"], spDesc: ["Menyatakan kepentingan hormat-menghormati dalam masyarakat.","Menghormati ahli masyarakat dan jiran tetangga.","Menghayati nilai hormat untuk keharmonian masyarakat."]},
+        "Kasih Sayang": { bil: 7, sk: "7. Kasih Sayang", sp: ["7.1","7.2","7.3","7.4"], spDesc: ["Menyatakan maksud kasih sayang.","Menjelaskan cara menyayangi ahli masyarakat.","Mengamalkan kasih sayang dalam kehidupan bermasyarakat.","Menghayati nilai kasih sayang terhadap masyarakat."]},
+        "Keadilan": { bil: 8, sk: "8. Keadilan", sp: ["8.1","8.2","8.3"], spDesc: ["Menyatakan maksud keadilan.","Menjelaskan cara bersikap adil dalam masyarakat.","Menghayati nilai keadilan untuk kesejahteraan masyarakat."]},
+        "Keberanian": { bil: 9, sk: "9. Keberanian", sp: ["9.1","9.2","9.3"], spDesc: ["Menyatakan maksud keberanian.","Menjelaskan cara berani menegakkan kebenaran dalam masyarakat.","Menghayati nilai keberanian dalam kehidupan bermasyarakat."]},
+        "Kejujuran": { bil: 10, sk: "10. Kejujuran", sp: ["10.1","10.2","10.3"], spDesc: ["Menyatakan maksud kejujuran.","Menjelaskan kepentingan amanah dalam masyarakat.","Menghayati nilai kejujuran dalam kehidupan bermasyarakat."]},
+        "Kerajinan": { bil: 11, sk: "11. Kerajinan", sp: ["11.1","11.2","11.3"], spDesc: ["Menyatakan maksud kerajinan.","Menjelaskan cara berusaha gigih untuk kesejahteraan masyarakat.","Menghayati nilai kerajinan dalam kehidupan bermasyarakat."]},
+        "Kerjasama": { bil: 12, sk: "12. Kerjasama", sp: ["12.1","12.2","12.3","12.4"], spDesc: ["Menyatakan maksud kerjasama.","Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.","Mengamalkan kerjasama untuk kesejahteraan masyarakat.","Menghayati nilai kerjasama dalam kehidupan bermasyarakat."]},
+        "Kesederhanaan": { bil: 13, sk: "13. Kesederhanaan", sp: ["13.1","13.2","13.3"], spDesc: ["Menyatakan maksud kesederhanaan.","Menjelaskan cara mengawal diri dalam masyarakat.","Menghayati nilai kesederhanaan untuk kesejahteraan masyarakat."]},
+        "Toleransi": { bil: 14, sk: "14. Toleransi", sp: ["14.1","14.2","14.3","14.4"], spDesc: ["Menyatakan maksud toleransi.","Menjelaskan cara bertolak ansur sesama jiran dan rakan.","Mengamalkan toleransi dalam kehidupan bermasyarakat.","Menghayati nilai toleransi untuk keharmonian masyarakat."]}
     };
 
-    // Helper: pilih DB ikut tahun
-    function getDB(year) {
-        return (String(year) === '5') ? moralValueDB_T5 : moralValueDB_T6;
-    }
-    function getFocusLabel(year) {
-        return (String(year) === '5') ? 'Kehidupan Bermasyarakat' : 'Kesan & Impak kepada Negara';
-    }
-    function getThemeTitle(year) {
-        return (String(year) === '5') ? 'Saya dan Masyarakat' : 'Saya dan Negara';
-    }
+    function getDB(year) { return (String(year) === '5') ? moralValueDB_T5 : moralValueDB_T6; }
+    function getFocusLabel(year) { return (String(year) === '5') ? 'Kehidupan Bermasyarakat' : 'Kesan & Impak kepada Negara'; }
+    function getThemeTitle(year) { return (String(year) === '5') ? 'Saya dan Masyarakat' : 'Saya dan Negara'; }
 
-    // Paparkan info fokus
     function updateFocusInfo(prefix) {
         const year = document.getElementById(prefix + (prefix === 'f' ? '-year' : '-tahun'))?.value || '6';
         const focusEl = document.getElementById('focus-info-' + (prefix === 'f' ? 'form' : 'annual'));
@@ -551,16 +494,7 @@
         if (!filtered.length) { container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Tiada RPH.</p></div>`; return; }
         container.innerHTML = filtered.map(i => {
             const yearBadge = i.year ? `<span class="year-badge t${i.year}">Tahun ${i.year}</span>` : '';
-            return `
-            <div class="rph-item">
-                <div class="rph-info"><h3>${escapeHTML(i.topic || 'Tiada Tajuk')} ${yearBadge}</h3><p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)}</p></div>
-                <div class="rph-actions">
-                    <button class="btn btn-sm btn-primary" onclick="editRPH('${i.id}')">✏️</button>
-                    <button class="btn btn-sm btn-warning" onclick="duplicateRPH('${i.id}')">📋</button>
-                    <button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printRPH('${i.id}')">🖨️ Cetak</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteRPH('${i.id}')">🗑️</button>
-                </div>
-            </div>`;
+            return `<div class="rph-item"><div class="rph-info"><h3>${escapeHTML(i.topic || 'Tiada Tajuk')} ${yearBadge}</h3><p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)} | ⏰ ${i.time_start||'--'}-${i.time_end||'--'}</p></div><div class="rph-actions"><button class="btn btn-sm btn-primary" onclick="editRPH('${i.id}')">✏️</button><button class="btn btn-sm btn-warning" onclick="duplicateRPH('${i.id}')">📋</button><button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printRPH('${i.id}')">🖨️ Cetak</button><button class="btn btn-sm btn-danger" onclick="deleteRPH('${i.id}')">🗑️</button></div></div>`;
         }).join('');
     }
     function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
@@ -590,8 +524,7 @@
         e.preventDefault();
         const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
         const rphEntry = {
-            id,
-            year: document.getElementById('f-year').value,
+            id, year: document.getElementById('f-year').value,
             date: document.getElementById('f-date').value, time_start: document.getElementById('f-time-start').value, time_end: document.getElementById('f-time-end').value,
             class: document.getElementById('f-class').value.trim(), theme: document.getElementById('f-theme').value.trim(),
             unit: document.getElementById('f-unit').value.trim(), topic: document.getElementById('f-topic').value.trim(),
@@ -662,8 +595,6 @@
         { lemah: "Isi tempat kosong dengan perkataan yang sesuai (pilihan diberi).", sederhana: "Lengkapkan peta minda tentang ciri-ciri nilai murni.", pandai: "Hasilkan sebuah komik pendek yang menggambarkan amalan nilai." },
         { lemah: "Susun kad perkataan menjadi ayat lengkap tentang nilai.", sederhana: "Tulis perenggan pendek tentang kepentingan nilai.", pandai: "Cipta sebuah sajak atau lagu pendek bertemakan nilai tersebut." }
     ];
-
-    // ===== Worksheet (fokus tahun) =====
     function generateWorksheetHTML(topic, unit, kelas, variationIndex, year) {
         year = year || '6';
         const focusText = year === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
@@ -681,7 +612,6 @@
         const unit = extractFromContext(context, 'Unit') || 'nilai';
         const kelas = extractFromContext(context, 'Kelas') || 'murid';
         const focusText = year === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
-
         switch (type) {
             case 'objectives':
                 return { objectives: [
@@ -910,14 +840,7 @@
         data.plan.forEach(row => {
             const cls = row.isHoliday ? ' class="holiday"' : '';
             html += `<tr${cls}>`;
-            html += `<td><strong>${row.week}</strong></td>`;
-            html += `<td>${row.dates}</td>`;
-            html += `<td>${escapeHTML(row.topic)}</td>`;
-            html += `<td>${escapeHTML(row.sk)}</td>`;
-            html += `<td class="sp-cell">${row.sp || '-'}</td>`;
-            html += `<td>${escapeHTML(row.spDesc)}</td>`;
-            html += `<td>${escapeHTML(row.objective)}</td>`;
-            html += `<td><strong>${escapeHTML(row.pak21Name)}</strong><br><span style="font-size:0.72rem;color:#555;">${escapeHTML(row.pak21Detail)}</span></td>`;
+            html += `<td><strong>${row.week}</strong></td><td>${row.dates}</td><td>${escapeHTML(row.topic)}</td><td>${escapeHTML(row.sk)}</td><td class="sp-cell">${row.sp || '-'}</td><td>${escapeHTML(row.spDesc)}</td><td>${escapeHTML(row.objective)}</td><td><strong>${escapeHTML(row.pak21Name)}</strong><br><span style="font-size:0.72rem;color:#555;">${escapeHTML(row.pak21Detail)}</span></td>`;
             html += '</tr>';
         });
         html += '</tbody></table>';
@@ -1007,6 +930,16 @@
             else el.classList.remove('checked');
         }, 10);
     }
+
+    // ===== TAMBAHAN: Tunjuk/sembunyi panel masa ikut hari terpilih =====
+    function toggleDayTime(day) {
+        const panel = document.getElementById('time-' + day);
+        const cb = document.getElementById('day-' + day);
+        if (!panel || !cb) return;
+        if (cb.checked) panel.classList.add('active');
+        else panel.classList.remove('active');
+    }
+
     function getWeekDate(startDateStr, weekNumber, dayOfWeek) {
         const start = new Date(startDateStr);
         const result = new Date(start);
@@ -1021,6 +954,11 @@
         }
         return days;
     }
+    function getDayTime(day) {
+        const s = document.getElementById('time-' + day + '-start')?.value || '08:00';
+        const e = document.getElementById('time-' + day + '-end')?.value || '09:00';
+        return { start: s, end: e };
+    }
     function dayName(d) {
         return ['', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat'][d] || 'Hari';
     }
@@ -1033,12 +971,24 @@
         if (!teachingWeeks.length) { showToast('Tiada minggu pengajaran dalam RPT ini.', 'error'); return; }
         const selectedDays = getSelectedDays();
         if (!selectedDays.length) { showToast('Sila pilih sekurang-kurangnya satu hari PdPC.', 'error'); return; }
-        const startTime = document.getElementById('batch-time-start').value || '08:00';
-        const endTime = document.getElementById('batch-time-end').value || '09:00';
+
+        // Semak semua hari terpilih ada masa
+        for (const d of selectedDays) {
+            const t = getDayTime(d);
+            if (!t.start || !t.end) {
+                showToast(`Sila isi masa untuk hari ${dayName(d)}.`, 'error');
+                return;
+            }
+        }
+
         const totalRPH = teachingWeeks.length * selectedDays.length;
-        const daysList = selectedDays.map(d => dayName(d)).join(', ');
+        const daysInfo = selectedDays.map(d => {
+            const t = getDayTime(d);
+            return `${dayName(d)} (${t.start}-${t.end})`;
+        }).join('\n');
         const focusText = getFocusLabel(tahun);
-        if (!confirm(`Jana ${totalRPH} RPH lengkap untuk TAHUN ${tahun} (${focusText})?\n\n${data.year} • ${data.kelas}\nHari PdPC: ${daysList}\n(${teachingWeeks.length} minggu × ${selectedDays.length} hari = ${totalRPH} RPH)\n\nRPH akan disimpan dalam Senarai RPH.`)) return;
+
+        if (!confirm(`Jana ${totalRPH} RPH lengkap untuk TAHUN ${tahun} (${focusText})?\n\n${data.year} • ${data.kelas}\n\nHari & Masa PdPC:\n${daysInfo}\n\n(${teachingWeeks.length} minggu × ${selectedDays.length} hari = ${totalRPH} RPH)`)) return;
 
         const btn = event.target;
         btn.disabled = true;
@@ -1051,6 +1001,8 @@
                     selectedDays.forEach(day => {
                         const rphId = `rph_${data.year}_T${tahun}_${data.kelas.replace(/\s+/g,'_')}_w${week.week}_d${day}`;
                         if (rphData.find(r => r.id === rphId)) { skipped++; return; }
+
+                        const dayTime = getDayTime(day);
                         const weekDate = getWeekDate(data.startDate, week.week, day);
                         const dateStr = weekDate.toISOString().split('T')[0];
                         const topic = week.topic;
@@ -1093,8 +1045,12 @@
                         const reinforcement = `1. Lengkapkan peta minda tentang kepentingan ${topic} dalam ${fText}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`;
                         const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic} dan kesannya.\n2. Projek mini: "Kempen ${topic}".\n3. Refleksi peribadi tentang impak amalan ${topic}.`;
                         const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex, tahun);
+
+                        // ===== PERUBAHAN UTAMA: guna masa berbeza setiap hari =====
                         rphData.push({
-                            id: rphId, year: tahun, date: dateStr, time_start: startTime, time_end: endTime,
+                            id: rphId, year: tahun, date: dateStr,
+                            time_start: dayTime.start,
+                            time_end: dayTime.end,
                             class: kelas, theme: getThemeTitle(tahun), unit: unit, topic: topic,
                             sk: week.sk, sp: week.sp,
                             objectives: objectives, activities: activities, success: success,
@@ -1134,6 +1090,8 @@
             const cb = el.querySelector('input[type="checkbox"]');
             if (cb && cb.checked) el.classList.add('checked');
         });
+        // Pastikan panel masa sepadan dengan hari terpilih
+        for (let d = 1; d <= 5; d++) toggleDayTime(d);
     }
     init();
 </script>
