@@ -185,7 +185,6 @@
     <div class="card">
         <h2>📄 RPH Tersimpan</h2>
 
-        <!-- Bar Tindakan Awan -->
         <div class="action-bar" id="action-bar">
             <div class="bar-label" id="cloud-bar-label">☁️ Awan belum diset</div>
             <button class="btn btn-cloud" onclick="saveToCloud()" id="btn-save-cloud" title="Simpan semua data ke GitHub Gist">
@@ -474,6 +473,13 @@
     };
     let isCloudSyncing = false;
 
+    // ===== UTILITI: Bersihkan aksara bukan-ASCII (untuk GitHub header) =====
+    function sanitizeHeaderValue(str) {
+        if (!str) return '';
+        // Buang semua aksara di luar ASCII cetak (0x21 - 0x7E)
+        return String(str).replace(/[^\x21-\x7E]/g, '');
+    }
+
     // ===== PANGKALAN DATA SK/SP =====
     const moralValueDB_T6 = {
         "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: ["Menyatakan kepentingan kepercayaan kepada Tuhan.","Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.","Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.","Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.","Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."]},
@@ -614,7 +620,6 @@
         if (idx !== -1) rphData[idx] = rphEntry; else rphData.push(rphEntry);
         saveData();
         showToast('✅ RPH disimpan!');
-        // Auto-sync ke awan jika diaktifkan
         if (cloudSettings.autoSync && cloudSettings.gistId && cloudSettings.token) {
             saveToCloud(true);
         }
@@ -797,7 +802,7 @@
     }
 
     // ============================================================
-    // ===== GITHUB GIST INTEGRATION =====
+    // ===== GITHUB GIST INTEGRATION (DENGAN PEMBETULAN) =====
     // ============================================================
 
     function updateCloudUI() {
@@ -835,14 +840,26 @@
         document.getElementById('cloud-modal').classList.remove('active');
     }
 
+    // ===== PEMBETULAN 1: saveCloudSettings — bersihkan aksara bukan-ASCII =====
     function saveCloudSettings() {
-        const gistId = document.getElementById('setting-gist-id').value.trim();
-        const token = document.getElementById('setting-gist-token').value.trim();
+        // Bersihkan input — buang semua aksara bukan-ASCII & ruang
+        const gistId = sanitizeHeaderValue(document.getElementById('setting-gist-id').value);
+        const token = sanitizeHeaderValue(document.getElementById('setting-gist-token').value);
         const autoSync = document.getElementById('setting-auto-sync').checked;
 
         if (!gistId || !token) {
             showToast('Sila isi Gist ID dan Token.', 'error');
             return;
+        }
+
+        // Validasi format token GitHub (ghp_... atau github_pat_...)
+        if (!token.startsWith('ghp_') && !token.startsWith('github_pat_') && !token.startsWith('gho_') && !token.startsWith('ghs_')) {
+            if (!confirm('Token tidak nampak seperti token GitHub biasa (ghp_...).\nTeruskan?')) return;
+        }
+
+        // Validasi Gist ID (biasanya 20-40 aksara hex)
+        if (!/^[a-f0-9]{15,40}$/i.test(gistId)) {
+            if (!confirm('Gist ID tidak nampak sah (patut 20-40 aksara hex).\nTeruskan?')) return;
         }
 
         cloudSettings = { gistId, token, autoSync };
@@ -852,7 +869,7 @@
         closeCloudModal();
 
         // Uji sambungan automatik
-        testCloudConnection(true);
+        setTimeout(() => testCloudConnection(true), 300);
     }
 
     function clearCloudSettings() {
@@ -864,16 +881,21 @@
         showToast('🗑️ Tetapan awan dipadam.');
     }
 
+    // ===== PEMBETULAN 2: testCloudConnection =====
     async function testCloudConnection(silent = false) {
         if (!cloudSettings.gistId || !cloudSettings.token) {
             if (!silent) showToast('Sila set Gist ID & Token dahulu.', 'error');
             return false;
         }
+        // Bersihkan sekali lagi untuk pastikan tiada aksara pelik
+        const gistId = sanitizeHeaderValue(cloudSettings.gistId);
+        const token = sanitizeHeaderValue(cloudSettings.token);
+
         const statusEl = document.getElementById('cloud-status');
         statusEl.className = 'cloud-status syncing';
         try {
-            const res = await fetch(`https://api.github.com/gists/${cloudSettings.gistId}`, {
-                headers: { 'Authorization': `token ${cloudSettings.token}` }
+            const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
+                headers: { 'Authorization': `token ${token}` }
             });
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
@@ -890,12 +912,17 @@
         }
     }
 
+    // ===== PEMBETULAN 3: saveToCloud =====
     async function saveToCloud(isAuto = false) {
         if (isCloudSyncing) return;
         if (!cloudSettings.gistId || !cloudSettings.token) {
             if (!isAuto) showToast('Sila set tetapan awan dahulu.', 'error');
             return;
         }
+
+        // Bersihkan aksara sekali lagi (defensive)
+        const gistId = sanitizeHeaderValue(cloudSettings.gistId);
+        const token = sanitizeHeaderValue(cloudSettings.token);
 
         isCloudSyncing = true;
         const statusEl = document.getElementById('cloud-status');
@@ -911,11 +938,11 @@
                 appVersion: '2.0'
             };
 
-            const res = await fetch(`https://api.github.com/gists/${cloudSettings.gistId}`, {
+            const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `token ${cloudSettings.token}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json; charset=utf-8'
                 },
                 body: JSON.stringify({
                     files: {
@@ -945,12 +972,16 @@
         }
     }
 
+    // ===== PEMBETULAN 4: loadFromCloud =====
     async function loadFromCloud() {
         if (!cloudSettings.gistId || !cloudSettings.token) {
             showToast('Sila set tetapan awan dahulu.', 'error');
             return;
         }
         if (isCloudSyncing) return;
+
+        const gistId = sanitizeHeaderValue(cloudSettings.gistId);
+        const token = sanitizeHeaderValue(cloudSettings.token);
 
         isCloudSyncing = true;
         const statusEl = document.getElementById('cloud-status');
@@ -959,8 +990,8 @@
         statusText.textContent = 'Awan: Memuat...';
 
         try {
-            const res = await fetch(`https://api.github.com/gists/${cloudSettings.gistId}`, {
-                headers: { 'Authorization': `token ${cloudSettings.token}` }
+            const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
+                headers: { 'Authorization': `token ${token}` }
             });
 
             if (!res.ok) {
@@ -1354,7 +1385,6 @@
                 let msg = `✅ ${count} RPH Tahun ${tahun} berjaya dijana!`;
                 if (skipped > 0) msg += ` (${skipped} dilangkau)`;
                 showToast(msg);
-                // Auto-sync jika diaktifkan
                 if (cloudSettings.autoSync && cloudSettings.gistId && cloudSettings.token) saveToCloud(true);
                 setTimeout(() => { switchTab('list', document.querySelectorAll('.nav-btn')[0]); }, 800);
             } catch (e) {
@@ -1380,7 +1410,6 @@
         });
         for (let d = 1; d <= 5; d++) toggleDayTime(d);
 
-        // Tutup modal bila klik di luar
         document.getElementById('cloud-modal')?.addEventListener('click', function(e) {
             if (e.target === this) closeCloudModal();
         });
