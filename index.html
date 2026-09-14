@@ -28,7 +28,7 @@
         .card h2 { color: var(--primary); margin-bottom: 20px; font-size: 1.3rem; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--primary); font-size: 0.9rem; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; transition: border 0.3s, box-shadow 0.3s; background: #fafafa; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; transition: border 0.3s, box-shadow 0.3s; background: #fafafa; }
         .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,144,226,0.15); background: var(--white); }
         .form-group textarea { resize: vertical; min-height: 80px; font-family: inherit; }
         .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -63,21 +63,22 @@
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .worksheet-btn { background: #8e44ad; color: white; }
         .worksheet-btn:hover { background: #732d91; }
-
-        /* ===== Gaya Rancangan Tahunan ===== */
-        .annual-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.78rem; min-width: 1100px; }
+        .annual-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.78rem; min-width: 1150px; }
         .annual-table th, .annual-table td { border: 1px solid var(--border); padding: 7px; text-align: left; vertical-align: top; }
         .annual-table th { background: var(--primary); color: white; font-size: 0.75rem; }
         .annual-table tr.holiday { background: #fff3cd; font-style: italic; color: #856404; }
         .annual-table tr:nth-child(even):not(.holiday) { background: #f8f9fa; }
         .annual-table tr:hover:not(.holiday) { background: #eef3f9; }
-        .annual-table td.sp-cell { font-family: 'Courier New', monospace; font-size: 0.75rem; color: #2c3e6b; }
+        .annual-table td.sp-cell { font-family: 'Courier New', monospace; font-size: 0.78rem; color: #2c3e6b; font-weight: 600; background: #eef4fc; }
         .saved-annual-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
         .saved-annual-item:last-child { border-bottom: none; }
         .saved-annual-info h4 { color: var(--primary); margin-bottom: 3px; font-size: 0.95rem; }
         .saved-annual-info p { font-size: 0.8rem; color: var(--grey); }
         .annual-summary { display: flex; gap: 15px; flex-wrap: wrap; padding: 12px; background: #f0f4fa; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; }
         .annual-summary span { color: var(--primary); font-weight: 600; }
+        .batch-config { display: none; margin-top: 12px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid var(--border); }
+        .batch-config.active { display: block; animation: fadeIn 0.3s; }
+        .batch-config h4 { color: var(--primary); margin-bottom: 12px; font-size: 0.95rem; }
     </style>
 </head>
 <body>
@@ -179,7 +180,7 @@
     <div class="card">
         <h2>📅 Rancangan Pengajaran Tahunan (RPT)</h2>
         <p style="font-size:0.85rem; color: var(--grey); margin-bottom: 15px;">
-            AI akan menyusun tajuk buku teks, Standard Kandungan & Pembelajaran, serta aktiviti PAK21 <strong>berbeza-beza</strong> mengikut minggu persekolahan.
+            AI menyusun tajuk, <strong>semua kod SP unit (1.1 – 1.5)</strong>, serta aktiviti PAK21 <strong>berbeza-beza</strong> setiap minggu.
         </p>
         <form id="annual-form" onsubmit="generateAnnualPlan(event)">
             <div class="time-grid">
@@ -198,7 +199,7 @@
                 <label>📚 Senarai Tajuk Buku Teks (satu tajuk per baris)</label>
                 <textarea id="a-topics" rows="10" placeholder="Kepercayaan kepada Tuhan&#10;Baik Hati&#10;Bertanggungjawab&#10;Berterima Kasih&#10;Hemah Tinggi&#10;Hormat&#10;Kasih Sayang&#10;Keadilan&#10;Keberanian&#10;Kejujuran&#10;Kerajinan&#10;Kerjasama&#10;Kesederhanaan&#10;Toleransi"></textarea>
             </div>
-            <button type="submit" class="btn btn-ai" id="btn-annual">🤖 Susun RPT Automatik (SK + SP + PAK21 Pelbagai)</button>
+            <button type="submit" class="btn btn-ai" id="btn-annual">🤖 Susun RPT Automatik (SK + SP Lengkap + PAK21 Pelbagai)</button>
             <div id="loading-annual" class="loading">⏳ AI sedang menyusun minggu, SK, SP & aktiviti...</div>
         </form>
     </div>
@@ -211,6 +212,29 @@
         </div>
         <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;" onclick="printAnnualPlan()">🖨️ Cetak RPT</button>
         <button type="button" class="btn btn-success btn-block" style="margin-top:8px;" onclick="saveAnnualPlan()">💾 Simpan RPT</button>
+        <button type="button" class="btn btn-warning btn-block" style="margin-top:8px;" onclick="toggleBatchConfig()">🗂️ Jana RPH Lengkap Setahun</button>
+
+        <div id="batch-config" class="batch-config">
+            <h4>⚙️ Tetapan Jana RPH Setahun</h4>
+            <p style="font-size:0.8rem; color: var(--grey); margin-bottom: 12px;">
+                RPH akan dijana untuk <strong>setiap minggu pengajaran</strong> (minggu cuti dikecualikan) berdasarkan RPT di atas.
+            </p>
+            <div class="time-grid">
+                <div class="form-group"><label>⏰ Masa Mula</label><input type="time" id="batch-time-start" value="08:00"></div>
+                <div class="form-group"><label>⏰ Masa Tamat</label><input type="time" id="batch-time-end" value="09:00"></div>
+            </div>
+            <div class="form-group">
+                <label>📅 Hari dalam minggu</label>
+                <select id="batch-day">
+                    <option value="1" selected>Isnin</option>
+                    <option value="2">Selasa</option>
+                    <option value="3">Rabu</option>
+                    <option value="4">Khamis</option>
+                    <option value="5">Jumaat</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-danger btn-block" onclick="confirmGenerateAllRPH()">🚀 Jana Semua RPH Sekarang</button>
+        </div>
     </div>
 
     <div class="card">
@@ -237,14 +261,14 @@
     let currentAnnualResult = null;
 
     // ============================================================
-    // ===== TAMBAHAN BAHARU: PANGKALAN DATA SK/SP PENDIDIKAN MORAL
+    // ===== PANGKALAN DATA SK/SP PENDIDIKAN MORAL TAHUN 6 =====
     // ============================================================
-    // Struktur: nama nilai → { bil, sk, sp[], objektif[] }
+    // Setiap unit menyimpan SENARAI penuh kod SP + huraian
     const moralValueDB = {
         "Kepercayaan kepada Tuhan": {
             bil: 1,
             sk: "1. Kepercayaan kepada Tuhan",
-            sp: ["1.1", "1.2", "1.3", "1.4", "1.5"],
+            sp: ["1.1","1.2","1.3","1.4","1.5"],
             spDesc: [
                 "Menyatakan kepentingan kepercayaan kepada Tuhan.",
                 "Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.",
@@ -256,7 +280,7 @@
         "Baik Hati": {
             bil: 2,
             sk: "2. Baik Hati",
-            sp: ["2.1", "2.2", "2.3", "2.4"],
+            sp: ["2.1","2.2","2.3","2.4"],
             spDesc: [
                 "Menyatakan maksud baik hati.",
                 "Menjelaskan cara membantu individu dan masyarakat.",
@@ -267,7 +291,7 @@
         "Bertanggungjawab": {
             bil: 3,
             sk: "3. Bertanggungjawab",
-            sp: ["3.1", "3.2", "3.3", "3.4"],
+            sp: ["3.1","3.2","3.3","3.4"],
             spDesc: [
                 "Menyatakan tanggungjawab sebagai warganegara.",
                 "Menjelaskan kepentingan melaksanakan tanggungjawab.",
@@ -278,7 +302,7 @@
         "Berterima Kasih": {
             bil: 4,
             sk: "4. Berterima Kasih",
-            sp: ["4.1", "4.2", "4.3"],
+            sp: ["4.1","4.2","4.3"],
             spDesc: [
                 "Menyatakan penghargaan kepada pihak yang berjasa.",
                 "Menghargai sumbangan semua pihak dalam pembangunan negara.",
@@ -288,7 +312,7 @@
         "Hemah Tinggi": {
             bil: 5,
             sk: "5. Hemah Tinggi",
-            sp: ["5.1", "5.2", "5.3", "5.4"],
+            sp: ["5.1","5.2","5.3","5.4"],
             spDesc: [
                 "Menyatakan maksud hemah tinggi.",
                 "Menjelaskan cara berbudi bahasa dalam pelbagai situasi.",
@@ -299,7 +323,7 @@
         "Hormat": {
             bil: 6,
             sk: "6. Hormat",
-            sp: ["6.1", "6.2", "6.3"],
+            sp: ["6.1","6.2","6.3"],
             spDesc: [
                 "Menyatakan kepentingan hormat-menghormati.",
                 "Menghormati lambang negara, pemimpin dan individu.",
@@ -309,7 +333,7 @@
         "Kasih Sayang": {
             bil: 7,
             sk: "7. Kasih Sayang",
-            sp: ["7.1", "7.2", "7.3", "7.4"],
+            sp: ["7.1","7.2","7.3","7.4"],
             spDesc: [
                 "Menyatakan maksud kasih sayang.",
                 "Menjelaskan cara menyayangi negara (patriotisme).",
@@ -320,7 +344,7 @@
         "Keadilan": {
             bil: 8,
             sk: "8. Keadilan",
-            sp: ["8.1", "8.2", "8.3"],
+            sp: ["8.1","8.2","8.3"],
             spDesc: [
                 "Menyatakan maksud keadilan.",
                 "Menjelaskan cara bersikap adil dalam semua urusan.",
@@ -330,7 +354,7 @@
         "Keberanian": {
             bil: 9,
             sk: "9. Keberanian",
-            sp: ["9.1", "9.2", "9.3"],
+            sp: ["9.1","9.2","9.3"],
             spDesc: [
                 "Menyatakan maksud keberanian.",
                 "Menjelaskan cara berani mempertahankan maruah negara.",
@@ -340,7 +364,7 @@
         "Kejujuran": {
             bil: 10,
             sk: "10. Kejujuran",
-            sp: ["10.1", "10.2", "10.3"],
+            sp: ["10.1","10.2","10.3"],
             spDesc: [
                 "Menyatakan maksud kejujuran.",
                 "Menjelaskan kepentingan amanah dan jujur.",
@@ -350,7 +374,7 @@
         "Kerajinan": {
             bil: 11,
             sk: "11. Kerajinan",
-            sp: ["11.1", "11.2", "11.3"],
+            sp: ["11.1","11.2","11.3"],
             spDesc: [
                 "Menyatakan maksud kerajinan.",
                 "Menjelaskan cara berusaha gigih untuk kejayaan.",
@@ -360,7 +384,7 @@
         "Kerjasama": {
             bil: 12,
             sk: "12. Kerjasama",
-            sp: ["12.1", "12.2", "12.3", "12.4"],
+            sp: ["12.1","12.2","12.3","12.4"],
             spDesc: [
                 "Menyatakan maksud kerjasama.",
                 "Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.",
@@ -371,7 +395,7 @@
         "Kesederhanaan": {
             bil: 13,
             sk: "13. Kesederhanaan",
-            sp: ["13.1", "13.2", "13.3"],
+            sp: ["13.1","13.2","13.3"],
             spDesc: [
                 "Menyatakan maksud kesederhanaan.",
                 "Menjelaskan cara mengawal diri dalam pelbagai situasi.",
@@ -381,7 +405,7 @@
         "Toleransi": {
             bil: 14,
             sk: "14. Toleransi",
-            sp: ["14.1", "14.2", "14.3", "14.4"],
+            sp: ["14.1","14.2","14.3","14.4"],
             spDesc: [
                 "Menyatakan maksud toleransi.",
                 "Menjelaskan cara bertolak ansur sesama jiran dan rakan.",
@@ -391,33 +415,28 @@
         }
     };
 
-    // Kumpulan aktiviti PAK21 yang pelbagai
     const pak21Activities = [
-        { name: "Think-Pair-Share", template: (topik) => `Guru kemukakan soalan tentang ${topik}, murid fikir sendiri, kemudian berbincang dengan pasangan dan berkongsi dengan kelas.` },
-        { name: "Gallery Walk", template: (topik) => `Setiap kumpulan hasilkan poster tentang ${topik}, tampal di dinding, dan murid berjalan memberi komen dengan sticky note.` },
-        { name: "Role Play", template: (topik) => `Murid melakonkan situasi harian yang menggambarkan nilai ${topik} dan berbincang nilai yang dipelajari.` },
-        { name: "Jigsaw", template: (topik) => `Murid dipecahkan kepada kumpulan pakar yang mempelajari aspek berbeza ${topik}, kemudian berkongsi dalam kumpulan asal.` },
-        { name: "Round Table", template: (topik) => `Setiap kumpulan diberi kertas besar, murid bergilir menulis idea tentang ${topik} sehingga lengkap.` },
-        { name: "Stesen Pembelajaran", template: (topik) => `Sediakan 3-4 stesen dengan aktiviti berbeza tentang ${topik}, murid bergerak secara bergilir.` },
-        { name: "Pembelajaran Berasaskan Projek", template: (topik) => `Murid hasilkan projek mini (poster / video pendek / buku skrap) berkaitan ${topik} dan bentangkan.` },
-        { name: "Perbincangan Kumpulan (Cooperative)", template: (topik) => `Murid dalam kumpulan kecil berbincang tentang kes ${topik} dan membentangkan hasil perbincangan.` },
-        { name: "Main Peranan (Simulasi)", template: (topik) => `Guru sediakan senario, murid main peranan untuk mempraktikkan nilai ${topik} dan refleksi bersama.` },
-        { name: "Hot Seat", template: (topik) => `Seorang murid duduk di 'hot seat' menjawab soalan tentang ${topik} daripada rakan-rakan.` },
-        { name: "Peta Minda Kreatif", template: (topik) => `Murid dalam kumpulan menghasilkan peta minda kreatif tentang kepentingan ${topik} dalam masyarakat.` },
-        { name: "Debat Mini", template: (topik) => `Dua kumpulan berdebat secara sihat tentang isu berkaitan ${topik}, murid lain menjadi hakim.` },
-        { name: "Pembentangan Video", template: (topik) => `Murid rakam video pendek 1 minit menunjukkan amalan ${topik} dalam kehidupan sebenar dan bentangkan.` },
-        { name: "Pembelajaran Berasaskan Masalah", template: (topik) => `Murid diberi masalah berkaitan ${topik} dan perlu mencari penyelesaian secara berkumpulan.` },
-        { name: "Six Thinking Hats", template: (topik) => `Murid menilai situasi berkaitan ${topik} menggunakan 6 topi pemikiran yang berbeza.` },
-        { name: "Two Stars and a Wish", template: (topik) => `Murid memberi maklum balas tentang ${topik}: 2 perkara baik + 1 cadangan penambahbaikan.` },
-        { name: "Inside-Outside Circle", template: (topik) => `Murid membentuk dua bulatan, berkongsi pandangan tentang ${topik} kepada pasangan berbeza setiap pusingan.` },
-        { name: "Fan-N-Pick", template: (topik) => `Setiap kumpulan pilih kad soalan tentang ${topik}, jawab secara bergilir dan berkongsi jawapan.` },
-        { name: "Numbered Heads Together", template: (topik) => `Murid bernombor dalam kumpulan, nombor yang dipanggil akan menjawab soalan tentang ${topik}.` },
-        { name: "Kelas Berbalik (Flipped)", template: (topik) => `Murid menonton bahan tentang ${topik} di rumah, dalam kelas berbincang dan aplikasi melalui aktiviti.` }
+        { name: "Think-Pair-Share", template: (t) => `Guru kemukakan soalan tentang ${t}, murid fikir sendiri, kemudian berbincang dengan pasangan dan berkongsi dengan kelas.` },
+        { name: "Gallery Walk", template: (t) => `Setiap kumpulan hasilkan poster tentang ${t}, tampal di dinding, dan murid berjalan memberi komen dengan sticky note.` },
+        { name: "Role Play", template: (t) => `Murid melakonkan situasi harian yang menggambarkan nilai ${t} dan berbincang nilai yang dipelajari.` },
+        { name: "Jigsaw", template: (t) => `Murid dipecahkan kepada kumpulan pakar yang mempelajari aspek berbeza ${t}, kemudian berkongsi dalam kumpulan asal.` },
+        { name: "Round Table", template: (t) => `Setiap kumpulan diberi kertas besar, murid bergilir menulis idea tentang ${t} sehingga lengkap.` },
+        { name: "Stesen Pembelajaran", template: (t) => `Sediakan 3-4 stesen dengan aktiviti berbeza tentang ${t}, murid bergerak secara bergilir.` },
+        { name: "Pembelajaran Berasaskan Projek", template: (t) => `Murid hasilkan projek mini (poster / video pendek / buku skrap) berkaitan ${t} dan bentangkan.` },
+        { name: "Perbincangan Kumpulan (Cooperative)", template: (t) => `Murid dalam kumpulan kecil berbincang tentang kes ${t} dan membentangkan hasil perbincangan.` },
+        { name: "Main Peranan (Simulasi)", template: (t) => `Guru sediakan senario, murid main peranan untuk mempraktikkan nilai ${t} dan refleksi bersama.` },
+        { name: "Hot Seat", template: (t) => `Seorang murid duduk di 'hot seat' menjawab soalan tentang ${t} daripada rakan-rakan.` },
+        { name: "Peta Minda Kreatif", template: (t) => `Murid dalam kumpulan menghasilkan peta minda kreatif tentang kepentingan ${t} dalam masyarakat.` },
+        { name: "Debat Mini", template: (t) => `Dua kumpulan berdebat secara sihat tentang isu berkaitan ${t}, murid lain menjadi hakim.` },
+        { name: "Pembentangan Video", template: (t) => `Murid rakam video pendek 1 minit menunjukkan amalan ${t} dalam kehidupan sebenar dan bentangkan.` },
+        { name: "Pembelajaran Berasaskan Masalah", template: (t) => `Murid diberi masalah berkaitan ${t} dan perlu mencari penyelesaian secara berkumpulan.` },
+        { name: "Six Thinking Hats", template: (t) => `Murid menilai situasi berkaitan ${t} menggunakan 6 topi pemikiran yang berbeza.` },
+        { name: "Two Stars and a Wish", template: (t) => `Murid memberi maklum balas tentang ${t}: 2 perkara baik + 1 cadangan penambahbaikan.` },
+        { name: "Inside-Outside Circle", template: (t) => `Murid membentuk dua bulatan, berkongsi pandangan tentang ${t} kepada pasangan berbeza setiap pusingan.` },
+        { name: "Fan-N-Pick", template: (t) => `Setiap kumpulan pilih kad soalan tentang ${t}, jawab secara bergilir dan berkongsi jawapan.` },
+        { name: "Numbered Heads Together", template: (t) => `Murid bernombor dalam kumpulan, nombor yang dipanggil akan menjawab soalan tentang ${t}.` },
+        { name: "Kelas Berbalik (Flipped)", template: (t) => `Murid menonton bahan tentang ${t} di rumah, dalam kelas berbincang dan aplikasi melalui aktiviti.` }
     ];
-
-    // ============================================================
-    // ===== AKHIR TAMBAHAN BAHARU =====
-    // ============================================================
 
     function saveData() { localStorage.setItem('rphData', JSON.stringify(rphData)); }
     function saveAnnualData() { localStorage.setItem('annualPlans', JSON.stringify(annualPlans)); }
@@ -525,7 +544,6 @@
         printWindow.document.close(); printWindow.focus(); setTimeout(() => { printWindow.print(); }, 500);
     }
 
-    // ========== VARIASI PAK21, PEMBEZAAN, LEMBARAN KERJA ==========
     function extractFromContext(ctx, key) {
         const regex = new RegExp(`${key}:\\s*([^,]+)`);
         const match = ctx.match(regex);
@@ -557,7 +575,6 @@
         const topic = extractFromContext(context, 'Tajuk') || 'nilai murni';
         const unit = extractFromContext(context, 'Unit') || 'nilai';
         const kelas = extractFromContext(context, 'Kelas') || 'murid';
-
         switch (type) {
             case 'objectives':
                 return { objectives: [
@@ -570,15 +587,15 @@
                 const randomDiff = differentiationOptions[Math.floor(Math.random() * differentiationOptions.length)];
                 const worksheetIndex = Math.floor(Math.random() * 3);
                 const mainSteps = [
-                    `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek tentang ${topic}. Murid memberi respons lisan.`,
+                    `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek tentang ${topic}.`,
                     `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${randomPak.name}.`,
                     ...randomPak.steps.map(s => `    • ${s}`),
-                    `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan tentang ${topic}.`,
+                    `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan.`,
                     `Langkah 4 (Aplikasi - 10 minit): Aktiviti pembezaan mengikut kumpulan:`,
                     `    🔹 Kumpulan Lemah: ${randomDiff.lemah}`,
                     `    🔹 Kumpulan Sederhana: ${randomDiff.sederhana}`,
                     `    🔹 Kumpulan Pandai: ${randomDiff.pandai}`,
-                    `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi. Murid menyatakan satu nilai yang dipelajari.`
+                    `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi.`
                 ];
                 const bbm = "Kad gambar, slaid, video, lembaran kerja 3 aras, sticky note";
                 const emk = "TMK, Keusahawanan, Nilai Murni";
@@ -598,8 +615,8 @@
             case 'susulan':
                 return {
                     remedial: `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} di rumah.`,
-                    reinforcement: `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil: "Mengapa kita perlu mengamalkan ${topic}?"`,
-                    enrichment: `1. Hasilkan sebuah komik pendek tentang konflik moral dan penyelesaiannya berkaitan ${topic}.\n2. Jalankan projek mini: "Kempen ${topic} di sekolah" (poster, pengumuman).\n3. Tulis refleksi peribadi: Bagaimana saya boleh menjadi agen perubahan dengan ${topic}.`
+                    reinforcement: `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`,
+                    enrichment: `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic}.\n2. Projek mini: "Kempen ${topic} di sekolah".\n3. Refleksi peribadi.`
                 };
             default: return {};
         }
@@ -658,73 +675,42 @@
         container.appendChild(toast); setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3000);
     }
 
-    // ===================================================================
-    // ===== RANCANGAN TAHUNAN (RPT) DENGAN SK/SP & PAK21 PELBAGAI =====
-    // ===================================================================
-
-    function parseTopics(raw) {
-        return raw.split('\n').map(t => t.trim()).filter(t => t.length > 0);
-    }
+    // ===== RANCANGAN TAHUNAN =====
+    function parseTopics(raw) { return raw.split('\n').map(t => t.trim()).filter(t => t.length > 0); }
     function parseHolidays(raw) {
         if (!raw || !raw.trim()) return [];
         return raw.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n > 0);
     }
-
-    // Cari padanan nilai dalam DB (fleksibel: padan substring)
     function lookupValueDB(topic) {
         if (!topic) return null;
         const cleanTopic = topic.replace(/^\d+[\.\)]\s*/, '').trim();
-        // Cuba padan tepat dulu
         if (moralValueDB[cleanTopic]) return moralValueDB[cleanTopic];
-        // Cuba padan substring (case-insensitive)
         const lower = cleanTopic.toLowerCase();
         for (const key of Object.keys(moralValueDB)) {
-            if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) {
-                return moralValueDB[key];
-            }
+            if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) return moralValueDB[key];
         }
-        // Cuba padan perkataan kunci
         for (const key of Object.keys(moralValueDB)) {
             const words = key.toLowerCase().split(/\s+/);
-            if (words.some(w => w.length > 3 && lower.includes(w))) {
-                return moralValueDB[key];
-            }
+            if (words.some(w => w.length > 3 && lower.includes(w))) return moralValueDB[key];
         }
         return null;
     }
-
-    // Jana aktiviti PAK21 berbeza mengikut indeks (elak ulangan berturutan)
     function generateVariedActivity(topic, weekIndex) {
-        // Guna indeks minggu untuk pilih aktiviti dari senarai tanpa ulangan berturutan
-        // + sedikit randomisasi supaya lebih dinamik
         const total = pak21Activities.length;
-        // Putaran asas
         const baseIdx = weekIndex % total;
-        // Tambah offset berdasarkan topik supaya lebih pelbagai
         const topicHash = (topic || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0);
         let pickIdx = (baseIdx + topicHash) % total;
-        // Pastikan tidak sama dengan pilihan sebelum (jika weekIndex > 0)
-        if (weekIndex > 0 && pickIdx === (weekIndex - 1) % total) {
-            pickIdx = (pickIdx + 1) % total;
-        }
+        if (weekIndex > 0 && pickIdx === (weekIndex - 1) % total) pickIdx = (pickIdx + 1) % total;
         const chosen = pak21Activities[pickIdx];
-        return {
-            name: chosen.name,
-            detail: chosen.template(topic)
-        };
+        return { name: chosen.name, detail: chosen.template(topic) };
     }
 
     function simulateAnnualPlan(topics, totalWeeks, holidays, startDateStr) {
         const plan = [];
         const startDate = new Date(startDateStr);
-
         const teachingWeekNumbers = [];
-        for (let w = 1; w <= totalWeeks; w++) {
-            if (!holidays.includes(w)) teachingWeekNumbers.push(w);
-        }
-
+        for (let w = 1; w <= totalWeeks; w++) { if (!holidays.includes(w)) teachingWeekNumbers.push(w); }
         const weeksPerTopic = teachingWeekNumbers.length / topics.length;
-
         let teachingIdx = 0;
         for (let w = 1; w <= totalWeeks; w++) {
             const weekStart = new Date(startDate);
@@ -737,11 +723,8 @@
                 plan.push({
                     week: w, dates: dateRange,
                     topic: '🛑 CUTI SEKOLAH',
-                    sk: '-', sp: '-',
-                    spDesc: '-',
-                    objective: '-',
-                    pak21Name: '-',
-                    pak21Detail: '-',
+                    sk: '-', sp: '-', spDesc: '-',
+                    objective: '-', pak21Name: '-', pak21Detail: '-',
                     isHoliday: true
                 });
                 continue;
@@ -751,20 +734,17 @@
             if (topicIdx >= topics.length) topicIdx = topics.length - 1;
             const topic = topics[topicIdx];
 
-            // Cari SK/SP dalam DB
             const db = lookupValueDB(topic);
-            let skText = db ? db.sk : `${topic}`;
-            let spCodes = db ? db.sp.slice() : ['X.1'];
-            let spDescs = db ? db.spDesc.slice() : [`Menyatakan maksud ${topic}.`];
+            // === PERUBAHAN UTAMA: Simpan SEMUA kod SP unit dalam satu string ===
+            const skText = db ? db.sk : `${topic}`;
+            const spAllCodes = db ? db.sp.join(', ') : 'X.1';
+            const spDescs = db ? db.spDesc : [`Menyatakan maksud ${topic}.`];
 
-            // Jika ada beberapa minggu untuk topik sama, putarkan SP agar berbeza setiap minggu
-            const subIdx = teachingIdx % spCodes.length;
-            const spCode = spCodes[subIdx];
-            const spDesc = spDescs[subIdx];
+            // Huraian SP diputar mengikut minggu (kekal berperingkat)
+            const descIdx = teachingIdx % spDescs.length;
+            const spDesc = spDescs[descIdx];
 
-            // Jana aktiviti PAK21 berbeza mengikut minggu
             const activity = generateVariedActivity(topic, teachingIdx);
-
             const objective = `Murid dapat ${spDesc ? spDesc.toLowerCase() : 'memahami dan mengamalkan ' + topic} dalam kehidupan harian.`;
 
             plan.push({
@@ -772,8 +752,8 @@
                 dates: dateRange,
                 topic: topic,
                 sk: skText,
-                sp: spCode,
-                spDesc: spDesc,
+                sp: spAllCodes,          // ← Semua kod SP, cth: "1.1, 1.2, 1.3, 1.4, 1.5"
+                spDesc: spDesc,          // ← Huraian berperingkat mengikut minggu
                 objective: objective,
                 pak21Name: activity.name,
                 pak21Detail: activity.detail,
@@ -782,7 +762,6 @@
 
             teachingIdx++;
         }
-
         return plan;
     }
 
@@ -794,29 +773,23 @@
         const totalWeeks = parseInt(document.getElementById('a-weeks').value);
         const holidaysRaw = document.getElementById('a-holidays').value;
         const topicsRaw = document.getElementById('a-topics').value;
-
         const topics = parseTopics(topicsRaw);
         const holidays = parseHolidays(holidaysRaw);
-
         if (!topics.length) { showToast('Sila masukkan sekurang-kurangnya 1 tajuk buku teks.', 'error'); return; }
         if (!startDate) { showToast('Sila pilih tarikh mula persekolahan.', 'error'); return; }
-
         const loadingEl = document.getElementById('loading-annual');
         const btnEl = document.getElementById('btn-annual');
         loadingEl.classList.add('active');
         btnEl.disabled = true;
-
         setTimeout(() => {
             try {
                 const plan = simulateAnnualPlan(topics, totalWeeks, holidays, startDate);
-                currentAnnualResult = {
-                    year, kelas, startDate, totalWeeks, holidays, topics, plan,
-                    generatedAt: new Date().toISOString()
-                };
+                currentAnnualResult = { year, kelas, startDate, totalWeeks, holidays, topics, plan, generatedAt: new Date().toISOString() };
                 renderAnnualResult(currentAnnualResult);
                 loadingEl.classList.remove('active');
                 btnEl.disabled = false;
-                showToast('✅ RPT berjaya disusun dengan SK/SP & PAK21 pelbagai!');
+                document.getElementById('batch-config').classList.remove('active');
+                showToast('✅ RPT berjaya disusun dengan SP lengkap & PAK21 pelbagai!');
             } catch (e) {
                 loadingEl.classList.remove('active');
                 btnEl.disabled = false;
@@ -829,12 +802,9 @@
         const card = document.getElementById('annual-result-card');
         const summaryEl = document.getElementById('annual-summary');
         const resultEl = document.getElementById('annual-result');
-
         const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
         const holidayWeeks = data.plan.filter(p => p.isHoliday).length;
-        // Kira bilangan PAK21 unik yang digunakan
         const uniquePak = new Set(data.plan.filter(p => !p.isHoliday).map(p => p.pak21Name)).size;
-
         summaryEl.innerHTML = `
             <div>Tahun: <span>${data.year}</span></div>
             <div>Kelas: <span>${escapeHTML(data.kelas)}</span></div>
@@ -843,18 +813,16 @@
             <div>Jumlah Tajuk: <span>${data.topics.length}</span></div>
             <div>PAK21 Unik: <span>${uniquePak}</span></div>
         `;
-
         let html = '<table class="annual-table"><thead><tr>';
         html += '<th style="width:5%;">Mg</th>';
-        html += '<th style="width:11%;">Tarikh</th>';
-        html += '<th style="width:15%;">Tajuk / Nilai</th>';
-        html += '<th style="width:13%;">Std. Kandungan</th>';
-        html += '<th style="width:6%;">SP</th>';
-        html += '<th style="width:17%;">Standard Pembelajaran</th>';
-        html += '<th style="width:14%;">Objektif</th>';
-        html += '<th style="width:19%;">Aktiviti PAK21</th>';
+        html += '<th style="width:10%;">Tarikh</th>';
+        html += '<th style="width:13%;">Tajuk / Nilai</th>';
+        html += '<th style="width:12%;">Std. Kandungan</th>';
+        html += '<th style="width:13%;">Standard Pembelajaran</th>';
+        html += '<th style="width:17%;">Huraian SP</th>';
+        html += '<th style="width:12%;">Objektif</th>';
+        html += '<th style="width:18%;">Aktiviti PAK21</th>';
         html += '</tr></thead><tbody>';
-
         data.plan.forEach(row => {
             const cls = row.isHoliday ? ' class="holiday"' : '';
             html += `<tr${cls}>`;
@@ -868,7 +836,6 @@
             html += `<td><strong>${escapeHTML(row.pak21Name)}</strong><br><span style="font-size:0.72rem;color:#555;">${escapeHTML(row.pak21Detail)}</span></td>`;
             html += '</tr>';
         });
-
         html += '</tbody></table>';
         resultEl.innerHTML = html;
         card.style.display = 'block';
@@ -877,13 +844,10 @@
     function printAnnualPlan() {
         if (!currentAnnualResult) { showToast('Tiada rancangan untuk dicetak.', 'error'); return; }
         const data = currentAnnualResult;
-
         const printWindow = window.open('', '_blank', 'width=1100,height=800');
         if (!printWindow) { showToast('Sila benarkan pop-up.', 'error'); return; }
-
         const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
         const holidayWeeks = data.plan.filter(p => p.isHoliday).length;
-
         let rows = '';
         data.plan.forEach(r => {
             const style = r.isHoliday ? 'background:#fff3cd; font-style:italic;' : '';
@@ -892,13 +856,12 @@
                 <td>${r.dates}</td>
                 <td>${r.topic}</td>
                 <td>${r.sk || '-'}</td>
-                <td style="text-align:center;font-family:'Courier New',monospace;">${r.sp || '-'}</td>
+                <td style="text-align:center;font-family:'Courier New',monospace;font-weight:bold;">${r.sp || '-'}</td>
                 <td>${r.spDesc || '-'}</td>
                 <td>${r.objective}</td>
                 <td><strong>${r.pak21Name || '-'}</strong><br><span style="font-size:8pt;color:#555;">${r.pak21Detail || ''}</span></td>
             </tr>`;
         });
-
         printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RPT ${data.year}</title>
         <style>
             body{font-family:'Times New Roman',Times,serif;font-size:10pt;margin:12mm;background:white;}
@@ -936,10 +899,10 @@
                 <th style="width:9%;">Tarikh</th>
                 <th style="width:13%;">Tajuk / Nilai</th>
                 <th style="width:12%;">Std. Kandungan</th>
-                <th style="width:5%;">SP</th>
-                <th style="width:17%;">Standard Pembelajaran</th>
-                <th style="width:15%;">Objektif</th>
-                <th style="width:25%;">Aktiviti PAK21</th>
+                <th style="width:12%;">Standard Pembelajaran</th>
+                <th style="width:17%;">Huraian SP</th>
+                <th style="width:14%;">Objektif</th>
+                <th style="width:19%;">Aktiviti PAK21</th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>
@@ -961,7 +924,6 @@
         renderSavedAnnual();
         showToast('💾 RPT disimpan!');
     }
-
     function renderSavedAnnual() {
         const container = document.getElementById('saved-annual-container');
         if (!annualPlans.length) {
@@ -971,21 +933,9 @@
         const sorted = [...annualPlans].sort((a,b) => b.year - a.year);
         container.innerHTML = sorted.map((p) => {
             const realIdx = annualPlans.indexOf(p);
-            return `
-            <div class="saved-annual-item">
-                <div class="saved-annual-info">
-                    <h4>📚 ${p.year} • ${escapeHTML(p.kelas)}</h4>
-                    <p>${p.topics.length} tajuk • ${p.totalWeeks} minggu • Dijana: ${new Date(p.generatedAt).toLocaleDateString('ms-MY')}</p>
-                </div>
-                <div class="rph-actions">
-                    <button class="btn btn-sm btn-primary" onclick="loadAnnualPlan(${realIdx})">📂</button>
-                    <button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printSavedAnnual(${realIdx})">🖨️</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteAnnualPlan(${realIdx})">🗑️</button>
-                </div>
-            </div>`;
+            return `<div class="saved-annual-item"><div class="saved-annual-info"><h4>📚 ${p.year} • ${escapeHTML(p.kelas)}</h4><p>${p.topics.length} tajuk • ${p.totalWeeks} minggu • Dijana: ${new Date(p.generatedAt).toLocaleDateString('ms-MY')}</p></div><div class="rph-actions"><button class="btn btn-sm btn-primary" onclick="loadAnnualPlan(${realIdx})">📂</button><button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printSavedAnnual(${realIdx})">🖨️</button><button class="btn btn-sm btn-danger" onclick="deleteAnnualPlan(${realIdx})">🗑️</button></div></div>`;
         }).join('');
     }
-
     function loadAnnualPlan(idx) {
         const plan = annualPlans[idx];
         if (!plan) return;
@@ -1000,14 +950,12 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
         showToast('📂 RPT dimuatkan!');
     }
-
     function printSavedAnnual(idx) {
         const plan = annualPlans[idx];
         if (!plan) return;
         currentAnnualResult = plan;
         printAnnualPlan();
     }
-
     function deleteAnnualPlan(idx) {
         if (!confirm('Padam RPT ini?')) return;
         annualPlans.splice(idx, 1);
@@ -1016,9 +964,104 @@
         showToast('🗑️ RPT dipadam.');
     }
 
-    // ===================================================================
-    // ===== TAMAT RANCANGAN TAHUNAN =====
-    // ===================================================================
+    // ===== JANA RPH SETAHUN =====
+    function toggleBatchConfig() {
+        const panel = document.getElementById('batch-config');
+        panel.classList.toggle('active');
+    }
+    function getWeekDate(startDateStr, weekNumber, dayOfWeek) {
+        const start = new Date(startDateStr);
+        const result = new Date(start);
+        result.setDate(start.getDate() + (weekNumber - 1) * 7 + (dayOfWeek - 1));
+        return result;
+    }
+    function confirmGenerateAllRPH() {
+        if (!currentAnnualResult) { showToast('Sila jana RPT dahulu.', 'error'); return; }
+        const data = currentAnnualResult;
+        const teachingWeeks = data.plan.filter(p => !p.isHoliday);
+        if (!teachingWeeks.length) { showToast('Tiada minggu pengajaran dalam RPT ini.', 'error'); return; }
+        const startTime = document.getElementById('batch-time-start').value || '08:00';
+        const endTime = document.getElementById('batch-time-end').value || '09:00';
+        const dayOfWeek = parseInt(document.getElementById('batch-day').value) || 1;
+        if (!confirm(`Jana ${teachingWeeks.length} RPH lengkap untuk ${data.year} • ${data.kelas}?\n\nRPH akan disimpan dalam Senarai RPH.\nMinggu cuti dikecualikan.`)) return;
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = '⏳ Menjana RPH...';
+        setTimeout(() => {
+            try {
+                let count = 0, skipped = 0;
+                teachingWeeks.forEach(week => {
+                    const rphId = `rph_${data.year}_${data.kelas.replace(/\s+/g,'_')}_w${week.week}`;
+                    if (rphData.find(r => r.id === rphId)) { skipped++; return; }
+                    const weekDate = getWeekDate(data.startDate, week.week, dayOfWeek);
+                    const dateStr = weekDate.toISOString().split('T')[0];
+                    const topic = week.topic;
+                    const unit = topic;
+                    const kelas = data.kelas;
+                    const rptPak = pak21Activities.find(p => p.name === week.pak21Name) || pak21Activities[0];
+                    const rptPakDetail = week.pak21Detail || `Aktiviti PAK21 berkaitan ${topic}.`;
+                    const diff = differentiationOptions[Math.floor(Math.random() * differentiationOptions.length)];
+                    const worksheetIndex = Math.floor(Math.random() * 3);
+                    const mainSteps = [
+                        `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek atau soalan rangsangan tentang ${topic}. Murid memberi respons lisan.`,
+                        `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${rptPak.name}.`,
+                        `    • ${rptPakDetail}`,
+                        ...rptPak.steps.map(s => `    • ${s}`),
+                        `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan tentang ${topic} dan mengaitkan dengan nilai ${unit}.`,
+                        `Langkah 4 (Aplikasi - 10 minit): Aktiviti pembezaan mengikut kumpulan:`,
+                        `    🔹 Kumpulan Lemah: ${diff.lemah}`,
+                        `    🔹 Kumpulan Sederhana: ${diff.sederhana}`,
+                        `    🔹 Kumpulan Pandai: ${diff.pandai}`,
+                        `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi. Murid menyatakan satu nilai yang dipelajari dan cara mengamalkannya.`
+                    ];
+                    const activities = mainSteps.join('\n');
+                    const objectives = [
+                        `Pada akhir pembelajaran, murid dapat ${week.spDesc.toLowerCase()}`,
+                        `Pada akhir pembelajaran, murid dapat mengenal pasti sekurang-kurangnya 3 contoh ${topic}.`,
+                        `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} dalam situasi harian.`
+                    ].join('\n');
+                    const success = [
+                        `Murid dapat menyatakan maksud ${topic} dengan tepat.`,
+                        `Murid dapat memberi sekurang-kurangnya 3 contoh ${topic} mengikut aras keupayaan.`,
+                        `Murid menunjukkan penglibatan aktif dalam aktiviti kumpulan.`
+                    ].join('\n');
+                    const bbm = "Kad gambar, slaid PowerPoint, video pendek, lembaran kerja 3 aras, sticky note";
+                    const emk = "TMK, Keusahawanan, Nilai Murni";
+                    const assessment = "Pemerhatian aktiviti kumpulan, hasil lembaran kerja, pembentangan, refleksi lisan";
+                    const bil = Math.floor(Math.random() * 10) + 20;
+                    const reflection = `Seramai ${bil}/${bil+2} murid (90%) mencapai objektif pembelajaran. Murid lemah diberi bimbingan tambahan, murid pandai diberi aktiviti pengayaan.`;
+                    const remedial = `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} di rumah.`;
+                    const reinforcement = `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`;
+                    const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic}.\n2. Projek mini: "Kempen ${topic} di sekolah".\n3. Refleksi peribadi.`;
+                    const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex);
+                    rphData.push({
+                        id: rphId, date: dateStr, time_start: startTime, time_end: endTime,
+                        class: kelas, theme: 'Saya dan Negara', unit: unit, topic: topic,
+                        sk: week.sk, sp: week.sp,
+                        objectives: objectives, activities: activities, success: success,
+                        bbm: bbm, emk: emk, pak21: rptPak.name, assessment: assessment,
+                        reflection: reflection, worksheet: worksheetHTML,
+                        remedial: remedial, reinforcement: reinforcement, enrichment: enrichment
+                    });
+                    count++;
+                });
+                saveData();
+                renderList();
+                btn.disabled = false;
+                btn.textContent = '🚀 Jana Semua RPH Sekarang';
+                document.getElementById('batch-config').classList.remove('active');
+                let msg = `✅ ${count} RPH berjaya dijana!`;
+                if (skipped > 0) msg += ` (${skipped} dilangkau kerana sudah wujud)`;
+                showToast(msg);
+                setTimeout(() => { switchTab('list', document.querySelectorAll('.nav-btn')[0]); }, 800);
+            } catch (e) {
+                btn.disabled = false;
+                btn.textContent = '🚀 Jana Semua RPH Sekarang';
+                showToast('❌ Ralat: ' + e.message, 'error');
+                console.error(e);
+            }
+        }, 500);
+    }
 
     function init() {
         document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
