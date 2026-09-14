@@ -86,50 +86,24 @@
         .worksheet-btn { background: #8e44ad; color: white; }
         .worksheet-btn:hover { background: #732d91; }
 
-        /* ===== Modal ===== */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 250;
-            align-items: center; justify-content: center;
-            padding: 20px;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 250; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
-        .modal {
-            background: white; border-radius: 12px; padding: 25px;
-            max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
+        .modal { background: white; border-radius: 12px; padding: 25px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         .modal h3 { color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .modal .modal-desc { font-size: 0.85rem; color: var(--grey); margin-bottom: 20px; line-height: 1.5; }
         .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
         .modal-actions .btn { flex: 1; }
-        .help-box {
-            background: #f0f7ff; border-left: 4px solid var(--accent);
-            padding: 12px; border-radius: 6px; margin-bottom: 15px;
-            font-size: 0.82rem; line-height: 1.6;
-        }
+        .help-box { background: #f0f7ff; border-left: 4px solid var(--accent); padding: 12px; border-radius: 6px; margin-bottom: 15px; font-size: 0.82rem; line-height: 1.6; }
         .help-box ol { margin-left: 18px; margin-top: 5px; }
         .help-box code { background: #e0e8f0; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
-        .switch-row {
-            display: flex; align-items: center; gap: 10px;
-            padding: 12px; background: #f8f9fa; border-radius: 8px;
-            margin-bottom: 12px;
-        }
+        .help-box.warning { background: #fff3cd; border-left-color: var(--warning); color: #856404; }
+        .switch-row { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 12px; }
         .switch-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
         .switch-row label { flex: 1; font-size: 0.9rem; font-weight: 500; cursor: pointer; margin: 0; }
         .switch-row small { display: block; font-size: 0.75rem; color: var(--grey); margin-top: 3px; font-weight: normal; }
 
-        /* ===== Tab Senarai: bar tindakan ===== */
-        .action-bar {
-            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;
-            padding: 12px; background: #f0f7ff; border-radius: 8px;
-            border: 1px dashed var(--accent);
-            align-items: center;
-        }
-        .action-bar .bar-label {
-            font-size: 0.85rem; color: var(--primary); font-weight: 600;
-            flex: 1; min-width: 150px;
-        }
+        .action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; padding: 12px; background: #f0f7ff; border-radius: 8px; border: 1px dashed var(--accent); align-items: center; }
+        .action-bar .bar-label { font-size: 0.85rem; color: var(--primary); font-weight: 600; flex: 1; min-width: 150px; }
         .action-bar .btn { padding: 8px 14px; font-size: 0.85rem; }
 
         .annual-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.78rem; min-width: 1150px; }
@@ -180,11 +154,9 @@
     </div>
 </div>
 
-<!-- Tab Senarai RPH -->
 <div id="tab-list" class="tab-content active">
     <div class="card">
         <h2>📄 RPH Tersimpan</h2>
-
         <div class="action-bar" id="action-bar">
             <div class="bar-label" id="cloud-bar-label">☁️ Awan belum diset</div>
             <button class="btn btn-cloud" onclick="saveToCloud()" id="btn-save-cloud" title="Simpan semua data ke GitHub Gist">
@@ -197,7 +169,6 @@
                 ⚙️
             </button>
         </div>
-
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="🔍 Cari RPH (tajuk, kelas, tarikh)..." oninput="renderList()">
             <span class="search-icon">🔍</span>
@@ -208,14 +179,12 @@
     </div>
 </div>
 
-<!-- Tab Borang RPH -->
 <div id="tab-form" class="tab-content">
     <div class="card">
         <h2 id="form-title">➕ Buat RPH Baru</h2>
         <form id="rph-form">
             <input type="hidden" id="rph-id">
             <input type="hidden" id="f-worksheet">
-
             <div class="form-group">
                 <label>🎓 Tahun</label>
                 <select id="f-year" onchange="updateFocusInfo('f')">
@@ -224,7 +193,6 @@
                 </select>
             </div>
             <div id="focus-info-form" class="focus-info"></div>
-
             <div class="time-grid">
                 <div class="form-group"><label>📅 Tarikh</label><input type="date" id="f-date" required></div>
                 <div class="form-group"><label>🏫 Kelas</label><input type="text" id="f-class" placeholder="cth: 6 Bestari" required></div>
@@ -248,35 +216,29 @@
                 <button type="button" class="btn btn-ai" id="btn-obj" onclick="generateAI('objectives')">🤖 Jana Objektif</button>
                 <div id="loading-objectives" class="loading">⏳ Menghubungi DeepSeek AI...</div>
             </div>
-
             <div class="form-group"><label>🎪 Aktiviti (termasuk Pembezaan)</label><textarea id="f-activities" rows="6"></textarea>
                 <button type="button" class="btn btn-ai" id="btn-act" onclick="generateAI('activities')">🤖 Jana Aktiviti PAK21 + Pembezaan + Lembaran Kerja</button>
                 <div id="loading-activities" class="loading">⏳ Menjana langkah, pembezaan, BBM, EMK, lembaran kerja...</div>
             </div>
-
             <div class="form-group"><label>✅ Kriteria Kejayaan</label><textarea id="f-success" rows="2"></textarea>
                 <button type="button" class="btn btn-ai" id="btn-suc" onclick="generateAI('success')">🤖 Jana Kriteria Kejayaan</button>
                 <div id="loading-success" class="loading">⏳ Menghubungi DeepSeek AI...</div>
             </div>
-
             <div class="form-group"><label>📦 BBM</label><input type="text" id="f-bbm" placeholder="akan diisi automatik"></div>
             <div class="time-grid">
                 <div class="form-group"><label>🌐 EMK</label><input type="text" id="f-emk" placeholder="akan diisi automatik"></div>
                 <div class="form-group"><label>🧩 PAK21</label><input type="text" id="f-pak21" placeholder="akan diisi automatik"></div>
             </div>
             <div class="form-group"><label>📊 Penilaian</label><input type="text" id="f-assessment" placeholder="akan diisi automatik"></div>
-
             <div class="form-group"><label>🪞 Refleksi</label><textarea id="f-reflection" rows="2"></textarea>
                 <button type="button" class="btn btn-ai" id="btn-ref" onclick="generateAI('reflection')">🤖 Jana Refleksi</button>
                 <div id="loading-reflection" class="loading">⏳ Menghubungi DeepSeek AI...</div>
             </div>
-
             <div class="form-group" id="worksheet-section" style="display:none;">
                 <label>📝 Lembaran Kerja (3 Kumpulan)</label>
                 <p style="font-size:0.85rem; color: var(--grey);">Lembaran kerja pelbagai format sedia dimuat turun.</p>
                 <button type="button" class="btn worksheet-btn btn-block" onclick="downloadWorksheet()">⬇️ Muat Turun Lembaran Kerja (Word)</button>
             </div>
-
             <hr style="margin: 20px 0; border: 0; border-top: 2px solid var(--primary);">
             <h3 style="color: var(--primary); margin-bottom: 15px;">🔄 Tindakan Susulan</h3>
             <div class="form-group"><label>🔹 Pemulihan (Murid belum mencapai objektif)</label><textarea id="f-remedial" rows="3"></textarea></div>
@@ -284,14 +246,12 @@
             <div class="form-group"><label>🔹 Pengayaan (Murid cemerlang)</label><textarea id="f-enrichment" rows="3"></textarea></div>
             <button type="button" class="btn btn-ai" id="btn-susulan" onclick="generateAI('susulan')">🤖 Jana Tindakan Susulan</button>
             <div id="loading-susulan" class="loading">⏳ Menjana soalan ulangkaji...</div>
-
             <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">💾 Simpan RPH</button>
             <button type="button" class="btn btn-warning btn-block" style="margin-top: 8px;" onclick="resetForm()">🔄 Kosongkan Borang</button>
         </form>
     </div>
 </div>
 
-<!-- Tab Rancangan Tahunan -->
 <div id="tab-annual" class="tab-content">
     <div class="card">
         <h2>📅 Rancangan Pengajaran Tahunan (RPT)</h2>
@@ -406,7 +366,6 @@
     <button class="nav-btn" onclick="switchTab('annual', this)">📅 Tahunan</button>
 </div>
 
-<!-- Modal Tetapan Awan -->
 <div class="modal-overlay" id="cloud-modal">
     <div class="modal">
         <h3>☁️ Tetapan Awan (GitHub Gist)</h3>
@@ -449,7 +408,15 @@
             <button class="btn btn-danger" onclick="closeCloudModal()">❌ Tutup</button>
         </div>
 
-        <button class="btn btn-block" style="margin-top: 10px; background: #f0f0f0; color: var(--grey);" onclick="clearCloudSettings()">
+        <div class="help-box warning" style="margin-top: 12px;">
+            <strong>⚠️ Jika data awan rosak:</strong><br>
+            Klik butang di bawah untuk <strong>padam & set semula</strong> fail dalam Gist. Data setempat anda <strong>tidak</strong> akan dipadam.
+        </div>
+        <button class="btn btn-block" style="margin-top: 8px; background: #e74c3c; color: white;" onclick="resetCloudGist()">
+            🔄 Reset Gist (Bersihkan Data Rosak)
+        </button>
+
+        <button class="btn btn-block" style="margin-top: 8px; background: #f0f0f0; color: var(--grey);" onclick="clearCloudSettings()">
             🗑️ Padam Tetapan Awan
         </button>
     </div>
@@ -464,7 +431,6 @@
     let annualPlans = JSON.parse(localStorage.getItem('annualPlans')) || [];
     let currentAnnualResult = null;
 
-    // ===== KONFIGURASI AWAN =====
     const CLOUD_SETTINGS_KEY = 'rphCloudSettings';
     let cloudSettings = JSON.parse(localStorage.getItem(CLOUD_SETTINGS_KEY)) || {
         gistId: '',
@@ -473,10 +439,8 @@
     };
     let isCloudSyncing = false;
 
-    // ===== PEMBETULAN: Bersihkan aksara bukan sahaja ASCII, tapi hanya aksara sah token/gist =====
     function sanitizeHeaderValue(str) {
         if (!str) return '';
-        // Hanya benarkan aksara yang sah dalam token/gist ID
         return String(str).replace(/[^A-Za-z0-9_\-\.]/g, '');
     }
 
@@ -611,6 +575,7 @@
             emk: document.getElementById('f-emk').value.trim(), pak21: document.getElementById('f-pak21').value.trim(),
             assessment: document.getElementById('f-assessment').value.trim(), reflection: document.getElementById('f-reflection').value.trim(),
             worksheet: document.getElementById('f-worksheet').value.trim(),
+            worksheetIndex: parseInt(document.getElementById('f-worksheet').dataset.index || '-1'),
             remedial: document.getElementById('f-remedial').value.trim(),
             reinforcement: document.getElementById('f-reinforcement').value.trim(),
             enrichment: document.getElementById('f-enrichment').value.trim()
@@ -633,6 +598,8 @@
         ['date','time_start','time_end','class','theme','unit','topic','sk','sp','objectives','activities','success','bbm','emk','pak21','assessment','reflection','worksheet','remedial','reinforcement','enrichment'].forEach(f => {
             const el = document.getElementById('f-' + f); if (el) el.value = entry[f] || '';
         });
+        // Simpan worksheetIndex
+        document.getElementById('f-worksheet').dataset.index = entry.worksheetIndex !== undefined ? entry.worksheetIndex : '-1';
         if (entry.year) document.getElementById('f-year').value = entry.year;
         updateFocusInfo('f');
         document.getElementById('rph-id').value = entry.id;
@@ -725,7 +692,7 @@
                 const emk = "TMK, Keusahawanan, Nilai Murni";
                 const assessment = "Pemerhatian aktiviti kumpulan, hasil lembaran kerja, pembentangan, refleksi lisan";
                 const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex, year);
-                return { activities: mainSteps.join('\n'), bbm, emk, pak21: randomPak.name, assessment, worksheet: worksheetHTML };
+                return { activities: mainSteps.join('\n'), bbm, emk, pak21: randomPak.name, assessment, worksheet: worksheetHTML, worksheetIndex };
             }
             case 'success':
                 return { successCriteria: [
@@ -765,6 +732,7 @@
                 document.getElementById('f-assessment').value = result.assessment || '';
                 if (result.worksheet) {
                     document.getElementById('f-worksheet').value = result.worksheet;
+                    document.getElementById('f-worksheet').dataset.index = result.worksheetIndex !== undefined ? result.worksheetIndex : '-1';
                     document.getElementById('worksheet-section').style.display = 'block';
                 }
             } else if (type === 'success') document.getElementById('f-success').value = result.successCriteria.join('\n');
@@ -782,9 +750,32 @@
         }
     }
 
+    // ===== Fungsi dapatkan worksheet dari RPH (jana semula jika perlu) =====
+    function getWorksheetForRPH(entry) {
+        if (entry.worksheet && entry.worksheet.length > 100) return entry.worksheet;
+        // Jana semula menggunakan worksheetIndex
+        const idx = entry.worksheetIndex !== undefined && entry.worksheetIndex >= 0 ? entry.worksheetIndex : 0;
+        return generateWorksheetHTML(entry.topic || 'Nilai Murni', entry.unit || 'Nilai', entry.class || 'Kelas', idx, entry.year || '6');
+    }
+
     function downloadWorksheet() {
         const worksheetHTML = document.getElementById('f-worksheet').value;
-        if (!worksheetHTML) { showToast('Tiada lembaran kerja.', 'error'); return; }
+        if (!worksheetHTML) {
+            // Cuba jana semula
+            const topic = document.getElementById('f-topic').value || 'LembaranKerja';
+            const unit = document.getElementById('f-unit').value || 'Nilai';
+            const kelas = document.getElementById('f-class').value || 'Kelas';
+            const year = document.getElementById('f-year')?.value || '6';
+            const idx = parseInt(document.getElementById('f-worksheet').dataset.index || '0');
+            const regenerated = generateWorksheetHTML(topic, unit, kelas, idx, year);
+            const blob = new Blob([regenerated], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `Lembaran_Kerja_T${year}_${topic.replace(/\s+/g,'_')}.doc`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            showToast('📝 Lembaran kerja dijana & dimuat turun!');
+            return;
+        }
         const blob = new Blob([worksheetHTML], { type: 'application/msword' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -840,16 +831,12 @@
         document.getElementById('cloud-modal').classList.remove('active');
     }
 
-    // ===== PEMBETULAN 1: saveCloudSettings =====
     function saveCloudSettings() {
         const gistId = sanitizeHeaderValue(document.getElementById('setting-gist-id').value);
         const token = sanitizeHeaderValue(document.getElementById('setting-gist-token').value);
         const autoSync = document.getElementById('setting-auto-sync').checked;
 
-        if (!gistId || !token) {
-            showToast('Sila isi Gist ID dan Token.', 'error');
-            return;
-        }
+        if (!gistId || !token) { showToast('Sila isi Gist ID dan Token.', 'error'); return; }
 
         if (!token.startsWith('ghp_') && !token.startsWith('github_pat_') && !token.startsWith('gho_') && !token.startsWith('ghs_')) {
             if (!confirm('Token tidak nampak seperti token GitHub biasa (ghp_...).\nTeruskan?')) return;
@@ -864,7 +851,6 @@
         updateCloudUI();
         showToast('✅ Tetapan disimpan!');
         closeCloudModal();
-
         setTimeout(() => testCloudConnection(true), 300);
     }
 
@@ -877,7 +863,55 @@
         showToast('🗑️ Tetapan awan dipadam.');
     }
 
-    // ===== PEMBETULAN 2: testCloudConnection (dengan Bearer + AbortController + diagnostic) =====
+    // ===== PEMBETULAN BAHARU: Reset Gist (bersihkan data rosak) =====
+    async function resetCloudGist() {
+        if (!cloudSettings.gistId || !cloudSettings.token) {
+            showToast('Sila set Gist ID & Token dahulu.', 'error');
+            return;
+        }
+        if (!confirm('Reset Gist? Ini akan PADAM data dalam awan (data setempat anda TIDAK dipadam).\n\nTeruskan?')) return;
+
+        const gistId = sanitizeHeaderValue(cloudSettings.gistId);
+        const token = sanitizeHeaderValue(cloudSettings.token);
+
+        const statusEl = document.getElementById('cloud-status');
+        const statusText = document.getElementById('cloud-status-text');
+        statusEl.className = 'cloud-status syncing';
+        statusText.textContent = 'Awan: Reset...';
+
+        try {
+            const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    files: {
+                        'rph_data.json': { content: '{}' }
+                    }
+                })
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `HTTP ${res.status}`);
+            }
+
+            statusEl.className = 'cloud-status connected';
+            statusText.textContent = 'Awan: Sedia';
+            showToast('✅ Gist telah direset! Sila simpan semula data.');
+            closeCloudModal();
+        } catch (e) {
+            statusEl.className = 'cloud-status error';
+            statusText.textContent = 'Awan: Ralat';
+            showToast(`❌ Reset gagal: ${e.message}`, 'error');
+            console.error('[Reset]', e);
+        }
+    }
+
     async function testCloudConnection(silent = false) {
         if (!cloudSettings.gistId || !cloudSettings.token) {
             if (!silent) showToast('Sila set Gist ID & Token dahulu.', 'error');
@@ -886,14 +920,8 @@
         const gistId = sanitizeHeaderValue(cloudSettings.gistId);
         const token = sanitizeHeaderValue(cloudSettings.token);
 
-        // Diagnostik dalam console
-        console.log('[Cloud Test] Gist ID:', gistId.substring(0, 8) + '...', '(len:', gistId.length + ')');
-        console.log('[Cloud Test] Token:', token.substring(0, 8) + '...', '(len:', token.length + ')');
-
         if (gistId.length < 15 || token.length < 20) {
-            const msg = 'Gist ID atau Token terlalu pendek. Sila semak semula.';
-            if (!silent) showToast('❌ ' + msg, 'error');
-            console.error('[Cloud Test]', msg);
+            if (!silent) showToast('❌ Gist ID atau Token terlalu pendek.', 'error');
             return false;
         }
 
@@ -923,21 +951,19 @@
             }
             statusEl.className = 'cloud-status connected';
             if (!silent) showToast('✅ Sambungan berjaya!');
-            console.log('[Cloud Test] ✅ Berjaya');
             return true;
         } catch (e) {
             statusEl.className = 'cloud-status error';
             let errMsg = e.message;
-            if (e.name === 'AbortError') errMsg = 'Sambungan timeout (20s)';
-            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke api.github.com — mungkin firewall/CORS/offline';
-            console.error('[Cloud Test] ❌', e);
+            if (e.name === 'AbortError') errMsg = 'Timeout (20s)';
+            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke GitHub';
             if (!silent) showToast(`❌ Sambungan gagal: ${errMsg}`, 'error');
             setTimeout(updateCloudUI, 2500);
             return false;
         }
     }
 
-    // ===== PEMBETULAN 3: saveToCloud =====
+    // ===== PEMBETULAN UTAMA: saveToCloud — buang worksheet HTML =====
     async function saveToCloud(isAuto = false) {
         if (isCloudSyncing) return;
         if (!cloudSettings.gistId || !cloudSettings.token) {
@@ -954,15 +980,40 @@
         statusText.textContent = 'Awan: Menyimpan...';
 
         try {
+            // ===== KUNCI: Buang worksheet HTML (besar), simpan index sahaja =====
+            const compactRPH = rphData.map(entry => {
+                const copy = { ...entry };
+                delete copy.worksheet;  // Buang HTML besar
+                // Pastikan worksheetIndex wujud
+                if (copy.worksheetIndex === undefined || copy.worksheetIndex < 0) {
+                    copy.worksheetIndex = 0;
+                }
+                return copy;
+            });
+
             const payload = {
-                rphData: rphData,
+                rphData: compactRPH,
                 annualPlans: annualPlans,
                 updatedAt: new Date().toISOString(),
-                appVersion: '2.1'
+                appVersion: '3.0-compact'
             };
 
+            const jsonStr = JSON.stringify(payload);
+
+            // Sahkan JSON sah sebelum hantar
+            try { JSON.parse(jsonStr); } catch (je) {
+                throw new Error('Data tidak sah: ' + je.message);
+            }
+
+            const sizeMB = (new Blob([jsonStr]).size / 1024 / 1024).toFixed(2);
+            console.log(`[Cloud Save] Saiz: ${sizeMB} MB, RPH: ${compactRPH.length}`);
+
+            if (parseFloat(sizeMB) > 0.9) {
+                if (!isAuto) showToast(`⚠️ Saiz data ${sizeMB}MB hampir had 1MB.`, 'error');
+            }
+
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 25000);
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
 
             const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
                 method: 'PATCH',
@@ -974,9 +1025,7 @@
                 },
                 body: JSON.stringify({
                     files: {
-                        'rph_data.json': {
-                            content: JSON.stringify(payload, null, 2)
-                        }
+                        'rph_data.json': { content: jsonStr }
                     }
                 }),
                 mode: 'cors',
@@ -992,23 +1041,23 @@
 
             statusEl.className = 'cloud-status connected';
             statusText.textContent = 'Awan: Sedia';
-            if (!isAuto) showToast('☁️ Data disimpan ke awan!');
+            if (!isAuto) showToast(`☁️ ${compactRPH.length} RPH disimpan (${sizeMB}MB)`);
             else showToast('☁️ Auto-sync berjaya');
         } catch (e) {
             statusEl.className = 'cloud-status error';
             statusText.textContent = 'Awan: Ralat';
             let errMsg = e.message;
-            if (e.name === 'AbortError') errMsg = 'Timeout 25s';
-            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke GitHub — semak internet atau firewall';
+            if (e.name === 'AbortError') errMsg = 'Timeout (30s)';
+            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke GitHub';
             showToast(`❌ Gagal simpan: ${errMsg}`, 'error');
-            console.error('[Cloud Save] ❌', e);
+            console.error('[Cloud Save]', e);
             setTimeout(updateCloudUI, 3000);
         } finally {
             isCloudSyncing = false;
         }
     }
 
-    // ===== PEMBETULAN 4: loadFromCloud =====
+    // ===== PEMBETULAN: loadFromCloud dengan kendali JSON rosak =====
     async function loadFromCloud() {
         if (!cloudSettings.gistId || !cloudSettings.token) {
             showToast('Sila set tetapan awan dahulu.', 'error');
@@ -1027,7 +1076,7 @@
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 20000);
+            const timeoutId = setTimeout(() => controller.abort(), 25000);
 
             const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
                 method: 'GET',
@@ -1051,14 +1100,47 @@
             const file = gist.files['rph_data.json'];
             if (!file) throw new Error('Fail rph_data.json tidak dijumpai dalam Gist.');
 
-            const data = JSON.parse(file.content);
+            // ===== KENDALI JSON ROSAK =====
+            let data;
+            try {
+                data = JSON.parse(file.content);
+            } catch (jsonErr) {
+                console.error('[Cloud Load] JSON rosak:', jsonErr);
+                const reset = confirm(
+                    '⚠️ Data dalam Gist ROSAK (JSON tidak lengkap).\n\n' +
+                    'Kemungkinan fail terlalu besar atau muat naik terputus.\n\n' +
+                    'Pilih OK untuk RESET Gist (padam data rosak, kekalkan data setempat).\n' +
+                    'Pilih Cancel untuk batal.'
+                );
+                if (reset) {
+                    isCloudSyncing = false;
+                    await resetCloudGist();
+                }
+                throw new Error('Data awan rosak — sila reset Gist.');
+            }
+
             const cloudRPH = data.rphData || [];
             const cloudAnnual = data.annualPlans || [];
 
             const msg = `Data dari awan:\n• ${cloudRPH.length} RPH\n• ${cloudAnnual.length} RPT\n\nIni akan GANTIKAN data semasa (${rphData.length} RPH, ${annualPlans.length} RPT).\n\nTeruskan?`;
             if (!confirm(msg)) { updateCloudUI(); return; }
 
-            rphData = cloudRPH;
+            // Jana semula worksheet HTML untuk setiap RPH
+            const restoredRPH = cloudRPH.map(entry => {
+                if (!entry.worksheet || entry.worksheet.length < 100) {
+                    const idx = entry.worksheetIndex !== undefined && entry.worksheetIndex >= 0 ? entry.worksheetIndex : 0;
+                    entry.worksheet = generateWorksheetHTML(
+                        entry.topic || 'Nilai Murni',
+                        entry.unit || 'Nilai',
+                        entry.class || 'Kelas',
+                        idx,
+                        entry.year || '6'
+                    );
+                }
+                return entry;
+            });
+
+            rphData = restoredRPH;
             annualPlans = cloudAnnual;
             saveData();
             saveAnnualData();
@@ -1072,10 +1154,10 @@
             statusEl.className = 'cloud-status error';
             statusText.textContent = 'Awan: Ralat';
             let errMsg = e.message;
-            if (e.name === 'AbortError') errMsg = 'Timeout 20s';
-            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke GitHub — semak internet';
+            if (e.name === 'AbortError') errMsg = 'Timeout (25s)';
+            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke GitHub';
             showToast(`❌ Gagal muat: ${errMsg}`, 'error');
-            console.error('[Cloud Load] ❌', e);
+            console.error('[Cloud Load]', e);
             setTimeout(updateCloudUI, 3000);
         } finally {
             isCloudSyncing = false;
@@ -1410,6 +1492,7 @@
                         const remedial = `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic}.`;
                         const reinforcement = `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`;
                         const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic}.\n2. Projek mini: "Kempen ${topic}".\n3. Refleksi peribadi.`;
+                        // Jana worksheet untuk simpanan setempat sahaja (tidak disimpan ke awan)
                         const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex, tahun);
 
                         rphData.push({
@@ -1421,6 +1504,7 @@
                             objectives: objectives, activities: activities, success: success,
                             bbm: bbm, emk: emk, pak21: rptPak.name, assessment: assessment,
                             reflection: reflection, worksheet: worksheetHTML,
+                            worksheetIndex: worksheetIndex,
                             remedial: remedial, reinforcement: reinforcement, enrichment: enrichment
                         });
                         count++;
