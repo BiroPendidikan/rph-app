@@ -84,82 +84,19 @@
         .day-checkbox:hover { border-color: var(--accent); background: #f0f7ff; }
         .day-checkbox input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; flex-shrink: 0; }
         .day-checkbox.checked { border-color: var(--accent); background: #e8f1fc; color: var(--primary); font-weight: 600; }
-        .time-per-day { margin-top: 12px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed var(--border); }
-        .time-per-day h5 { color: var(--primary); font-size: 0.85rem; margin-bottom: 8px; }
-        .time-per-day .time-grid { grid-template-columns: 1fr 1fr; }
-
-        /* ===== TAMBAHAN: Panel masa per hari ===== */
-        .day-time-list {
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .day-time-item {
-            background: #fff;
-            border-radius: 8px;
-            padding: 10px 12px;
-            border-left: 4px solid var(--accent);
-            display: none;
-        }
-        .day-time-item.active {
-            display: block;
-            animation: fadeIn 0.2s;
-        }
-        .day-time-item h6 {
-            color: var(--primary);
-            font-size: 0.85rem;
-            margin-bottom: 8px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .day-time-item h6 .day-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-        }
-        .day-time-item .time-grid {
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-        .day-time-item .form-group {
-            margin-bottom: 0;
-        }
-        .day-time-item .form-group label {
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        .day-time-item .form-group input {
-            padding: 8px 10px;
-            font-size: 0.9rem;
-        }
-
-        /* ===== TAMBAHAN: Fokus Tahun ===== */
-        .year-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
+        .day-time-list { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+        .day-time-item { background: #fff; border-radius: 8px; padding: 10px 12px; border-left: 4px solid var(--accent); display: none; }
+        .day-time-item.active { display: block; animation: fadeIn 0.2s; }
+        .day-time-item h6 { color: var(--primary); font-size: 0.85rem; margin-bottom: 8px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .day-time-item h6 .day-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+        .day-time-item .time-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .day-time-item .form-group { margin-bottom: 0; }
+        .day-time-item .form-group label { font-size: 0.75rem; font-weight: 500; }
+        .day-time-item .form-group input { padding: 8px 10px; font-size: 0.9rem; }
+        .year-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; margin-left: 8px; vertical-align: middle; }
         .year-badge.t5 { background: #e8f1fc; color: #1a5490; }
         .year-badge.t6 { background: #fff1e0; color: #b8560a; }
-        .focus-info {
-            background: #f0f7ff;
-            border-left: 4px solid var(--accent);
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
+        .focus-info { background: #f0f7ff; border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; color: var(--primary); margin-bottom: 15px; line-height: 1.5; }
         .focus-info strong { color: var(--primary); }
     </style>
 </head>
@@ -332,7 +269,6 @@
                 </div>
             </div>
 
-            <!-- ===== PERUBAHAN UTAMA: Masa berbeza setiap hari ===== -->
             <div class="day-time-list">
                 <div class="day-time-item active" id="time-1">
                     <h6><span class="day-dot"></span>⏰ Masa PdPC — Isnin</h6>
@@ -370,7 +306,6 @@
                     </div>
                 </div>
             </div>
-            <!-- ===== TAMAT PERUBAHAN ===== -->
 
             <button type="button" class="btn btn-danger btn-block" style="margin-top: 12px;" onclick="confirmGenerateAllRPH()">🚀 Jana Semua RPH Sekarang</button>
         </div>
@@ -401,8 +336,7 @@
 
     // ===== PANGKALAN DATA SK/SP =====
     const moralValueDB_T6 = {
-        "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: [
-            "Menyatakan kepentingan kepercayaan kepada Tuhan.","Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.","Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.","Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.","Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."]},
+        "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: ["Menyatakan kepentingan kepercayaan kepada Tuhan.","Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.","Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.","Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.","Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."]},
         "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: ["Menyatakan maksud baik hati.","Menjelaskan cara membantu individu dan masyarakat.","Mengamalkan sikap baik hati tanpa mengira latar belakang.","Menghayati nilai baik hati untuk perpaduan negara."]},
         "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: ["Menyatakan tanggungjawab sebagai warganegara.","Menjelaskan kepentingan melaksanakan tanggungjawab.","Melaksanakan tanggungjawab terhadap negara.","Menghayati tanggungjawab menjaga nama baik negara."]},
         "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: ["Menyatakan penghargaan kepada pihak yang berjasa.","Menghargai sumbangan semua pihak dalam pembangunan negara.","Menghayati nilai berterima kasih dalam masyarakat majmuk."]},
@@ -419,8 +353,7 @@
     };
 
     const moralValueDB_T5 = {
-        "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: [
-            "Menyatakan kepentingan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.","Menjelaskan cara menunjukkan kepercayaan kepada Tuhan terhadap masyarakat.","Mengamalkan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.","Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan masyarakat.","Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian masyarakat."]},
+        "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: ["Menyatakan kepentingan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.","Menjelaskan cara menunjukkan kepercayaan kepada Tuhan terhadap masyarakat.","Mengamalkan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.","Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan masyarakat.","Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian masyarakat."]},
         "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: ["Menyatakan maksud baik hati.","Menjelaskan cara membantu jiran dan rakan.","Mengamalkan sikap baik hati dalam masyarakat.","Menghayati nilai baik hati untuk kesejahteraan masyarakat."]},
         "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: ["Menyatakan tanggungjawab sebagai ahli masyarakat.","Menjelaskan kepentingan melaksanakan tanggungjawab dalam masyarakat.","Melaksanakan tanggungjawab terhadap masyarakat.","Menghayati tanggungjawab untuk kesejahteraan masyarakat."]},
         "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: ["Menyatakan penghargaan kepada ahli masyarakat.","Menghargai sumbangan masyarakat dalam kehidupan seharian.","Menghayati nilai berterima kasih dalam kehidupan bermasyarakat."]},
@@ -930,8 +863,6 @@
             else el.classList.remove('checked');
         }, 10);
     }
-
-    // ===== TAMBAHAN: Tunjuk/sembunyi panel masa ikut hari terpilih =====
     function toggleDayTime(day) {
         const panel = document.getElementById('time-' + day);
         const cb = document.getElementById('day-' + day);
@@ -972,7 +903,6 @@
         const selectedDays = getSelectedDays();
         if (!selectedDays.length) { showToast('Sila pilih sekurang-kurangnya satu hari PdPC.', 'error'); return; }
 
-        // Semak semua hari terpilih ada masa
         for (const d of selectedDays) {
             const t = getDayTime(d);
             if (!t.start || !t.end) {
@@ -1013,11 +943,12 @@
                         const diff = differentiationOptions[Math.floor(Math.random() * differentiationOptions.length)];
                         const worksheetIndex = Math.floor(Math.random() * 3);
                         const fText = tahun === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
+
+                        // ===== PEMBETULAN: Buang rptPak.steps.map() — guna rptPakDetail sahaja =====
                         const mainSteps = [
                             `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek atau soalan rangsangan tentang ${topic} dalam ${fText}.`,
                             `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${rptPak.name}.`,
                             `    • ${rptPakDetail}`,
-                            ...rptPak.steps.map(s => `    • ${s}`),
                             `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan tentang ${topic} dan kesannya kepada ${fText}.`,
                             `Langkah 4 (Aplikasi - 10 minit): Aktiviti pembezaan mengikut kumpulan:`,
                             `    🔹 Kumpulan Lemah: ${diff.lemah}`,
@@ -1046,7 +977,6 @@
                         const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic} dan kesannya.\n2. Projek mini: "Kempen ${topic}".\n3. Refleksi peribadi tentang impak amalan ${topic}.`;
                         const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex, tahun);
 
-                        // ===== PERUBAHAN UTAMA: guna masa berbeza setiap hari =====
                         rphData.push({
                             id: rphId, year: tahun, date: dateStr,
                             time_start: dayTime.start,
@@ -1090,7 +1020,6 @@
             const cb = el.querySelector('input[type="checkbox"]');
             if (cb && cb.checked) el.classList.add('checked');
         });
-        // Pastikan panel masa sepadan dengan hari terpilih
         for (let d = 1; d <= 5; d++) toggleDayTime(d);
     }
     init();
