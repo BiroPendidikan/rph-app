@@ -79,13 +79,45 @@
         .batch-config { display: none; margin-top: 12px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid var(--border); }
         .batch-config.active { display: block; animation: fadeIn 0.3s; }
         .batch-config h4 { color: var(--primary); margin-bottom: 12px; font-size: 0.95rem; }
+        .days-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-top: 5px; }
+        .day-checkbox { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--white); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; font-weight: 500; user-select: none; }
+        .day-checkbox:hover { border-color: var(--accent); background: #f0f7ff; }
+        .day-checkbox input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; flex-shrink: 0; }
+        .day-checkbox.checked { border-color: var(--accent); background: #e8f1fc; color: var(--primary); font-weight: 600; }
+        .time-per-day { margin-top: 12px; padding: 12px; background: #fff; border-radius: 8px; border: 1px dashed var(--border); }
+        .time-per-day h5 { color: var(--primary); font-size: 0.85rem; margin-bottom: 8px; }
+        .time-per-day .time-grid { grid-template-columns: 1fr 1fr; }
+
+        /* ===== TAMBAHAN: Fokus Tahun ===== */
+        .year-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .year-badge.t5 { background: #e8f1fc; color: #1a5490; }
+        .year-badge.t6 { background: #fff1e0; color: #b8560a; }
+        .focus-info {
+            background: #f0f7ff;
+            border-left: 4px solid var(--accent);
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .focus-info strong { color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="header">
     <h1>📖 RPH Pintar Guru</h1>
-    <p class="subtitle">Dikuasakan oleh DeepSeek AI • Pendidikan Moral</p>
+    <p class="subtitle">Dikuasakan oleh DeepSeek AI • Pendidikan Moral • KSSR</p>
 </div>
 
 <!-- Tab Senarai RPH -->
@@ -109,6 +141,17 @@
         <form id="rph-form">
             <input type="hidden" id="rph-id">
             <input type="hidden" id="f-worksheet">
+
+            <!-- TAMBAHAN: Pemilih Tahun -->
+            <div class="form-group">
+                <label>🎓 Tahun</label>
+                <select id="f-year" onchange="updateFocusInfo('f')">
+                    <option value="5">Tahun 5 — Fokus: Kehidupan Bermasyarakat</option>
+                    <option value="6" selected>Tahun 6 — Fokus: Kesan & Impak kepada Negara</option>
+                </select>
+            </div>
+            <div id="focus-info-form" class="focus-info"></div>
+
             <div class="time-grid">
                 <div class="form-group"><label>📅 Tarikh</label><input type="date" id="f-date" required></div>
                 <div class="form-group"><label>🏫 Kelas</label><input type="text" id="f-class" placeholder="cth: 6 Bestari" required></div>
@@ -134,7 +177,7 @@
             </div>
 
             <div class="form-group"><label>🎪 Aktiviti (termasuk Pembezaan)</label><textarea id="f-activities" rows="6"></textarea>
-                <button type="button" class="btn btn-ai" id="btn-act" onclick="generateAI('activities')">🤖 Jana Aktiviti PAK21 + Pembezaan Murid + Lembaran Kerja</button>
+                <button type="button" class="btn btn-ai" id="btn-act" onclick="generateAI('activities')">🤖 Jana Aktiviti PAK21 + Pembezaan + Lembaran Kerja</button>
                 <div id="loading-activities" class="loading">⏳ Menjana langkah, pembezaan, BBM, EMK, lembaran kerja...</div>
             </div>
 
@@ -180,13 +223,24 @@
     <div class="card">
         <h2>📅 Rancangan Pengajaran Tahunan (RPT)</h2>
         <p style="font-size:0.85rem; color: var(--grey); margin-bottom: 15px;">
-            AI menyusun tajuk, <strong>semua kod SP unit (1.1 – 1.5)</strong>, serta aktiviti PAK21 <strong>berbeza-beza</strong> setiap minggu.
+            AI menyusun tajuk, <strong>semua kod SP unit</strong>, serta aktiviti PAK21 <strong>berbeza-beza</strong> mengikut fokus Tahun.
         </p>
         <form id="annual-form" onsubmit="generateAnnualPlan(event)">
             <div class="time-grid">
-                <div class="form-group"><label>📆 Tahun</label><input type="number" id="a-year" value="2026" min="2020" max="2100" required></div>
+                <div class="form-group"><label>📆 Tahun Akademik</label><input type="number" id="a-year" value="2026" min="2020" max="2100" required></div>
                 <div class="form-group"><label>🏫 Kelas</label><input type="text" id="a-class" placeholder="cth: 6 Bestari" required></div>
             </div>
+
+            <!-- TAMBAHAN: Pemilih Tahun untuk RPT -->
+            <div class="form-group">
+                <label>🎓 Tahun (Fokus)</label>
+                <select id="a-tahun" onchange="updateFocusInfo('a')">
+                    <option value="5">Tahun 5 — Fokus: Kehidupan Bermasyarakat</option>
+                    <option value="6" selected>Tahun 6 — Fokus: Kesan & Impak kepada Negara</option>
+                </select>
+            </div>
+            <div id="focus-info-annual" class="focus-info"></div>
+
             <div class="time-grid">
                 <div class="form-group"><label>🗓️ Tarikh Mula Persekolahan</label><input type="date" id="a-start" required></div>
                 <div class="form-group"><label>📊 Jumlah Minggu Persekolahan</label><input type="number" id="a-weeks" value="42" min="1" max="52" required></div>
@@ -217,23 +271,26 @@
         <div id="batch-config" class="batch-config">
             <h4>⚙️ Tetapan Jana RPH Setahun</h4>
             <p style="font-size:0.8rem; color: var(--grey); margin-bottom: 12px;">
-                RPH akan dijana untuk <strong>setiap minggu pengajaran</strong> (minggu cuti dikecualikan) berdasarkan RPT di atas.
+                Pilih <strong>hari PdPC dalam seminggu</strong> (boleh pilih lebih daripada satu).
             </p>
-            <div class="time-grid">
-                <div class="form-group"><label>⏰ Masa Mula</label><input type="time" id="batch-time-start" value="08:00"></div>
-                <div class="form-group"><label>⏰ Masa Tamat</label><input type="time" id="batch-time-end" value="09:00"></div>
-            </div>
             <div class="form-group">
-                <label>📅 Hari dalam minggu</label>
-                <select id="batch-day">
-                    <option value="1" selected>Isnin</option>
-                    <option value="2">Selasa</option>
-                    <option value="3">Rabu</option>
-                    <option value="4">Khamis</option>
-                    <option value="5">Jumaat</option>
-                </select>
+                <label>📅 Hari PdPC dalam Seminggu (boleh pilih banyak)</label>
+                <div class="days-grid">
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-1" value="1" checked> Isnin</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-2" value="2"> Selasa</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-3" value="3"> Rabu</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-4" value="4"> Khamis</label>
+                    <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-5" value="5"> Jumaat</label>
+                </div>
             </div>
-            <button type="button" class="btn btn-danger btn-block" onclick="confirmGenerateAllRPH()">🚀 Jana Semua RPH Sekarang</button>
+            <div class="time-per-day">
+                <h5>⏰ Masa PdPC (untuk semua hari)</h5>
+                <div class="time-grid">
+                    <div class="form-group" style="margin-bottom:0;"><label>Masa Mula</label><input type="time" id="batch-time-start" value="08:00"></div>
+                    <div class="form-group" style="margin-bottom:0;"><label>Masa Tamat</label><input type="time" id="batch-time-end" value="09:00"></div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger btn-block" style="margin-top: 12px;" onclick="confirmGenerateAllRPH()">🚀 Jana Semua RPH Sekarang</button>
         </div>
     </div>
 
@@ -260,160 +317,194 @@
     let annualPlans = JSON.parse(localStorage.getItem('annualPlans')) || [];
     let currentAnnualResult = null;
 
-    // ============================================================
-    // ===== PANGKALAN DATA SK/SP PENDIDIKAN MORAL TAHUN 6 =====
-    // ============================================================
-    // Setiap unit menyimpan SENARAI penuh kod SP + huraian
-    const moralValueDB = {
-        "Kepercayaan kepada Tuhan": {
-            bil: 1,
-            sk: "1. Kepercayaan kepada Tuhan",
-            sp: ["1.1","1.2","1.3","1.4","1.5"],
-            spDesc: [
-                "Menyatakan kepentingan kepercayaan kepada Tuhan.",
-                "Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.",
-                "Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.",
-                "Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.",
-                "Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."
-            ]
-        },
-        "Baik Hati": {
-            bil: 2,
-            sk: "2. Baik Hati",
-            sp: ["2.1","2.2","2.3","2.4"],
-            spDesc: [
-                "Menyatakan maksud baik hati.",
-                "Menjelaskan cara membantu individu dan masyarakat.",
-                "Mengamalkan sikap baik hati tanpa mengira latar belakang.",
-                "Menghayati nilai baik hati untuk perpaduan negara."
-            ]
-        },
-        "Bertanggungjawab": {
-            bil: 3,
-            sk: "3. Bertanggungjawab",
-            sp: ["3.1","3.2","3.3","3.4"],
-            spDesc: [
-                "Menyatakan tanggungjawab sebagai warganegara.",
-                "Menjelaskan kepentingan melaksanakan tanggungjawab.",
-                "Melaksanakan tanggungjawab terhadap negara.",
-                "Menghayati tanggungjawab menjaga nama baik negara."
-            ]
-        },
-        "Berterima Kasih": {
-            bil: 4,
-            sk: "4. Berterima Kasih",
-            sp: ["4.1","4.2","4.3"],
-            spDesc: [
-                "Menyatakan penghargaan kepada pihak yang berjasa.",
-                "Menghargai sumbangan semua pihak dalam pembangunan negara.",
-                "Menghayati nilai berterima kasih dalam masyarakat majmuk."
-            ]
-        },
-        "Hemah Tinggi": {
-            bil: 5,
-            sk: "5. Hemah Tinggi",
-            sp: ["5.1","5.2","5.3","5.4"],
-            spDesc: [
-                "Menyatakan maksud hemah tinggi.",
-                "Menjelaskan cara berbudi bahasa dalam pelbagai situasi.",
-                "Mengamalkan hemah tinggi untuk meningkatkan imej negara.",
-                "Menghayati nilai hemah tinggi dalam kehidupan harian."
-            ]
-        },
-        "Hormat": {
-            bil: 6,
-            sk: "6. Hormat",
-            sp: ["6.1","6.2","6.3"],
-            spDesc: [
-                "Menyatakan kepentingan hormat-menghormati.",
-                "Menghormati lambang negara, pemimpin dan individu.",
-                "Menghayati nilai hormat untuk kesejahteraan negara."
-            ]
-        },
-        "Kasih Sayang": {
-            bil: 7,
-            sk: "7. Kasih Sayang",
-            sp: ["7.1","7.2","7.3","7.4"],
-            spDesc: [
-                "Menyatakan maksud kasih sayang.",
-                "Menjelaskan cara menyayangi negara (patriotisme).",
-                "Mengamalkan kasih sayang untuk keharmonian masyarakat.",
-                "Menghayati nilai kasih sayang terhadap negara."
-            ]
-        },
-        "Keadilan": {
-            bil: 8,
-            sk: "8. Keadilan",
-            sp: ["8.1","8.2","8.3"],
-            spDesc: [
-                "Menyatakan maksud keadilan.",
-                "Menjelaskan cara bersikap adil dalam semua urusan.",
-                "Menghayati nilai keadilan untuk kesejahteraan negara."
-            ]
-        },
-        "Keberanian": {
-            bil: 9,
-            sk: "9. Keberanian",
-            sp: ["9.1","9.2","9.3"],
-            spDesc: [
-                "Menyatakan maksud keberanian.",
-                "Menjelaskan cara berani mempertahankan maruah negara.",
-                "Menghayati nilai keberanian dalam kehidupan."
-            ]
-        },
-        "Kejujuran": {
-            bil: 10,
-            sk: "10. Kejujuran",
-            sp: ["10.1","10.2","10.3"],
-            spDesc: [
-                "Menyatakan maksud kejujuran.",
-                "Menjelaskan kepentingan amanah dan jujur.",
-                "Menghayati nilai kejujuran terhadap masyarakat dan negara."
-            ]
-        },
-        "Kerajinan": {
-            bil: 11,
-            sk: "11. Kerajinan",
-            sp: ["11.1","11.2","11.3"],
-            spDesc: [
-                "Menyatakan maksud kerajinan.",
-                "Menjelaskan cara berusaha gigih untuk kejayaan.",
-                "Menghayati nilai kerajinan untuk pembangunan negara."
-            ]
-        },
-        "Kerjasama": {
-            bil: 12,
-            sk: "12. Kerjasama",
-            sp: ["12.1","12.2","12.3","12.4"],
-            spDesc: [
-                "Menyatakan maksud kerjasama.",
-                "Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.",
-                "Mengamalkan kerjasama untuk perpaduan kaum.",
-                "Menghayati nilai kerjasama untuk keharmonian negara."
-            ]
-        },
-        "Kesederhanaan": {
-            bil: 13,
-            sk: "13. Kesederhanaan",
-            sp: ["13.1","13.2","13.3"],
-            spDesc: [
-                "Menyatakan maksud kesederhanaan.",
-                "Menjelaskan cara mengawal diri dalam pelbagai situasi.",
-                "Menghayati nilai kesederhanaan untuk perpaduan negara."
-            ]
-        },
-        "Toleransi": {
-            bil: 14,
-            sk: "14. Toleransi",
-            sp: ["14.1","14.2","14.3","14.4"],
-            spDesc: [
-                "Menyatakan maksud toleransi.",
-                "Menjelaskan cara bertolak ansur sesama jiran dan rakan.",
-                "Mengamalkan toleransi untuk memupuk perpaduan kaum.",
-                "Menghayati nilai toleransi untuk keharmonian negara."
-            ]
-        }
+    // ================================================================
+    // ===== PANGKALAN DATA SK/SP PENDIDIKAN MORAL (2 TAHUN) =====
+    // ================================================================
+
+    // ===== TAHUN 6 — FOKUS: KESAN & IMPAK KEPADA NEGARA =====
+    const moralValueDB_T6 = {
+        "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: [
+            "Menyatakan kepentingan kepercayaan kepada Tuhan.",
+            "Menjelaskan cara menunjukkan kepercayaan kepada Tuhan.",
+            "Mengamalkan kepercayaan kepada Tuhan dalam kehidupan harian.",
+            "Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan negara.",
+            "Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian negara."
+        ]},
+        "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: [
+            "Menyatakan maksud baik hati.",
+            "Menjelaskan cara membantu individu dan masyarakat.",
+            "Mengamalkan sikap baik hati tanpa mengira latar belakang.",
+            "Menghayati nilai baik hati untuk perpaduan negara."
+        ]},
+        "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: [
+            "Menyatakan tanggungjawab sebagai warganegara.",
+            "Menjelaskan kepentingan melaksanakan tanggungjawab.",
+            "Melaksanakan tanggungjawab terhadap negara.",
+            "Menghayati tanggungjawab menjaga nama baik negara."
+        ]},
+        "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: [
+            "Menyatakan penghargaan kepada pihak yang berjasa.",
+            "Menghargai sumbangan semua pihak dalam pembangunan negara.",
+            "Menghayati nilai berterima kasih dalam masyarakat majmuk."
+        ]},
+        "Hemah Tinggi": { bil: 5, sk: "5. Hemah Tinggi", sp: ["5.1","5.2","5.3","5.4"], spDesc: [
+            "Menyatakan maksud hemah tinggi.",
+            "Menjelaskan cara berbudi bahasa dalam pelbagai situasi.",
+            "Mengamalkan hemah tinggi untuk meningkatkan imej negara.",
+            "Menghayati nilai hemah tinggi dalam kehidupan harian."
+        ]},
+        "Hormat": { bil: 6, sk: "6. Hormat", sp: ["6.1","6.2","6.3"], spDesc: [
+            "Menyatakan kepentingan hormat-menghormati.",
+            "Menghormati lambang negara, pemimpin dan individu.",
+            "Menghayati nilai hormat untuk kesejahteraan negara."
+        ]},
+        "Kasih Sayang": { bil: 7, sk: "7. Kasih Sayang", sp: ["7.1","7.2","7.3","7.4"], spDesc: [
+            "Menyatakan maksud kasih sayang.",
+            "Menjelaskan cara menyayangi negara (patriotisme).",
+            "Mengamalkan kasih sayang untuk keharmonian masyarakat.",
+            "Menghayati nilai kasih sayang terhadap negara."
+        ]},
+        "Keadilan": { bil: 8, sk: "8. Keadilan", sp: ["8.1","8.2","8.3"], spDesc: [
+            "Menyatakan maksud keadilan.",
+            "Menjelaskan cara bersikap adil dalam semua urusan.",
+            "Menghayati nilai keadilan untuk kesejahteraan negara."
+        ]},
+        "Keberanian": { bil: 9, sk: "9. Keberanian", sp: ["9.1","9.2","9.3"], spDesc: [
+            "Menyatakan maksud keberanian.",
+            "Menjelaskan cara berani mempertahankan maruah negara.",
+            "Menghayati nilai keberanian dalam kehidupan."
+        ]},
+        "Kejujuran": { bil: 10, sk: "10. Kejujuran", sp: ["10.1","10.2","10.3"], spDesc: [
+            "Menyatakan maksud kejujuran.",
+            "Menjelaskan kepentingan amanah dan jujur.",
+            "Menghayati nilai kejujuran terhadap masyarakat dan negara."
+        ]},
+        "Kerajinan": { bil: 11, sk: "11. Kerajinan", sp: ["11.1","11.2","11.3"], spDesc: [
+            "Menyatakan maksud kerajinan.",
+            "Menjelaskan cara berusaha gigih untuk kejayaan.",
+            "Menghayati nilai kerajinan untuk pembangunan negara."
+        ]},
+        "Kerjasama": { bil: 12, sk: "12. Kerjasama", sp: ["12.1","12.2","12.3","12.4"], spDesc: [
+            "Menyatakan maksud kerjasama.",
+            "Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.",
+            "Mengamalkan kerjasama untuk perpaduan kaum.",
+            "Menghayati nilai kerjasama untuk keharmonian negara."
+        ]},
+        "Kesederhanaan": { bil: 13, sk: "13. Kesederhanaan", sp: ["13.1","13.2","13.3"], spDesc: [
+            "Menyatakan maksud kesederhanaan.",
+            "Menjelaskan cara mengawal diri dalam pelbagai situasi.",
+            "Menghayati nilai kesederhanaan untuk perpaduan negara."
+        ]},
+        "Toleransi": { bil: 14, sk: "14. Toleransi", sp: ["14.1","14.2","14.3","14.4"], spDesc: [
+            "Menyatakan maksud toleransi.",
+            "Menjelaskan cara bertolak ansur sesama jiran dan rakan.",
+            "Mengamalkan toleransi untuk memupuk perpaduan kaum.",
+            "Menghayati nilai toleransi untuk keharmonian negara."
+        ]}
     };
+
+    // ===== TAHUN 5 — FOKUS: KESAN & IMPAK DALAM KEHIDUPAN BERMASYARAKAT =====
+    const moralValueDB_T5 = {
+        "Kepercayaan kepada Tuhan": { bil: 1, sk: "1. Kepercayaan kepada Tuhan", sp: ["1.1","1.2","1.3","1.4","1.5"], spDesc: [
+            "Menyatakan kepentingan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.",
+            "Menjelaskan cara menunjukkan kepercayaan kepada Tuhan terhadap masyarakat.",
+            "Mengamalkan kepercayaan kepada Tuhan dalam kehidupan bermasyarakat.",
+            "Menghubungkait kepercayaan kepada Tuhan dengan kesejahteraan masyarakat.",
+            "Menghayati nilai kepercayaan kepada Tuhan untuk keharmonian masyarakat."
+        ]},
+        "Baik Hati": { bil: 2, sk: "2. Baik Hati", sp: ["2.1","2.2","2.3","2.4"], spDesc: [
+            "Menyatakan maksud baik hati.",
+            "Menjelaskan cara membantu jiran dan rakan.",
+            "Mengamalkan sikap baik hati dalam masyarakat.",
+            "Menghayati nilai baik hati untuk kesejahteraan masyarakat."
+        ]},
+        "Bertanggungjawab": { bil: 3, sk: "3. Bertanggungjawab", sp: ["3.1","3.2","3.3","3.4"], spDesc: [
+            "Menyatakan tanggungjawab sebagai ahli masyarakat.",
+            "Menjelaskan kepentingan melaksanakan tanggungjawab dalam masyarakat.",
+            "Melaksanakan tanggungjawab terhadap masyarakat.",
+            "Menghayati tanggungjawab untuk kesejahteraan masyarakat."
+        ]},
+        "Berterima Kasih": { bil: 4, sk: "4. Berterima Kasih", sp: ["4.1","4.2","4.3"], spDesc: [
+            "Menyatakan penghargaan kepada ahli masyarakat.",
+            "Menghargai sumbangan masyarakat dalam kehidupan seharian.",
+            "Menghayati nilai berterima kasih dalam kehidupan bermasyarakat."
+        ]},
+        "Hemah Tinggi": { bil: 5, sk: "5. Hemah Tinggi", sp: ["5.1","5.2","5.3","5.4"], spDesc: [
+            "Menyatakan maksud hemah tinggi.",
+            "Menjelaskan cara berbudi bahasa dalam masyarakat.",
+            "Mengamalkan hemah tinggi dalam kehidupan bermasyarakat.",
+            "Menghayati nilai hemah tinggi untuk kesejahteraan masyarakat."
+        ]},
+        "Hormat": { bil: 6, sk: "6. Hormat", sp: ["6.1","6.2","6.3"], spDesc: [
+            "Menyatakan kepentingan hormat-menghormati dalam masyarakat.",
+            "Menghormati ahli masyarakat dan jiran tetangga.",
+            "Menghayati nilai hormat untuk keharmonian masyarakat."
+        ]},
+        "Kasih Sayang": { bil: 7, sk: "7. Kasih Sayang", sp: ["7.1","7.2","7.3","7.4"], spDesc: [
+            "Menyatakan maksud kasih sayang.",
+            "Menjelaskan cara menyayangi ahli masyarakat.",
+            "Mengamalkan kasih sayang dalam kehidupan bermasyarakat.",
+            "Menghayati nilai kasih sayang terhadap masyarakat."
+        ]},
+        "Keadilan": { bil: 8, sk: "8. Keadilan", sp: ["8.1","8.2","8.3"], spDesc: [
+            "Menyatakan maksud keadilan.",
+            "Menjelaskan cara bersikap adil dalam masyarakat.",
+            "Menghayati nilai keadilan untuk kesejahteraan masyarakat."
+        ]},
+        "Keberanian": { bil: 9, sk: "9. Keberanian", sp: ["9.1","9.2","9.3"], spDesc: [
+            "Menyatakan maksud keberanian.",
+            "Menjelaskan cara berani menegakkan kebenaran dalam masyarakat.",
+            "Menghayati nilai keberanian dalam kehidupan bermasyarakat."
+        ]},
+        "Kejujuran": { bil: 10, sk: "10. Kejujuran", sp: ["10.1","10.2","10.3"], spDesc: [
+            "Menyatakan maksud kejujuran.",
+            "Menjelaskan kepentingan amanah dalam masyarakat.",
+            "Menghayati nilai kejujuran dalam kehidupan bermasyarakat."
+        ]},
+        "Kerajinan": { bil: 11, sk: "11. Kerajinan", sp: ["11.1","11.2","11.3"], spDesc: [
+            "Menyatakan maksud kerajinan.",
+            "Menjelaskan cara berusaha gigih untuk kesejahteraan masyarakat.",
+            "Menghayati nilai kerajinan dalam kehidupan bermasyarakat."
+        ]},
+        "Kerjasama": { bil: 12, sk: "12. Kerjasama", sp: ["12.1","12.2","12.3","12.4"], spDesc: [
+            "Menyatakan maksud kerjasama.",
+            "Menjelaskan cara bekerjasama dalam aktiviti kemasyarakatan.",
+            "Mengamalkan kerjasama untuk kesejahteraan masyarakat.",
+            "Menghayati nilai kerjasama dalam kehidupan bermasyarakat."
+        ]},
+        "Kesederhanaan": { bil: 13, sk: "13. Kesederhanaan", sp: ["13.1","13.2","13.3"], spDesc: [
+            "Menyatakan maksud kesederhanaan.",
+            "Menjelaskan cara mengawal diri dalam masyarakat.",
+            "Menghayati nilai kesederhanaan untuk kesejahteraan masyarakat."
+        ]},
+        "Toleransi": { bil: 14, sk: "14. Toleransi", sp: ["14.1","14.2","14.3","14.4"], spDesc: [
+            "Menyatakan maksud toleransi.",
+            "Menjelaskan cara bertolak ansur sesama jiran dan rakan.",
+            "Mengamalkan toleransi dalam kehidupan bermasyarakat.",
+            "Menghayati nilai toleransi untuk keharmonian masyarakat."
+        ]}
+    };
+
+    // Helper: pilih DB ikut tahun
+    function getDB(year) {
+        return (String(year) === '5') ? moralValueDB_T5 : moralValueDB_T6;
+    }
+    function getFocusLabel(year) {
+        return (String(year) === '5') ? 'Kehidupan Bermasyarakat' : 'Kesan & Impak kepada Negara';
+    }
+    function getThemeTitle(year) {
+        return (String(year) === '5') ? 'Saya dan Masyarakat' : 'Saya dan Negara';
+    }
+
+    // Paparkan info fokus
+    function updateFocusInfo(prefix) {
+        const year = document.getElementById(prefix + (prefix === 'f' ? '-year' : '-tahun'))?.value || '6';
+        const focusEl = document.getElementById('focus-info-' + (prefix === 'f' ? 'form' : 'annual'));
+        if (!focusEl) return;
+        const label = getFocusLabel(year);
+        const theme = getThemeTitle(year);
+        focusEl.innerHTML = `<strong>🎓 Tahun ${year}</strong> — Tema: <strong>${theme}</strong><br>Fokus: <strong>${label}</strong>`;
+    }
 
     const pak21Activities = [
         { name: "Think-Pair-Share", template: (t) => `Guru kemukakan soalan tentang ${t}, murid fikir sendiri, kemudian berbincang dengan pasangan dan berkongsi dengan kelas.` },
@@ -458,16 +549,19 @@
         if (searchTerm) filtered = rphData.filter(i => (i.topic||'').toLowerCase().includes(searchTerm) || (i.class||'').toLowerCase().includes(searchTerm) || (i.date||'').includes(searchTerm));
         filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
         if (!filtered.length) { container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Tiada RPH.</p></div>`; return; }
-        container.innerHTML = filtered.map(i => `
+        container.innerHTML = filtered.map(i => {
+            const yearBadge = i.year ? `<span class="year-badge t${i.year}">Tahun ${i.year}</span>` : '';
+            return `
             <div class="rph-item">
-                <div class="rph-info"><h3>${escapeHTML(i.topic || 'Tiada Tajuk')}</h3><p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)}</p></div>
+                <div class="rph-info"><h3>${escapeHTML(i.topic || 'Tiada Tajuk')} ${yearBadge}</h3><p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)}</p></div>
                 <div class="rph-actions">
                     <button class="btn btn-sm btn-primary" onclick="editRPH('${i.id}')">✏️</button>
                     <button class="btn btn-sm btn-warning" onclick="duplicateRPH('${i.id}')">📋</button>
                     <button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printRPH('${i.id}')">🖨️ Cetak</button>
                     <button class="btn btn-sm btn-danger" onclick="deleteRPH('${i.id}')">🗑️</button>
                 </div>
-            </div>`).join('');
+            </div>`;
+        }).join('');
     }
     function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
     function resetForm() {
@@ -477,6 +571,7 @@
         document.getElementById('form-title').textContent = '➕ Buat RPH Baru';
         document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
         document.getElementById('worksheet-section').style.display = 'none';
+        updateFocusInfo('f');
     }
     function formatDate(d) {
         if (!d) return '-';
@@ -495,7 +590,9 @@
         e.preventDefault();
         const id = document.getElementById('rph-id').value || 'rph_' + Date.now();
         const rphEntry = {
-            id, date: document.getElementById('f-date').value, time_start: document.getElementById('f-time-start').value, time_end: document.getElementById('f-time-end').value,
+            id,
+            year: document.getElementById('f-year').value,
+            date: document.getElementById('f-date').value, time_start: document.getElementById('f-time-start').value, time_end: document.getElementById('f-time-end').value,
             class: document.getElementById('f-class').value.trim(), theme: document.getElementById('f-theme').value.trim(),
             unit: document.getElementById('f-unit').value.trim(), topic: document.getElementById('f-topic').value.trim(),
             sk: document.getElementById('f-sk').value.trim(), sp: document.getElementById('f-sp').value.trim(),
@@ -521,6 +618,8 @@
         ['date','time_start','time_end','class','theme','unit','topic','sk','sp','objectives','activities','success','bbm','emk','pak21','assessment','reflection','worksheet','remedial','reinforcement','enrichment'].forEach(f => {
             const el = document.getElementById('f-' + f); if (el) el.value = entry[f] || '';
         });
+        if (entry.year) document.getElementById('f-year').value = entry.year;
+        updateFocusInfo('f');
         document.getElementById('rph-id').value = entry.id;
         document.getElementById('worksheet-section').style.display = entry.worksheet ? 'block' : 'none';
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -536,11 +635,12 @@
         const entry = rphData.find(r => r.id === id); if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
         const printWindow = window.open('', '_blank', 'width=800,height=600');
         if (!printWindow) { showToast('Sila benarkan pop-up.', 'error'); return; }
+        const yearLabel = entry.year ? `TAHUN ${entry.year}` : 'TAHUN 6';
         const susulanHtml = `
             <tr><th>Tindakan Susulan<br>(Pemulihan)</th><td colspan="3">${(entry.remedial||'-').replace(/\n/g,'<br>')}</td></tr>
             <tr><th>Pengukuhan</th><td colspan="3">${(entry.reinforcement||'-').replace(/\n/g,'<br>')}</td></tr>
             <tr><th>Pengayaan</th><td colspan="3">${(entry.enrichment||'-').replace(/\n/g,'<br>')}</td></tr>`;
-        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cetakan RPH</title><style>body{font-family:'Times New Roman',Times,serif;font-size:12pt;margin:20px;background:white;} .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;} .header-text{text-align:center;flex:1;} .header-text h2{margin:0;font-size:16pt;} .header-text p{margin:2px 0;font-size:11pt;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #000;padding:8px;vertical-align:top;} th{background:#f2f2f2;width:25%;font-weight:bold;} .signature{margin-top:40px;display:flex;justify-content:space-between;} .signature div{text-align:center;width:45%;} button{padding:10px 20px;font-size:14px;cursor:pointer;} @media print{button{display:none;}}</style></head><body><div style="text-align:right;margin-bottom:10px;"><button onclick="window.print()">🖨️ Cetak Halaman Ini</button><button onclick="window.close()">❌ Tutup</button></div><div class="header"><div style="width:60px;"></div><div class="header-text"><h2>KEMENTERIAN PENDIDIKAN MALAYSIA</h2><p>RANCANGAN PENGAJARAN HARIAN (RPH)</p><p><strong>MATA PELAJARAN: PENDIDIKAN MORAL</strong></p></div><div style="width:60px;"></div></div><table><tr><th>Tarikh</th><td>${formatDate(entry.date)}</td><th>Masa</th><td>${entry.time_start||'--'} - ${entry.time_end||'--'}</td></tr><tr><th>Kelas</th><td>${entry.class||'-'}</td><th>Bil. Murid</th><td>_______ orang</td></tr><tr><th>Tema</th><td colspan="3">${entry.theme||'-'}</td></tr><tr><th>Nilai / Unit</th><td>${entry.unit||'-'}</td><th>Tajuk</th><td>${entry.topic||'-'}</td></tr><tr><th>Std. Kandungan</th><td colspan="3">${entry.sk||'-'}</td></tr><tr><th>Std. Pembelajaran</th><td colspan="3">${entry.sp||'-'}</td></tr><tr><th>Objektif</th><td colspan="3">${(entry.objectives||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Aktiviti</th><td colspan="3">${(entry.activities||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Kriteria Kejayaan</th><td colspan="3">${(entry.success||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>BBM / EMK / PAK21</th><td colspan="3">BBM: ${entry.bbm||'-'}<br>EMK: ${entry.emk||'-'}<br>PAK21: ${entry.pak21||'-'}</td></tr><tr><th>Penilaian</th><td colspan="3">${entry.assessment||'-'}</td></tr><tr><th>Refleksi</th><td colspan="3">${entry.reflection||'-'}</td></tr>${susulanHtml}</table><div class="signature"><div><p>......................................</p><p>(Tandatangan Guru)</p></div><div><p>......................................</p><p>(Guru Besar / PK)</p></div></div></body></html>`);
+        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Cetakan RPH</title><style>body{font-family:'Times New Roman',Times,serif;font-size:12pt;margin:20px;background:white;} .header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;} .header-text{text-align:center;flex:1;} .header-text h2{margin:0;font-size:16pt;} .header-text p{margin:2px 0;font-size:11pt;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #000;padding:8px;vertical-align:top;} th{background:#f2f2f2;width:25%;font-weight:bold;} .signature{margin-top:40px;display:flex;justify-content:space-between;} .signature div{text-align:center;width:45%;} button{padding:10px 20px;font-size:14px;cursor:pointer;} @media print{button{display:none;}}</style></head><body><div style="text-align:right;margin-bottom:10px;"><button onclick="window.print()">🖨️ Cetak Halaman Ini</button><button onclick="window.close()">❌ Tutup</button></div><div class="header"><div style="width:60px;"></div><div class="header-text"><h2>KEMENTERIAN PENDIDIKAN MALAYSIA</h2><p>RANCANGAN PENGAJARAN HARIAN (RPH)</p><p><strong>PENDIDIKAN MORAL • ${yearLabel}</strong></p></div><div style="width:60px;"></div></div><table><tr><th>Tarikh</th><td>${formatDate(entry.date)}</td><th>Masa</th><td>${entry.time_start||'--'} - ${entry.time_end||'--'}</td></tr><tr><th>Kelas</th><td>${entry.class||'-'}</td><th>Bil. Murid</th><td>_______ orang</td></tr><tr><th>Tema</th><td colspan="3">${entry.theme||'-'}</td></tr><tr><th>Nilai / Unit</th><td>${entry.unit||'-'}</td><th>Tajuk</th><td>${entry.topic||'-'}</td></tr><tr><th>Std. Kandungan</th><td colspan="3">${entry.sk||'-'}</td></tr><tr><th>Std. Pembelajaran</th><td colspan="3">${entry.sp||'-'}</td></tr><tr><th>Objektif</th><td colspan="3">${(entry.objectives||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Aktiviti</th><td colspan="3">${(entry.activities||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>Kriteria Kejayaan</th><td colspan="3">${(entry.success||'-').replace(/\n/g,'<br>')}</td></tr><tr><th>BBM / EMK / PAK21</th><td colspan="3">BBM: ${entry.bbm||'-'}<br>EMK: ${entry.emk||'-'}<br>PAK21: ${entry.pak21||'-'}</td></tr><tr><th>Penilaian</th><td colspan="3">${entry.assessment||'-'}</td></tr><tr><th>Refleksi</th><td colspan="3">${entry.reflection||'-'}</td></tr>${susulanHtml}</table><div class="signature"><div><p>......................................</p><p>(Tandatangan Guru)</p></div><div><p>......................................</p><p>(Guru Besar / PK)</p></div></div></body></html>`);
         printWindow.document.close(); printWindow.focus(); setTimeout(() => { printWindow.print(); }, 500);
     }
 
@@ -562,75 +662,83 @@
         { lemah: "Isi tempat kosong dengan perkataan yang sesuai (pilihan diberi).", sederhana: "Lengkapkan peta minda tentang ciri-ciri nilai murni.", pandai: "Hasilkan sebuah komik pendek yang menggambarkan amalan nilai." },
         { lemah: "Susun kad perkataan menjadi ayat lengkap tentang nilai.", sederhana: "Tulis perenggan pendek tentang kepentingan nilai.", pandai: "Cipta sebuah sajak atau lagu pendek bertemakan nilai tersebut." }
     ];
-    function generateWorksheetHTML(topic, unit, kelas, variationIndex) {
+
+    // ===== Worksheet (fokus tahun) =====
+    function generateWorksheetHTML(topic, unit, kelas, variationIndex, year) {
+        year = year || '6';
+        const focusText = year === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
         const templates = [
-            `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} h2{text-align:center;} .group-box{border:1px solid #000;padding:10px;margin-bottom:20px;} .group-box h3{background:#ddd;padding:5px;} .tp-info{font-size:12px;color:#555;} .question{margin-bottom:10px;} .lines{border-bottom:1px dashed #000;width:100%;height:20px;margin:5px 0;}</style></head><body><h2>Lembaran Kerja Pendidikan Moral</h2><p><strong>Tajuk:</strong> ${topic} | <strong>Unit:</strong> ${unit} | <strong>Kelas:</strong> ${kelas}</p><div class="group-box"><h3>🔹 Kumpulan Lemah (TP 1-2)</h3><p class="tp-info">TP 1: Menyatakan maksud. TP 2: Memberi contoh.</p><div class="question"><strong>1. Padankan gambar dengan nilai.</strong><br>(Gambar disediakan)<div class="lines"></div></div><div class="question"><strong>2. Tandakan (/) pada perlakuan baik.</strong><br>☐ Menolong ibu bapa<br>☐ Bergaduh<br>☐ Berkongsi</div></div><div class="group-box"><h3>🔹 Kumpulan Sederhana (TP 3-4)</h3><p class="tp-info">TP 3: Menjelaskan. TP 4: Menganalisis.</p><div class="question"><strong>1. Apakah maksud ${topic}?</strong><div class="lines"></div></div><div class="question"><strong>2. Beri dua contoh ${topic} di sekolah.</strong><br>a) <div class="lines"></div>b) <div class="lines"></div></div></div><div class="group-box"><h3>🔹 Kumpulan Pandai (TP 5-6)</h3><p class="tp-info">TP 5: Menilai. TP 6: Mencipta.</p><div class="question"><strong>1. Selesaikan situasi:</strong> "Rakan anda enggan berkongsi." <div class="lines"></div></div><div class="question"><strong>2. Hasilkan peta minda tentang kepentingan ${topic}.</strong> (Gunakan kertas lain)</div></div></body></html>`,
-            `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} table{width:100%;border-collapse:collapse;margin-bottom:20px;} th,td{border:1px solid #000;padding:8px;text-align:left;} h2{text-align:center;} .group-box{margin-bottom:20px;}</style></head><body><h2>Lembaran Kerja ${topic}</h2><div class="group-box"><h3>Kumpulan Lemah (TP 1-2)</h3><table><tr><th>Bil</th><th>Perlakuan</th><th>Baik / Tidak</th></tr><tr><td>1</td><td>Menolong rakan</td><td></td></tr><tr><td>2</td><td>Membuli</td><td></td></tr></table></div><div class="group-box"><h3>Kumpulan Sederhana (TP 3-4)</h3><p>Terangkan mengapa ${topic} penting dalam keluarga.</p><div style="border:1px solid #000;min-height:80px;padding:5px;"></div></div><div class="group-box"><h3>Kumpulan Pandai (TP 5-6)</h3><p>Tulis dialog antara dua rakan tentang amalan ${topic}.</p><div style="border:1px solid #000;min-height:100px;padding:5px;"></div></div></body></html>`,
-            `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} h2{text-align:center;} .group-box{border:1px solid #ccc;padding:10px;margin-bottom:15px;border-radius:5px;} h3{margin-top:0;}</style></head><body><h2>Lembaran Kerja Kreatif</h2><p><strong>${topic}</strong></p><div class="group-box"><h3>🔹 Lemah</h3><p>Warnakan gambar yang menunjukkan ${topic}.</p><div style="border:1px dashed #000;height:100px;text-align:center;padding-top:40px;">[Ruang lukisan]</div></div><div class="group-box"><h3>🔹 Sederhana</h3><p>Lukis poster ringkas tentang ${topic}.</p><div style="border:1px dashed #000;height:150px;"></div></div><div class="group-box"><h3>🔹 Pandai</h3><p>Tulis sebuah cerita pendek bertemakan ${topic}.</p><div style="border:1px solid #000;min-height:120px;padding:5px;"></div></div></body></html>`
+            `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} h2{text-align:center;} .group-box{border:1px solid #000;padding:10px;margin-bottom:20px;} .group-box h3{background:#ddd;padding:5px;} .tp-info{font-size:12px;color:#555;} .question{margin-bottom:10px;} .lines{border-bottom:1px dashed #000;width:100%;height:20px;margin:5px 0;}</style></head><body><h2>Lembaran Kerja Pendidikan Moral — Tahun ${year}</h2><p><strong>Tajuk:</strong> ${topic} | <strong>Unit:</strong> ${unit} | <strong>Kelas:</strong> ${kelas}</p><p><em>Fokus: ${focusText}</em></p><div class="group-box"><h3>🔹 Kumpulan Lemah (TP 1-2)</h3><p class="tp-info">TP 1: Menyatakan maksud. TP 2: Memberi contoh.</p><div class="question"><strong>1. Padankan gambar dengan nilai.</strong><div class="lines"></div></div><div class="question"><strong>2. Tandakan (/) pada perlakuan yang menunjukkan ${topic} dalam ${focusText}.</strong><br>☐ Menolong jiran<br>☐ Bergaduh<br>☐ Bekerjasama</div></div><div class="group-box"><h3>🔹 Kumpulan Sederhana (TP 3-4)</h3><p class="tp-info">TP 3: Menjelaskan. TP 4: Menganalisis.</p><div class="question"><strong>1. Apakah maksud ${topic}?</strong><div class="lines"></div></div><div class="question"><strong>2. Beri dua contoh ${topic} dalam ${focusText}.</strong><br>a) <div class="lines"></div>b) <div class="lines"></div></div></div><div class="group-box"><h3>🔹 Kumpulan Pandai (TP 5-6)</h3><p class="tp-info">TP 5: Menilai. TP 6: Mencipta.</p><div class="question"><strong>1. Selesaikan situasi berkaitan ${topic} dan jelaskan kesannya kepada ${focusText}.</strong><div class="lines"></div><div class="lines"></div></div><div class="question"><strong>2. Hasilkan peta minda tentang kesan positif ${topic} terhadap ${focusText}.</strong></div></div></body></html>`,
+            `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} table{width:100%;border-collapse:collapse;margin-bottom:20px;} th,td{border:1px solid #000;padding:8px;text-align:left;} h2{text-align:center;} .group-box{margin-bottom:20px;}</style></head><body><h2>Lembaran Kerja ${topic} — Tahun ${year}</h2><p><em>Fokus: ${focusText}</em></p><div class="group-box"><h3>Kumpulan Lemah (TP 1-2)</h3><table><tr><th>Bil</th><th>Perlakuan</th><th>Baik / Tidak</th></tr><tr><td>1</td><td>Menolong rakan</td><td></td></tr><tr><td>2</td><td>Mengabaikan jiran</td><td></td></tr></table></div><div class="group-box"><h3>Kumpulan Sederhana (TP 3-4)</h3><p>Terangkan bagaimana amalan ${topic} memberi kesan positif kepada ${focusText}.</p><div style="border:1px solid #000;min-height:80px;padding:5px;"></div></div><div class="group-box"><h3>Kumpulan Pandai (TP 5-6)</h3><p>Tulis karangan pendek: "Kesan Amalan ${topic} terhadap ${focusText}".</p><div style="border:1px solid #000;min-height:120px;padding:5px;"></div></div></body></html>`,
+            `<html><head><meta charset="utf-8"><style>body{font-family:Arial;font-size:14px;margin:20px;} h2{text-align:center;} .group-box{border:1px solid #ccc;padding:10px;margin-bottom:15px;border-radius:5px;} h3{margin-top:0;}</style></head><body><h2>Lembaran Kerja Kreatif — Tahun ${year}</h2><p><strong>${topic}</strong> <em>(${focusText})</em></p><div class="group-box"><h3>🔹 Lemah</h3><p>Warnakan gambar yang menunjukkan amalan ${topic} dalam ${focusText}.</p><div style="border:1px dashed #000;height:100px;text-align:center;padding-top:40px;">[Ruang lukisan]</div></div><div class="group-box"><h3>🔹 Sederhana</h3><p>Lukis poster ringkas tentang kesan ${topic} terhadap ${focusText}.</p><div style="border:1px dashed #000;height:150px;"></div></div><div class="group-box"><h3>🔹 Pandai</h3><p>Tulis sebuah cerita pendek yang menggambarkan impak amalan ${topic} terhadap ${focusText}.</p><div style="border:1px solid #000;min-height:120px;padding:5px;"></div></div></body></html>`
         ];
         return templates[variationIndex % templates.length];
     }
 
-    function simulateAIResponse(type, context) {
+    function simulateAIResponse(type, context, year) {
+        year = year || '6';
         const topic = extractFromContext(context, 'Tajuk') || 'nilai murni';
         const unit = extractFromContext(context, 'Unit') || 'nilai';
         const kelas = extractFromContext(context, 'Kelas') || 'murid';
+        const focusText = year === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
+
         switch (type) {
             case 'objectives':
                 return { objectives: [
                     `Pada akhir pembelajaran, murid dapat menyatakan maksud ${topic} dengan betul.`,
-                    `Pada akhir pembelajaran, murid dapat mengenal pasti sekurang-kurangnya 3 contoh ${topic}.`,
-                    `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} dalam situasi harian.`
+                    `Pada akhir pembelajaran, murid dapat mengenal pasti sekurang-kurangnya 3 contoh ${topic} dalam ${focusText}.`,
+                    `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} untuk memberi kesan positif kepada ${focusText}.`
                 ]};
             case 'activities': {
                 const randomPak = pak21Options[Math.floor(Math.random() * pak21Options.length)];
                 const randomDiff = differentiationOptions[Math.floor(Math.random() * differentiationOptions.length)];
                 const worksheetIndex = Math.floor(Math.random() * 3);
                 const mainSteps = [
-                    `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek tentang ${topic}.`,
+                    `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek atau soalan rangsangan tentang ${topic} dalam ${focusText}.`,
                     `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${randomPak.name}.`,
                     ...randomPak.steps.map(s => `    • ${s}`),
-                    `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan.`,
+                    `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan tentang ${topic} dan kesannya kepada ${focusText}.`,
                     `Langkah 4 (Aplikasi - 10 minit): Aktiviti pembezaan mengikut kumpulan:`,
                     `    🔹 Kumpulan Lemah: ${randomDiff.lemah}`,
                     `    🔹 Kumpulan Sederhana: ${randomDiff.sederhana}`,
                     `    🔹 Kumpulan Pandai: ${randomDiff.pandai}`,
-                    `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi.`
+                    `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi tentang kesan ${topic} kepada ${focusText}.`
                 ];
                 const bbm = "Kad gambar, slaid, video, lembaran kerja 3 aras, sticky note";
                 const emk = "TMK, Keusahawanan, Nilai Murni";
                 const assessment = "Pemerhatian aktiviti kumpulan, hasil lembaran kerja, pembentangan, refleksi lisan";
-                const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex);
+                const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex, year);
                 return { activities: mainSteps.join('\n'), bbm, emk, pak21: randomPak.name, assessment, worksheet: worksheetHTML };
             }
             case 'success':
                 return { successCriteria: [
                     `Murid dapat menyatakan maksud ${topic} dengan tepat.`,
-                    `Murid dapat memberi sekurang-kurangnya 3 contoh ${topic} mengikut aras keupayaan.`,
-                    `Murid menunjukkan penglibatan aktif dalam aktiviti kumpulan.`
+                    `Murid dapat memberi sekurang-kurangnya 3 contoh ${topic} dalam ${focusText}.`,
+                    `Murid dapat menjelaskan kesan ${topic} kepada ${focusText}.`
                 ]};
             case 'reflection':
                 const bil = Math.floor(Math.random() * 10) + 20;
-                return { reflection: `Seramai ${bil}/${bil+2} murid mencapai objektif. Murid lemah dibantu, murid pandai diberi pengayaan.` };
+                return { reflection: `Seramai ${bil}/${bil+2} murid mencapai objektif. Murid dapat mengaitkan ${topic} dengan ${focusText}.` };
             case 'susulan':
                 return {
-                    remedial: `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} di rumah.`,
-                    reinforcement: `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`,
-                    enrichment: `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic}.\n2. Projek mini: "Kempen ${topic} di sekolah".\n3. Refleksi peribadi.`
+                    remedial: `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} dalam ${focusText}.`,
+                    reinforcement: `1. Lengkapkan peta minda tentang kepentingan ${topic} dalam ${focusText}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil tentang kesan ${topic}.`,
+                    enrichment: `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic} dan kesannya kepada ${focusText}.\n2. Projek mini: "Kempen ${topic}" di sekolah.\n3. Refleksi peribadi tentang impak amalan ${topic}.`
                 };
             default: return {};
         }
     }
 
     async function generateAI(type) {
-        const context = `Tarikh: ${document.getElementById('f-date').value}, Kelas: ${document.getElementById('f-class').value}, Tema: ${document.getElementById('f-theme').value}, Unit: ${document.getElementById('f-unit').value}, Tajuk: ${document.getElementById('f-topic').value}`;
+        const year = document.getElementById('f-year')?.value || '6';
+        const context = `Tahun: ${year}, Tarikh: ${document.getElementById('f-date').value}, Kelas: ${document.getElementById('f-class').value}, Tema: ${document.getElementById('f-theme').value}, Unit: ${document.getElementById('f-unit').value}, Tajuk: ${document.getElementById('f-topic').value}`;
         const loadingEl = document.getElementById(`loading-${type}`);
         const btnMap = { objectives:'obj', activities:'act', success:'suc', reflection:'ref', susulan:'susulan' };
         const btnEl = document.getElementById('btn-' + (btnMap[type] || type));
         if (loadingEl) loadingEl.classList.add('active');
         if (btnEl) btnEl.disabled = true;
         try {
-            let result = simulateAIResponse(type, context);
+            let result = simulateAIResponse(type, context, year);
             if (type === 'objectives') document.getElementById('f-objectives').value = result.objectives.join('\n');
             else if (type === 'activities') {
                 document.getElementById('f-activities').value = result.activities;
@@ -664,7 +772,8 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         const topic = document.getElementById('f-topic').value || 'LembaranKerja';
-        a.href = url; a.download = `Lembaran_Kerja_${topic.replace(/\s+/g,'_')}.doc`;
+        const year = document.getElementById('f-year')?.value || '6';
+        a.href = url; a.download = `Lembaran_Kerja_T${year}_${topic.replace(/\s+/g,'_')}.doc`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         showToast('📝 Lembaran kerja dimuat turun!');
     }
@@ -681,17 +790,18 @@
         if (!raw || !raw.trim()) return [];
         return raw.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n > 0);
     }
-    function lookupValueDB(topic) {
+    function lookupValueDB(topic, year) {
         if (!topic) return null;
+        const db = getDB(year);
         const cleanTopic = topic.replace(/^\d+[\.\)]\s*/, '').trim();
-        if (moralValueDB[cleanTopic]) return moralValueDB[cleanTopic];
+        if (db[cleanTopic]) return db[cleanTopic];
         const lower = cleanTopic.toLowerCase();
-        for (const key of Object.keys(moralValueDB)) {
-            if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) return moralValueDB[key];
+        for (const key of Object.keys(db)) {
+            if (key.toLowerCase().includes(lower) || lower.includes(key.toLowerCase())) return db[key];
         }
-        for (const key of Object.keys(moralValueDB)) {
+        for (const key of Object.keys(db)) {
             const words = key.toLowerCase().split(/\s+/);
-            if (words.some(w => w.length > 3 && lower.includes(w))) return moralValueDB[key];
+            if (words.some(w => w.length > 3 && lower.includes(w))) return db[key];
         }
         return null;
     }
@@ -705,12 +815,14 @@
         return { name: chosen.name, detail: chosen.template(topic) };
     }
 
-    function simulateAnnualPlan(topics, totalWeeks, holidays, startDateStr) {
+    function simulateAnnualPlan(topics, totalWeeks, holidays, startDateStr, year) {
+        year = year || '6';
         const plan = [];
         const startDate = new Date(startDateStr);
         const teachingWeekNumbers = [];
         for (let w = 1; w <= totalWeeks; w++) { if (!holidays.includes(w)) teachingWeekNumbers.push(w); }
         const weeksPerTopic = teachingWeekNumbers.length / topics.length;
+        const focusText = year === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
         let teachingIdx = 0;
         for (let w = 1; w <= totalWeeks; w++) {
             const weekStart = new Date(startDate);
@@ -718,48 +830,22 @@
             const weekEnd = new Date(weekStart);
             weekEnd.setDate(weekStart.getDate() + 4);
             const dateRange = `${formatShortDate(weekStart)} - ${formatShortDate(weekEnd)}`;
-
             if (holidays.includes(w)) {
-                plan.push({
-                    week: w, dates: dateRange,
-                    topic: '🛑 CUTI SEKOLAH',
-                    sk: '-', sp: '-', spDesc: '-',
-                    objective: '-', pak21Name: '-', pak21Detail: '-',
-                    isHoliday: true
-                });
+                plan.push({ week: w, dates: dateRange, topic: '🛑 CUTI SEKOLAH', sk: '-', sp: '-', spDesc: '-', objective: '-', pak21Name: '-', pak21Detail: '-', isHoliday: true });
                 continue;
             }
-
             let topicIdx = Math.floor(teachingIdx / weeksPerTopic);
             if (topicIdx >= topics.length) topicIdx = topics.length - 1;
             const topic = topics[topicIdx];
-
-            const db = lookupValueDB(topic);
-            // === PERUBAHAN UTAMA: Simpan SEMUA kod SP unit dalam satu string ===
+            const db = lookupValueDB(topic, year);
             const skText = db ? db.sk : `${topic}`;
             const spAllCodes = db ? db.sp.join(', ') : 'X.1';
             const spDescs = db ? db.spDesc : [`Menyatakan maksud ${topic}.`];
-
-            // Huraian SP diputar mengikut minggu (kekal berperingkat)
             const descIdx = teachingIdx % spDescs.length;
             const spDesc = spDescs[descIdx];
-
             const activity = generateVariedActivity(topic, teachingIdx);
-            const objective = `Murid dapat ${spDesc ? spDesc.toLowerCase() : 'memahami dan mengamalkan ' + topic} dalam kehidupan harian.`;
-
-            plan.push({
-                week: w,
-                dates: dateRange,
-                topic: topic,
-                sk: skText,
-                sp: spAllCodes,          // ← Semua kod SP, cth: "1.1, 1.2, 1.3, 1.4, 1.5"
-                spDesc: spDesc,          // ← Huraian berperingkat mengikut minggu
-                objective: objective,
-                pak21Name: activity.name,
-                pak21Detail: activity.detail,
-                isHoliday: false
-            });
-
+            const objective = `Murid dapat ${spDesc ? spDesc.toLowerCase() : 'memahami dan mengamalkan ' + topic} dalam ${focusText}.`;
+            plan.push({ week: w, dates: dateRange, topic: topic, sk: skText, sp: spAllCodes, spDesc: spDesc, objective: objective, pak21Name: activity.name, pak21Detail: activity.detail, isHoliday: false });
             teachingIdx++;
         }
         return plan;
@@ -767,7 +853,8 @@
 
     function generateAnnualPlan(event) {
         event.preventDefault();
-        const year = document.getElementById('a-year').value;
+        const yearAkademik = document.getElementById('a-year').value;
+        const tahun = document.getElementById('a-tahun').value;
         const kelas = document.getElementById('a-class').value.trim();
         const startDate = document.getElementById('a-start').value;
         const totalWeeks = parseInt(document.getElementById('a-weeks').value);
@@ -783,13 +870,13 @@
         btnEl.disabled = true;
         setTimeout(() => {
             try {
-                const plan = simulateAnnualPlan(topics, totalWeeks, holidays, startDate);
-                currentAnnualResult = { year, kelas, startDate, totalWeeks, holidays, topics, plan, generatedAt: new Date().toISOString() };
+                const plan = simulateAnnualPlan(topics, totalWeeks, holidays, startDate, tahun);
+                currentAnnualResult = { year: yearAkademik, tahun, kelas, startDate, totalWeeks, holidays, topics, plan, generatedAt: new Date().toISOString() };
                 renderAnnualResult(currentAnnualResult);
                 loadingEl.classList.remove('active');
                 btnEl.disabled = false;
                 document.getElementById('batch-config').classList.remove('active');
-                showToast('✅ RPT berjaya disusun dengan SP lengkap & PAK21 pelbagai!');
+                showToast(`✅ RPT Tahun ${tahun} berjaya disusun!`);
             } catch (e) {
                 loadingEl.classList.remove('active');
                 btnEl.disabled = false;
@@ -802,26 +889,23 @@
         const card = document.getElementById('annual-result-card');
         const summaryEl = document.getElementById('annual-summary');
         const resultEl = document.getElementById('annual-result');
+        const tahun = data.tahun || '6';
         const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
         const holidayWeeks = data.plan.filter(p => p.isHoliday).length;
         const uniquePak = new Set(data.plan.filter(p => !p.isHoliday).map(p => p.pak21Name)).size;
+        const focusText = getFocusLabel(tahun);
         summaryEl.innerHTML = `
-            <div>Tahun: <span>${data.year}</span></div>
+            <div>Tahun Akademik: <span>${data.year}</span></div>
             <div>Kelas: <span>${escapeHTML(data.kelas)}</span></div>
+            <div>Tahun: <span>Tahun ${tahun}</span></div>
+            <div>Fokus: <span>${focusText}</span></div>
             <div>Minggu Pengajaran: <span>${teachingWeeks}</span></div>
             <div>Minggu Cuti: <span>${holidayWeeks}</span></div>
             <div>Jumlah Tajuk: <span>${data.topics.length}</span></div>
             <div>PAK21 Unik: <span>${uniquePak}</span></div>
         `;
         let html = '<table class="annual-table"><thead><tr>';
-        html += '<th style="width:5%;">Mg</th>';
-        html += '<th style="width:10%;">Tarikh</th>';
-        html += '<th style="width:13%;">Tajuk / Nilai</th>';
-        html += '<th style="width:12%;">Std. Kandungan</th>';
-        html += '<th style="width:13%;">Standard Pembelajaran</th>';
-        html += '<th style="width:17%;">Huraian SP</th>';
-        html += '<th style="width:12%;">Objektif</th>';
-        html += '<th style="width:18%;">Aktiviti PAK21</th>';
+        html += '<th style="width:5%;">Mg</th><th style="width:10%;">Tarikh</th><th style="width:13%;">Tajuk / Nilai</th><th style="width:12%;">Std. Kandungan</th><th style="width:13%;">Standard Pembelajaran</th><th style="width:17%;">Huraian SP</th><th style="width:12%;">Objektif</th><th style="width:18%;">Aktiviti PAK21</th>';
         html += '</tr></thead><tbody>';
         data.plan.forEach(row => {
             const cls = row.isHoliday ? ' class="holiday"' : '';
@@ -844,6 +928,7 @@
     function printAnnualPlan() {
         if (!currentAnnualResult) { showToast('Tiada rancangan untuk dicetak.', 'error'); return; }
         const data = currentAnnualResult;
+        const tahun = data.tahun || '6';
         const printWindow = window.open('', '_blank', 'width=1100,height=800');
         if (!printWindow) { showToast('Sila benarkan pop-up.', 'error'); return; }
         const teachingWeeks = data.plan.filter(p => !p.isHoliday).length;
@@ -851,66 +936,9 @@
         let rows = '';
         data.plan.forEach(r => {
             const style = r.isHoliday ? 'background:#fff3cd; font-style:italic;' : '';
-            rows += `<tr style="${style}">
-                <td style="text-align:center;"><strong>${r.week}</strong></td>
-                <td>${r.dates}</td>
-                <td>${r.topic}</td>
-                <td>${r.sk || '-'}</td>
-                <td style="text-align:center;font-family:'Courier New',monospace;font-weight:bold;">${r.sp || '-'}</td>
-                <td>${r.spDesc || '-'}</td>
-                <td>${r.objective}</td>
-                <td><strong>${r.pak21Name || '-'}</strong><br><span style="font-size:8pt;color:#555;">${r.pak21Detail || ''}</span></td>
-            </tr>`;
+            rows += `<tr style="${style}"><td style="text-align:center;"><strong>${r.week}</strong></td><td>${r.dates}</td><td>${r.topic}</td><td>${r.sk||'-'}</td><td style="text-align:center;font-family:'Courier New',monospace;font-weight:bold;">${r.sp||'-'}</td><td>${r.spDesc||'-'}</td><td>${r.objective}</td><td><strong>${r.pak21Name||'-'}</strong><br><span style="font-size:8pt;color:#555;">${r.pak21Detail||''}</span></td></tr>`;
         });
-        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RPT ${data.year}</title>
-        <style>
-            body{font-family:'Times New Roman',Times,serif;font-size:10pt;margin:12mm;background:white;}
-            .header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px;}
-            .header h2{margin:0;font-size:15pt;}
-            .header p{margin:2px 0;font-size:10pt;}
-            .summary{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:12px;font-size:9pt;}
-            .summary span{font-weight:bold;}
-            table{width:100%;border-collapse:collapse;}
-            th,td{border:1px solid #000;padding:5px;vertical-align:top;font-size:9pt;}
-            th{background:#e8e8e8;font-weight:bold;text-align:center;}
-            .signature{margin-top:40px;display:flex;justify-content:space-between;}
-            .signature div{text-align:center;width:45%;}
-            button{padding:10px 20px;font-size:14px;cursor:pointer;margin-right:5px;}
-            @media print{button{display:none;}}
-        </style></head><body>
-        <div style="text-align:right;margin-bottom:10px;">
-            <button onclick="window.print()">🖨️ Cetak</button>
-            <button onclick="window.close()">❌ Tutup</button>
-        </div>
-        <div class="header">
-            <h2>RANCANGAN PENGAJARAN TAHUNAN (RPT)</h2>
-            <p>PENDIDIKAN MORAL • KSSR TAHUN 6</p>
-            <p><strong>TAHUN ${data.year} • KELAS ${data.kelas}</strong></p>
-        </div>
-        <div class="summary">
-            <div>Jumlah Minggu: <span>${data.totalWeeks}</span></div>
-            <div>Minggu Pengajaran: <span>${teachingWeeks}</span></div>
-            <div>Minggu Cuti: <span>${holidayWeeks}</span></div>
-            <div>Jumlah Tajuk: <span>${data.topics.length}</span></div>
-        </div>
-        <table>
-            <thead><tr>
-                <th style="width:4%;">Mg</th>
-                <th style="width:9%;">Tarikh</th>
-                <th style="width:13%;">Tajuk / Nilai</th>
-                <th style="width:12%;">Std. Kandungan</th>
-                <th style="width:12%;">Standard Pembelajaran</th>
-                <th style="width:17%;">Huraian SP</th>
-                <th style="width:14%;">Objektif</th>
-                <th style="width:19%;">Aktiviti PAK21</th>
-            </tr></thead>
-            <tbody>${rows}</tbody>
-        </table>
-        <div class="signature">
-            <div><p>......................................</p><p>(Tandatangan Guru)</p></div>
-            <div><p>......................................</p><p>(Guru Besar / PK)</p></div>
-        </div>
-        </body></html>`);
+        printWindow.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>RPT ${data.year} Tahun ${tahun}</title><style>body{font-family:'Times New Roman',Times,serif;font-size:10pt;margin:12mm;background:white;} .header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:15px;} .header h2{margin:0;font-size:15pt;} .header p{margin:2px 0;font-size:10pt;} .summary{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:12px;font-size:9pt;} .summary span{font-weight:bold;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #000;padding:5px;vertical-align:top;font-size:9pt;} th{background:#e8e8e8;font-weight:bold;text-align:center;} .signature{margin-top:40px;display:flex;justify-content:space-between;} .signature div{text-align:center;width:45%;} button{padding:10px 20px;font-size:14px;cursor:pointer;margin-right:5px;} @media print{button{display:none;}}</style></head><body><div style="text-align:right;margin-bottom:10px;"><button onclick="window.print()">🖨️ Cetak</button><button onclick="window.close()">❌ Tutup</button></div><div class="header"><h2>RANCANGAN PENGAJARAN TAHUNAN (RPT)</h2><p>PENDIDIKAN MORAL • KSSR TAHUN ${tahun}</p><p><strong>TAHUN ${data.year} • KELAS ${data.kelas}</strong></p></div><div class="summary"><div>Jumlah Minggu: <span>${data.totalWeeks}</span></div><div>Minggu Pengajaran: <span>${teachingWeeks}</span></div><div>Minggu Cuti: <span>${holidayWeeks}</span></div><div>Jumlah Tajuk: <span>${data.topics.length}</span></div></div><table><thead><tr><th style="width:4%;">Mg</th><th style="width:9%;">Tarikh</th><th style="width:13%;">Tajuk / Nilai</th><th style="width:12%;">Std. Kandungan</th><th style="width:12%;">Standard Pembelajaran</th><th style="width:17%;">Huraian SP</th><th style="width:14%;">Objektif</th><th style="width:19%;">Aktiviti PAK21</th></tr></thead><tbody>${rows}</tbody></table><div class="signature"><div><p>......................................</p><p>(Tandatangan Guru)</p></div><div><p>......................................</p><p>(Guru Besar / PK)</p></div></div></body></html>`);
         printWindow.document.close();
         printWindow.focus();
         setTimeout(() => { printWindow.print(); }, 500);
@@ -918,7 +946,7 @@
 
     function saveAnnualPlan() {
         if (!currentAnnualResult) { showToast('Tiada rancangan untuk disimpan.', 'error'); return; }
-        annualPlans = annualPlans.filter(p => !(p.year === currentAnnualResult.year && p.kelas === currentAnnualResult.kelas));
+        annualPlans = annualPlans.filter(p => !(p.year === currentAnnualResult.year && p.kelas === currentAnnualResult.kelas && p.tahun === currentAnnualResult.tahun));
         annualPlans.push(currentAnnualResult);
         saveAnnualData();
         renderSavedAnnual();
@@ -933,7 +961,8 @@
         const sorted = [...annualPlans].sort((a,b) => b.year - a.year);
         container.innerHTML = sorted.map((p) => {
             const realIdx = annualPlans.indexOf(p);
-            return `<div class="saved-annual-item"><div class="saved-annual-info"><h4>📚 ${p.year} • ${escapeHTML(p.kelas)}</h4><p>${p.topics.length} tajuk • ${p.totalWeeks} minggu • Dijana: ${new Date(p.generatedAt).toLocaleDateString('ms-MY')}</p></div><div class="rph-actions"><button class="btn btn-sm btn-primary" onclick="loadAnnualPlan(${realIdx})">📂</button><button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printSavedAnnual(${realIdx})">🖨️</button><button class="btn btn-sm btn-danger" onclick="deleteAnnualPlan(${realIdx})">🗑️</button></div></div>`;
+            const tahun = p.tahun || '6';
+            return `<div class="saved-annual-item"><div class="saved-annual-info"><h4>📚 ${p.year} • ${escapeHTML(p.kelas)} <span class="year-badge t${tahun}">Tahun ${tahun}</span></h4><p>${p.topics.length} tajuk • ${p.totalWeeks} minggu • Dijana: ${new Date(p.generatedAt).toLocaleDateString('ms-MY')}</p></div><div class="rph-actions"><button class="btn btn-sm btn-primary" onclick="loadAnnualPlan(${realIdx})">📂</button><button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printSavedAnnual(${realIdx})">🖨️</button><button class="btn btn-sm btn-danger" onclick="deleteAnnualPlan(${realIdx})">🗑️</button></div></div>`;
         }).join('');
     }
     function loadAnnualPlan(idx) {
@@ -942,10 +971,12 @@
         currentAnnualResult = plan;
         document.getElementById('a-year').value = plan.year;
         document.getElementById('a-class').value = plan.kelas;
+        if (plan.tahun) document.getElementById('a-tahun').value = plan.tahun;
         document.getElementById('a-start').value = plan.startDate;
         document.getElementById('a-weeks').value = plan.totalWeeks;
         document.getElementById('a-holidays').value = (plan.holidays || []).join(',');
         document.getElementById('a-topics').value = plan.topics.join('\n');
+        updateFocusInfo('a');
         renderAnnualResult(plan);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         showToast('📂 RPT dimuatkan!');
@@ -969,89 +1000,118 @@
         const panel = document.getElementById('batch-config');
         panel.classList.toggle('active');
     }
+    function toggleDayStyle(el) {
+        setTimeout(() => {
+            const cb = el.querySelector('input[type="checkbox"]');
+            if (cb && cb.checked) el.classList.add('checked');
+            else el.classList.remove('checked');
+        }, 10);
+    }
     function getWeekDate(startDateStr, weekNumber, dayOfWeek) {
         const start = new Date(startDateStr);
         const result = new Date(start);
         result.setDate(start.getDate() + (weekNumber - 1) * 7 + (dayOfWeek - 1));
         return result;
     }
+    function getSelectedDays() {
+        const days = [];
+        for (let d = 1; d <= 5; d++) {
+            const cb = document.getElementById('day-' + d);
+            if (cb && cb.checked) days.push(d);
+        }
+        return days;
+    }
+    function dayName(d) {
+        return ['', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat'][d] || 'Hari';
+    }
+
     function confirmGenerateAllRPH() {
         if (!currentAnnualResult) { showToast('Sila jana RPT dahulu.', 'error'); return; }
         const data = currentAnnualResult;
+        const tahun = data.tahun || '6';
         const teachingWeeks = data.plan.filter(p => !p.isHoliday);
         if (!teachingWeeks.length) { showToast('Tiada minggu pengajaran dalam RPT ini.', 'error'); return; }
+        const selectedDays = getSelectedDays();
+        if (!selectedDays.length) { showToast('Sila pilih sekurang-kurangnya satu hari PdPC.', 'error'); return; }
         const startTime = document.getElementById('batch-time-start').value || '08:00';
         const endTime = document.getElementById('batch-time-end').value || '09:00';
-        const dayOfWeek = parseInt(document.getElementById('batch-day').value) || 1;
-        if (!confirm(`Jana ${teachingWeeks.length} RPH lengkap untuk ${data.year} • ${data.kelas}?\n\nRPH akan disimpan dalam Senarai RPH.\nMinggu cuti dikecualikan.`)) return;
+        const totalRPH = teachingWeeks.length * selectedDays.length;
+        const daysList = selectedDays.map(d => dayName(d)).join(', ');
+        const focusText = getFocusLabel(tahun);
+        if (!confirm(`Jana ${totalRPH} RPH lengkap untuk TAHUN ${tahun} (${focusText})?\n\n${data.year} • ${data.kelas}\nHari PdPC: ${daysList}\n(${teachingWeeks.length} minggu × ${selectedDays.length} hari = ${totalRPH} RPH)\n\nRPH akan disimpan dalam Senarai RPH.`)) return;
+
         const btn = event.target;
         btn.disabled = true;
         btn.textContent = '⏳ Menjana RPH...';
+
         setTimeout(() => {
             try {
                 let count = 0, skipped = 0;
                 teachingWeeks.forEach(week => {
-                    const rphId = `rph_${data.year}_${data.kelas.replace(/\s+/g,'_')}_w${week.week}`;
-                    if (rphData.find(r => r.id === rphId)) { skipped++; return; }
-                    const weekDate = getWeekDate(data.startDate, week.week, dayOfWeek);
-                    const dateStr = weekDate.toISOString().split('T')[0];
-                    const topic = week.topic;
-                    const unit = topic;
-                    const kelas = data.kelas;
-                    const rptPak = pak21Activities.find(p => p.name === week.pak21Name) || pak21Activities[0];
-                    const rptPakDetail = week.pak21Detail || `Aktiviti PAK21 berkaitan ${topic}.`;
-                    const diff = differentiationOptions[Math.floor(Math.random() * differentiationOptions.length)];
-                    const worksheetIndex = Math.floor(Math.random() * 3);
-                    const mainSteps = [
-                        `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek atau soalan rangsangan tentang ${topic}. Murid memberi respons lisan.`,
-                        `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${rptPak.name}.`,
-                        `    • ${rptPakDetail}`,
-                        ...rptPak.steps.map(s => `    • ${s}`),
-                        `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan tentang ${topic} dan mengaitkan dengan nilai ${unit}.`,
-                        `Langkah 4 (Aplikasi - 10 minit): Aktiviti pembezaan mengikut kumpulan:`,
-                        `    🔹 Kumpulan Lemah: ${diff.lemah}`,
-                        `    🔹 Kumpulan Sederhana: ${diff.sederhana}`,
-                        `    🔹 Kumpulan Pandai: ${diff.pandai}`,
-                        `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi. Murid menyatakan satu nilai yang dipelajari dan cara mengamalkannya.`
-                    ];
-                    const activities = mainSteps.join('\n');
-                    const objectives = [
-                        `Pada akhir pembelajaran, murid dapat ${week.spDesc.toLowerCase()}`,
-                        `Pada akhir pembelajaran, murid dapat mengenal pasti sekurang-kurangnya 3 contoh ${topic}.`,
-                        `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} dalam situasi harian.`
-                    ].join('\n');
-                    const success = [
-                        `Murid dapat menyatakan maksud ${topic} dengan tepat.`,
-                        `Murid dapat memberi sekurang-kurangnya 3 contoh ${topic} mengikut aras keupayaan.`,
-                        `Murid menunjukkan penglibatan aktif dalam aktiviti kumpulan.`
-                    ].join('\n');
-                    const bbm = "Kad gambar, slaid PowerPoint, video pendek, lembaran kerja 3 aras, sticky note";
-                    const emk = "TMK, Keusahawanan, Nilai Murni";
-                    const assessment = "Pemerhatian aktiviti kumpulan, hasil lembaran kerja, pembentangan, refleksi lisan";
-                    const bil = Math.floor(Math.random() * 10) + 20;
-                    const reflection = `Seramai ${bil}/${bil+2} murid (90%) mencapai objektif pembelajaran. Murid lemah diberi bimbingan tambahan, murid pandai diberi aktiviti pengayaan.`;
-                    const remedial = `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} di rumah.`;
-                    const reinforcement = `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`;
-                    const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic}.\n2. Projek mini: "Kempen ${topic} di sekolah".\n3. Refleksi peribadi.`;
-                    const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex);
-                    rphData.push({
-                        id: rphId, date: dateStr, time_start: startTime, time_end: endTime,
-                        class: kelas, theme: 'Saya dan Negara', unit: unit, topic: topic,
-                        sk: week.sk, sp: week.sp,
-                        objectives: objectives, activities: activities, success: success,
-                        bbm: bbm, emk: emk, pak21: rptPak.name, assessment: assessment,
-                        reflection: reflection, worksheet: worksheetHTML,
-                        remedial: remedial, reinforcement: reinforcement, enrichment: enrichment
+                    selectedDays.forEach(day => {
+                        const rphId = `rph_${data.year}_T${tahun}_${data.kelas.replace(/\s+/g,'_')}_w${week.week}_d${day}`;
+                        if (rphData.find(r => r.id === rphId)) { skipped++; return; }
+                        const weekDate = getWeekDate(data.startDate, week.week, day);
+                        const dateStr = weekDate.toISOString().split('T')[0];
+                        const topic = week.topic;
+                        const unit = topic;
+                        const kelas = data.kelas;
+                        const rptPak = pak21Activities.find(p => p.name === week.pak21Name) || pak21Activities[0];
+                        const rptPakDetail = week.pak21Detail || `Aktiviti PAK21 berkaitan ${topic}.`;
+                        const diff = differentiationOptions[Math.floor(Math.random() * differentiationOptions.length)];
+                        const worksheetIndex = Math.floor(Math.random() * 3);
+                        const fText = tahun === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
+                        const mainSteps = [
+                            `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek atau soalan rangsangan tentang ${topic} dalam ${fText}.`,
+                            `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${rptPak.name}.`,
+                            `    • ${rptPakDetail}`,
+                            ...rptPak.steps.map(s => `    • ${s}`),
+                            `Langkah 3 (Penerangan - 10 minit): Wakil kumpulan membentang, guru menambah penjelasan tentang ${topic} dan kesannya kepada ${fText}.`,
+                            `Langkah 4 (Aplikasi - 10 minit): Aktiviti pembezaan mengikut kumpulan:`,
+                            `    🔹 Kumpulan Lemah: ${diff.lemah}`,
+                            `    🔹 Kumpulan Sederhana: ${diff.sederhana}`,
+                            `    🔹 Kumpulan Pandai: ${diff.pandai}`,
+                            `Langkah 5 (Penutup - 5 minit): Rumusan dan refleksi tentang kesan ${topic} kepada ${fText}.`
+                        ];
+                        const activities = mainSteps.join('\n');
+                        const objectives = [
+                            `Pada akhir pembelajaran, murid dapat ${week.spDesc.toLowerCase()}`,
+                            `Pada akhir pembelajaran, murid dapat mengenal pasti sekurang-kurangnya 3 contoh ${topic} dalam ${fText}.`,
+                            `Pada akhir pembelajaran, murid dapat mengamalkan nilai ${unit} untuk memberi kesan positif kepada ${fText}.`
+                        ].join('\n');
+                        const success = [
+                            `Murid dapat menyatakan maksud ${topic} dengan tepat.`,
+                            `Murid dapat memberi sekurang-kurangnya 3 contoh ${topic} dalam ${fText}.`,
+                            `Murid dapat menjelaskan kesan ${topic} kepada ${fText}.`
+                        ].join('\n');
+                        const bbm = "Kad gambar, slaid PowerPoint, video pendek, lembaran kerja 3 aras, sticky note";
+                        const emk = "TMK, Keusahawanan, Nilai Murni";
+                        const assessment = "Pemerhatian aktiviti kumpulan, hasil lembaran kerja, pembentangan, refleksi lisan";
+                        const bil = Math.floor(Math.random() * 10) + 20;
+                        const reflection = `Seramai ${bil}/${bil+2} murid mencapai objektif. Murid dapat mengaitkan ${topic} dengan ${fText}.`;
+                        const remedial = `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} dalam ${fText}.`;
+                        const reinforcement = `1. Lengkapkan peta minda tentang kepentingan ${topic} dalam ${fText}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`;
+                        const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic} dan kesannya.\n2. Projek mini: "Kempen ${topic}".\n3. Refleksi peribadi tentang impak amalan ${topic}.`;
+                        const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex, tahun);
+                        rphData.push({
+                            id: rphId, year: tahun, date: dateStr, time_start: startTime, time_end: endTime,
+                            class: kelas, theme: getThemeTitle(tahun), unit: unit, topic: topic,
+                            sk: week.sk, sp: week.sp,
+                            objectives: objectives, activities: activities, success: success,
+                            bbm: bbm, emk: emk, pak21: rptPak.name, assessment: assessment,
+                            reflection: reflection, worksheet: worksheetHTML,
+                            remedial: remedial, reinforcement: reinforcement, enrichment: enrichment
+                        });
+                        count++;
                     });
-                    count++;
                 });
                 saveData();
                 renderList();
                 btn.disabled = false;
                 btn.textContent = '🚀 Jana Semua RPH Sekarang';
                 document.getElementById('batch-config').classList.remove('active');
-                let msg = `✅ ${count} RPH berjaya dijana!`;
-                if (skipped > 0) msg += ` (${skipped} dilangkau kerana sudah wujud)`;
+                let msg = `✅ ${count} RPH Tahun ${tahun} berjaya dijana!`;
+                if (skipped > 0) msg += ` (${skipped} dilangkau)`;
                 showToast(msg);
                 setTimeout(() => { switchTab('list', document.querySelectorAll('.nav-btn')[0]); }, 800);
             } catch (e) {
@@ -1067,7 +1127,13 @@
         document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
         renderList();
         renderSavedAnnual();
+        updateFocusInfo('f');
+        updateFocusInfo('a');
         document.getElementById('search-input')?.addEventListener('keydown', function(e) { if (e.key === 'Escape') { this.value = ''; renderList(); this.blur(); } });
+        document.querySelectorAll('.day-checkbox').forEach(el => {
+            const cb = el.querySelector('input[type="checkbox"]');
+            if (cb && cb.checked) el.classList.add('checked');
+        });
     }
     init();
 </script>
