@@ -14,9 +14,26 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
-        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; }
         .header h1 { margin: 0; font-size: 1.5rem; letter-spacing: 0.5px; }
         .header .subtitle { font-size: 0.85rem; margin-top: 5px; opacity: 0.9; }
+        .cloud-status {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(255,255,255,0.15);
+            padding: 5px 12px; border-radius: 15px;
+            font-size: 0.72rem; cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+            transition: 0.2s;
+        }
+        .cloud-status:hover { background: rgba(255,255,255,0.25); }
+        .cloud-status .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #bbb; display: inline-block;
+        }
+        .cloud-status.connected .dot { background: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+        .cloud-status.syncing .dot { background: #f39c12; animation: blink 1s infinite; }
+        .cloud-status.error .dot { background: #e74c3c; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); display: flex; border-top: 1px solid var(--border); box-shadow: 0 -2px 10px rgba(0,0,0,0.08); z-index: 100; }
         .nav-btn { flex: 1; padding: 15px 0; text-align: center; cursor: pointer; color: var(--grey); transition: 0.3s; border: none; background: none; font-size: 0.9rem; font-weight: 500; position: relative; }
         .nav-btn.active { color: var(--primary); font-weight: bold; background: rgba(74,144,226,0.05); }
@@ -31,13 +48,17 @@
         .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; transition: border 0.3s, box-shadow 0.3s; background: #fafafa; }
         .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,144,226,0.15); background: var(--white); }
         .form-group textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        .form-group small { display: block; margin-top: 4px; font-size: 0.75rem; color: var(--grey); }
         .time-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s; justify-content: center; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .btn-primary { background: var(--primary); color: var(--white); }
         .btn-success { background: var(--success); color: var(--white); }
         .btn-danger { background: var(--danger); color: var(--white); }
         .btn-warning { background: var(--warning); color: var(--white); }
+        .btn-cloud { background: #3498db; color: white; }
+        .btn-cloud:hover { background: #2980b9; }
         .btn-ai { background: var(--accent); color: var(--white); width: 100%; justify-content: center; margin-top: 8px; font-size: 0.9rem; }
         .btn-ai:disabled { background: #a0c4e8; cursor: not-allowed; opacity: 0.7; }
         .btn-block { display: block; width: 100%; text-align: center; }
@@ -57,12 +78,60 @@
         .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--grey); pointer-events: none; }
         .empty-state { text-align: center; padding: 40px 20px; color: var(--grey); }
         .empty-state .icon { font-size: 3rem; margin-bottom: 10px; }
-        .toast { position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 15px 20px; border-radius: 8px; z-index: 200; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: 500; max-width: 90vw; }
+        .toast { position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 15px 20px; border-radius: 8px; z-index: 300; animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-weight: 500; max-width: 90vw; }
         .toast.error { background: var(--danger); }
+        .toast.info { background: var(--accent); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         .worksheet-btn { background: #8e44ad; color: white; }
         .worksheet-btn:hover { background: #732d91; }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 250;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s; }
+        .modal {
+            background: white; border-radius: 12px; padding: 25px;
+            max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .modal h3 { color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .modal .modal-desc { font-size: 0.85rem; color: var(--grey); margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+        .modal-actions .btn { flex: 1; }
+        .help-box {
+            background: #f0f7ff; border-left: 4px solid var(--accent);
+            padding: 12px; border-radius: 6px; margin-bottom: 15px;
+            font-size: 0.82rem; line-height: 1.6;
+        }
+        .help-box ol { margin-left: 18px; margin-top: 5px; }
+        .help-box code { background: #e0e8f0; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; }
+        .switch-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px; background: #f8f9fa; border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .switch-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
+        .switch-row label { flex: 1; font-size: 0.9rem; font-weight: 500; cursor: pointer; margin: 0; }
+        .switch-row small { display: block; font-size: 0.75rem; color: var(--grey); margin-top: 3px; font-weight: normal; }
+
+        /* ===== Tab Senarai: bar tindakan ===== */
+        .action-bar {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;
+            padding: 12px; background: #f0f7ff; border-radius: 8px;
+            border: 1px dashed var(--accent);
+            align-items: center;
+        }
+        .action-bar .bar-label {
+            font-size: 0.85rem; color: var(--primary); font-weight: 600;
+            flex: 1; min-width: 150px;
+        }
+        .action-bar .btn { padding: 8px 14px; font-size: 0.85rem; }
+
         .annual-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.78rem; min-width: 1150px; }
         .annual-table th, .annual-table td { border: 1px solid var(--border); padding: 7px; text-align: left; vertical-align: top; }
         .annual-table th { background: var(--primary); color: white; font-size: 0.75rem; }
@@ -105,12 +174,31 @@
 <div class="header">
     <h1>📖 RPH Pintar Guru</h1>
     <p class="subtitle">Dikuasakan oleh DeepSeek AI • Pendidikan Moral • KSSR</p>
+    <div class="cloud-status" id="cloud-status" onclick="openCloudModal()" title="Klik untuk tetapan awan">
+        <span class="dot"></span>
+        <span id="cloud-status-text">Awan: Belum diset</span>
+    </div>
 </div>
 
 <!-- Tab Senarai RPH -->
 <div id="tab-list" class="tab-content active">
     <div class="card">
         <h2>📄 RPH Tersimpan</h2>
+
+        <!-- Bar Tindakan Awan -->
+        <div class="action-bar" id="action-bar">
+            <div class="bar-label" id="cloud-bar-label">☁️ Awan belum diset</div>
+            <button class="btn btn-cloud" onclick="saveToCloud()" id="btn-save-cloud" title="Simpan semua data ke GitHub Gist">
+                📤 Simpan ke Awan
+            </button>
+            <button class="btn btn-success" onclick="loadFromCloud()" id="btn-load-cloud" title="Muat data dari GitHub Gist">
+                📥 Muat dari Awan
+            </button>
+            <button class="btn btn-warning" onclick="openCloudModal()" title="Tetapan">
+                ⚙️
+            </button>
+        </div>
+
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="🔍 Cari RPH (tajuk, kelas, tarikh)..." oninput="renderList()">
             <span class="search-icon">🔍</span>
@@ -216,7 +304,6 @@
                 <div class="form-group"><label>📆 Tahun Akademik</label><input type="number" id="a-year" value="2026" min="2020" max="2100" required></div>
                 <div class="form-group"><label>🏫 Kelas</label><input type="text" id="a-class" placeholder="cth: 6 Bestari" required></div>
             </div>
-
             <div class="form-group">
                 <label>🎓 Tahun (Fokus)</label>
                 <select id="a-tahun" onchange="updateFocusInfo('a')">
@@ -225,7 +312,6 @@
                 </select>
             </div>
             <div id="focus-info-annual" class="focus-info"></div>
-
             <div class="time-grid">
                 <div class="form-group"><label>🗓️ Tarikh Mula Persekolahan</label><input type="date" id="a-start" required></div>
                 <div class="form-group"><label>📊 Jumlah Minggu Persekolahan</label><input type="number" id="a-weeks" value="42" min="1" max="52" required></div>
@@ -246,9 +332,7 @@
     <div class="card" id="annual-result-card" style="display:none;">
         <h2>📋 Hasil Rancangan Pengajaran Tahunan</h2>
         <div id="annual-summary" class="annual-summary"></div>
-        <div style="overflow-x:auto;">
-            <div id="annual-result"></div>
-        </div>
+        <div style="overflow-x:auto;"><div id="annual-result"></div></div>
         <button type="button" class="btn btn-primary btn-block" style="margin-top:12px;" onclick="printAnnualPlan()">🖨️ Cetak RPT</button>
         <button type="button" class="btn btn-success btn-block" style="margin-top:8px;" onclick="saveAnnualPlan()">💾 Simpan RPT</button>
         <button type="button" class="btn btn-warning btn-block" style="margin-top:8px;" onclick="toggleBatchConfig()">🗂️ Jana RPH Lengkap Setahun</button>
@@ -268,7 +352,6 @@
                     <label class="day-checkbox" onclick="toggleDayStyle(this)"><input type="checkbox" id="day-5" value="5" onchange="toggleDayTime(5)"> Jumaat</label>
                 </div>
             </div>
-
             <div class="day-time-list">
                 <div class="day-time-item active" id="time-1">
                     <h6><span class="day-dot"></span>⏰ Masa PdPC — Isnin</h6>
@@ -306,7 +389,6 @@
                     </div>
                 </div>
             </div>
-
             <button type="button" class="btn btn-danger btn-block" style="margin-top: 12px;" onclick="confirmGenerateAllRPH()">🚀 Jana Semua RPH Sekarang</button>
         </div>
     </div>
@@ -325,6 +407,55 @@
     <button class="nav-btn" onclick="switchTab('annual', this)">📅 Tahunan</button>
 </div>
 
+<!-- Modal Tetapan Awan -->
+<div class="modal-overlay" id="cloud-modal">
+    <div class="modal">
+        <h3>☁️ Tetapan Awan (GitHub Gist)</h3>
+        <p class="modal-desc">Simpan data RPH anda ke GitHub Gist supaya boleh diakses dari mana-mana peranti.</p>
+
+        <div class="help-box">
+            <strong>📖 Cara Setup (sekali sahaja):</strong>
+            <ol>
+                <li>Pergi ke <code>gist.github.com</code> → login GitHub</li>
+                <li>Cipta Gist baharu → Nama fail: <code>rph_data.json</code> → Isi: <code>{}</code> → <strong>Create secret gist</strong></li>
+                <li>Salin <strong>Gist ID</strong> dari URL (bahagian akhir)</li>
+                <li>Pergi ke <code>github.com/settings/tokens</code> → Generate new token (classic) → Skop: <code>gist</code></li>
+                <li>Salin token dan tampal di bawah</li>
+            </ol>
+        </div>
+
+        <div class="form-group">
+            <label>🔑 Gist ID</label>
+            <input type="text" id="setting-gist-id" placeholder="cth: a1b2c3d4e5f6...">
+            <small>Dari URL Gist anda — bahagian selepas nama pengguna</small>
+        </div>
+
+        <div class="form-group">
+            <label>🎫 GitHub Token</label>
+            <input type="password" id="setting-gist-token" placeholder="ghp_xxxxxxxxxxxx">
+            <small>Personal Access Token dengan skop <code>gist</code></small>
+        </div>
+
+        <div class="switch-row">
+            <input type="checkbox" id="setting-auto-sync">
+            <label for="setting-auto-sync">
+                🔄 Auto-sync
+                <small>Simpan automatik ke awan setiap kali RPH disimpan</small>
+            </label>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-primary" onclick="saveCloudSettings()">💾 Simpan Tetapan</button>
+            <button class="btn btn-warning" onclick="testCloudConnection()">🔌 Uji Sambungan</button>
+            <button class="btn btn-danger" onclick="closeCloudModal()">❌ Tutup</button>
+        </div>
+
+        <button class="btn btn-block" style="margin-top: 10px; background: #f0f0f0; color: var(--grey);" onclick="clearCloudSettings()">
+            🗑️ Padam Tetapan Awan
+        </button>
+    </div>
+</div>
+
 <div id="toast-container"></div>
 
 <script>
@@ -333,6 +464,15 @@
     let rphData = JSON.parse(localStorage.getItem('rphData')) || [];
     let annualPlans = JSON.parse(localStorage.getItem('annualPlans')) || [];
     let currentAnnualResult = null;
+
+    // ===== KONFIGURASI AWAN =====
+    const CLOUD_SETTINGS_KEY = 'rphCloudSettings';
+    let cloudSettings = JSON.parse(localStorage.getItem(CLOUD_SETTINGS_KEY)) || {
+        gistId: '',
+        token: '',
+        autoSync: false
+    };
+    let isCloudSyncing = false;
 
     // ===== PANGKALAN DATA SK/SP =====
     const moralValueDB_T6 = {
@@ -377,9 +517,7 @@
         const year = document.getElementById(prefix + (prefix === 'f' ? '-year' : '-tahun'))?.value || '6';
         const focusEl = document.getElementById('focus-info-' + (prefix === 'f' ? 'form' : 'annual'));
         if (!focusEl) return;
-        const label = getFocusLabel(year);
-        const theme = getThemeTitle(year);
-        focusEl.innerHTML = `<strong>🎓 Tahun ${year}</strong> — Tema: <strong>${theme}</strong><br>Fokus: <strong>${label}</strong>`;
+        focusEl.innerHTML = `<strong>🎓 Tahun ${year}</strong> — Tema: <strong>${getThemeTitle(year)}</strong><br>Fokus: <strong>${getFocusLabel(year)}</strong>`;
     }
 
     const pak21Activities = [
@@ -390,7 +528,7 @@
         { name: "Round Table", template: (t) => `Setiap kumpulan diberi kertas besar, murid bergilir menulis idea tentang ${t} sehingga lengkap.` },
         { name: "Stesen Pembelajaran", template: (t) => `Sediakan 3-4 stesen dengan aktiviti berbeza tentang ${t}, murid bergerak secara bergilir.` },
         { name: "Pembelajaran Berasaskan Projek", template: (t) => `Murid hasilkan projek mini (poster / video pendek / buku skrap) berkaitan ${t} dan bentangkan.` },
-        { name: "Perbincangan Kumpulan (Cooperative)", template: (t) => `Murid dalam kumpulan kecil berbincang tentang kes ${t} dan membentangkan hasil perbincangan.` },
+        { name: "Perbincangan Kumpulan", template: (t) => `Murid dalam kumpulan kecil berbincang tentang kes ${t} dan membentangkan hasil perbincangan.` },
         { name: "Main Peranan (Simulasi)", template: (t) => `Guru sediakan senario, murid main peranan untuk mempraktikkan nilai ${t} dan refleksi bersama.` },
         { name: "Hot Seat", template: (t) => `Seorang murid duduk di 'hot seat' menjawab soalan tentang ${t} daripada rakan-rakan.` },
         { name: "Peta Minda Kreatif", template: (t) => `Murid dalam kumpulan menghasilkan peta minda kreatif tentang kepentingan ${t} dalam masyarakat.` },
@@ -427,7 +565,7 @@
         if (!filtered.length) { container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Tiada RPH.</p></div>`; return; }
         container.innerHTML = filtered.map(i => {
             const yearBadge = i.year ? `<span class="year-badge t${i.year}">Tahun ${i.year}</span>` : '';
-            return `<div class="rph-item"><div class="rph-info"><h3>${escapeHTML(i.topic || 'Tiada Tajuk')} ${yearBadge}</h3><p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)} | ⏰ ${i.time_start||'--'}-${i.time_end||'--'}</p></div><div class="rph-actions"><button class="btn btn-sm btn-primary" onclick="editRPH('${i.id}')">✏️</button><button class="btn btn-sm btn-warning" onclick="duplicateRPH('${i.id}')">📋</button><button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printRPH('${i.id}')">🖨️ Cetak</button><button class="btn btn-sm btn-danger" onclick="deleteRPH('${i.id}')">🗑️</button></div></div>`;
+            return `<div class="rph-item"><div class="rph-info"><h3>${escapeHTML(i.topic || 'Tiada Tajuk')} ${yearBadge}</h3><p>📅 ${formatDate(i.date)} | 🏫 ${escapeHTML(i.class)} | ⏰ ${i.time_start||'--'}-${i.time_end||'--'}</p></div><div class="rph-actions"><button class="btn btn-sm btn-primary" onclick="editRPH('${i.id}')">✏️</button><button class="btn btn-sm btn-warning" onclick="duplicateRPH('${i.id}')">📋</button><button class="btn btn-sm" style="background:#8e44ad;color:white;" onclick="printRPH('${i.id}')">🖨️</button><button class="btn btn-sm btn-danger" onclick="deleteRPH('${i.id}')">🗑️</button></div></div>`;
         }).join('');
     }
     function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
@@ -474,7 +612,13 @@
         if (!rphEntry.date || !rphEntry.class) { showToast('Sila isi Tarikh dan Kelas.', 'error'); return; }
         const idx = rphData.findIndex(i => i.id === id);
         if (idx !== -1) rphData[idx] = rphEntry; else rphData.push(rphEntry);
-        saveData(); showToast('✅ RPH disimpan!'); switchTab('list', document.querySelectorAll('.nav-btn')[0]);
+        saveData();
+        showToast('✅ RPH disimpan!');
+        // Auto-sync ke awan jika diaktifkan
+        if (cloudSettings.autoSync && cloudSettings.gistId && cloudSettings.token) {
+            saveToCloud(true);
+        }
+        switchTab('list', document.querySelectorAll('.nav-btn')[0]);
     });
     function editRPH(id) {
         const entry = rphData.find(r => r.id === id);
@@ -495,7 +639,12 @@
         rphData.push({...orig, id: 'rph_'+Date.now()}); saveData(); renderList(); showToast('📋 RPH disalin!');
     }
     function deleteRPH(id) {
-        if (confirm('Padam RPH ini?')) { rphData = rphData.filter(i => i.id !== id); saveData(); renderList(); showToast('🗑️ RPH dipadam.'); }
+        if (confirm('Padam RPH ini?')) {
+            rphData = rphData.filter(i => i.id !== id);
+            saveData(); renderList();
+            showToast('🗑️ RPH dipadam.');
+            if (cloudSettings.autoSync && cloudSettings.gistId && cloudSettings.token) saveToCloud(true);
+        }
     }
     function printRPH(id) {
         const entry = rphData.find(r => r.id === id); if (!entry) { showToast('RPH tidak dijumpai.', 'error'); return; }
@@ -647,7 +796,215 @@
         container.appendChild(toast); setTimeout(() => { if(toast.parentNode) toast.remove(); }, 3000);
     }
 
+    // ============================================================
+    // ===== GITHUB GIST INTEGRATION =====
+    // ============================================================
+
+    function updateCloudUI() {
+        const statusEl = document.getElementById('cloud-status');
+        const statusText = document.getElementById('cloud-status-text');
+        const barLabel = document.getElementById('cloud-bar-label');
+        const btnSave = document.getElementById('btn-save-cloud');
+        const btnLoad = document.getElementById('btn-load-cloud');
+
+        if (cloudSettings.gistId && cloudSettings.token) {
+            statusEl.className = 'cloud-status connected';
+            statusText.textContent = cloudSettings.autoSync ? 'Awan: Aktif (Auto)' : 'Awan: Sedia';
+            if (barLabel) barLabel.textContent = cloudSettings.autoSync
+                ? '☁️ Auto-sync AKTIF — data disimpan automatik'
+                : '☁️ Sambungan sedia. Klik butang untuk sync manual.';
+            if (btnSave) btnSave.disabled = false;
+            if (btnLoad) btnLoad.disabled = false;
+        } else {
+            statusEl.className = 'cloud-status';
+            statusText.textContent = 'Awan: Belum diset';
+            if (barLabel) barLabel.textContent = '⚠️ Sila set Gist ID & Token untuk guna awan';
+            if (btnSave) btnSave.disabled = true;
+            if (btnLoad) btnLoad.disabled = true;
+        }
+    }
+
+    function openCloudModal() {
+        document.getElementById('setting-gist-id').value = cloudSettings.gistId || '';
+        document.getElementById('setting-gist-token').value = cloudSettings.token || '';
+        document.getElementById('setting-auto-sync').checked = cloudSettings.autoSync || false;
+        document.getElementById('cloud-modal').classList.add('active');
+    }
+
+    function closeCloudModal() {
+        document.getElementById('cloud-modal').classList.remove('active');
+    }
+
+    function saveCloudSettings() {
+        const gistId = document.getElementById('setting-gist-id').value.trim();
+        const token = document.getElementById('setting-gist-token').value.trim();
+        const autoSync = document.getElementById('setting-auto-sync').checked;
+
+        if (!gistId || !token) {
+            showToast('Sila isi Gist ID dan Token.', 'error');
+            return;
+        }
+
+        cloudSettings = { gistId, token, autoSync };
+        localStorage.setItem(CLOUD_SETTINGS_KEY, JSON.stringify(cloudSettings));
+        updateCloudUI();
+        showToast('✅ Tetapan disimpan!');
+        closeCloudModal();
+
+        // Uji sambungan automatik
+        testCloudConnection(true);
+    }
+
+    function clearCloudSettings() {
+        if (!confirm('Padam tetapan awan? Data anda tidak akan dipadam, hanya sambungan.')) return;
+        cloudSettings = { gistId: '', token: '', autoSync: false };
+        localStorage.removeItem(CLOUD_SETTINGS_KEY);
+        updateCloudUI();
+        closeCloudModal();
+        showToast('🗑️ Tetapan awan dipadam.');
+    }
+
+    async function testCloudConnection(silent = false) {
+        if (!cloudSettings.gistId || !cloudSettings.token) {
+            if (!silent) showToast('Sila set Gist ID & Token dahulu.', 'error');
+            return false;
+        }
+        const statusEl = document.getElementById('cloud-status');
+        statusEl.className = 'cloud-status syncing';
+        try {
+            const res = await fetch(`https://api.github.com/gists/${cloudSettings.gistId}`, {
+                headers: { 'Authorization': `token ${cloudSettings.token}` }
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `HTTP ${res.status}`);
+            }
+            statusEl.className = 'cloud-status connected';
+            if (!silent) showToast('✅ Sambungan berjaya!');
+            return true;
+        } catch (e) {
+            statusEl.className = 'cloud-status error';
+            if (!silent) showToast(`❌ Sambungan gagal: ${e.message}`, 'error');
+            setTimeout(updateCloudUI, 2500);
+            return false;
+        }
+    }
+
+    async function saveToCloud(isAuto = false) {
+        if (isCloudSyncing) return;
+        if (!cloudSettings.gistId || !cloudSettings.token) {
+            if (!isAuto) showToast('Sila set tetapan awan dahulu.', 'error');
+            return;
+        }
+
+        isCloudSyncing = true;
+        const statusEl = document.getElementById('cloud-status');
+        const statusText = document.getElementById('cloud-status-text');
+        statusEl.className = 'cloud-status syncing';
+        statusText.textContent = 'Awan: Menyimpan...';
+
+        try {
+            const payload = {
+                rphData: rphData,
+                annualPlans: annualPlans,
+                updatedAt: new Date().toISOString(),
+                appVersion: '2.0'
+            };
+
+            const res = await fetch(`https://api.github.com/gists/${cloudSettings.gistId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `token ${cloudSettings.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    files: {
+                        'rph_data.json': {
+                            content: JSON.stringify(payload, null, 2)
+                        }
+                    }
+                })
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `HTTP ${res.status}`);
+            }
+
+            statusEl.className = 'cloud-status connected';
+            statusText.textContent = 'Awan: Sedia';
+            if (!isAuto) showToast('☁️ Data disimpan ke awan!');
+            else showToast('☁️ Auto-sync berjaya');
+        } catch (e) {
+            statusEl.className = 'cloud-status error';
+            statusText.textContent = 'Awan: Ralat';
+            showToast(`❌ Gagal simpan: ${e.message}`, 'error');
+            setTimeout(updateCloudUI, 3000);
+        } finally {
+            isCloudSyncing = false;
+        }
+    }
+
+    async function loadFromCloud() {
+        if (!cloudSettings.gistId || !cloudSettings.token) {
+            showToast('Sila set tetapan awan dahulu.', 'error');
+            return;
+        }
+        if (isCloudSyncing) return;
+
+        isCloudSyncing = true;
+        const statusEl = document.getElementById('cloud-status');
+        const statusText = document.getElementById('cloud-status-text');
+        statusEl.className = 'cloud-status syncing';
+        statusText.textContent = 'Awan: Memuat...';
+
+        try {
+            const res = await fetch(`https://api.github.com/gists/${cloudSettings.gistId}`, {
+                headers: { 'Authorization': `token ${cloudSettings.token}` }
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || `HTTP ${res.status}`);
+            }
+
+            const gist = await res.json();
+            const file = gist.files['rph_data.json'];
+            if (!file) throw new Error('Fail rph_data.json tidak dijumpai dalam Gist.');
+
+            const data = JSON.parse(file.content);
+            const cloudRPH = data.rphData || [];
+            const cloudAnnual = data.annualPlans || [];
+
+            const msg = `Data dari awan:\n• ${cloudRPH.length} RPH\n• ${cloudAnnual.length} RPT\n\nIni akan GANTIKAN data semasa (${rphData.length} RPH, ${annualPlans.length} RPT).\n\nTeruskan?`;
+            if (!confirm(msg)) {
+                updateCloudUI();
+                return;
+            }
+
+            rphData = cloudRPH;
+            annualPlans = cloudAnnual;
+            saveData();
+            saveAnnualData();
+            renderList();
+            renderSavedAnnual();
+
+            statusEl.className = 'cloud-status connected';
+            statusText.textContent = 'Awan: Sedia';
+            showToast(`☁️ ${cloudRPH.length} RPH dimuatkan dari awan!`);
+        } catch (e) {
+            statusEl.className = 'cloud-status error';
+            statusText.textContent = 'Awan: Ralat';
+            showToast(`❌ Gagal muat: ${e.message}`, 'error');
+            setTimeout(updateCloudUI, 3000);
+        } finally {
+            isCloudSyncing = false;
+        }
+    }
+
+    // ============================================================
     // ===== RANCANGAN TAHUNAN =====
+    // ============================================================
     function parseTopics(raw) { return raw.split('\n').map(t => t.trim()).filter(t => t.length > 0); }
     function parseHolidays(raw) {
         if (!raw || !raw.trim()) return [];
@@ -807,6 +1164,7 @@
         saveAnnualData();
         renderSavedAnnual();
         showToast('💾 RPT disimpan!');
+        if (cloudSettings.autoSync && cloudSettings.gistId && cloudSettings.token) saveToCloud(true);
     }
     function renderSavedAnnual() {
         const container = document.getElementById('saved-annual-container');
@@ -849,12 +1207,12 @@
         saveAnnualData();
         renderSavedAnnual();
         showToast('🗑️ RPT dipadam.');
+        if (cloudSettings.autoSync && cloudSettings.gistId && cloudSettings.token) saveToCloud(true);
     }
 
     // ===== JANA RPH SETAHUN =====
     function toggleBatchConfig() {
-        const panel = document.getElementById('batch-config');
-        panel.classList.toggle('active');
+        document.getElementById('batch-config').classList.toggle('active');
     }
     function toggleDayStyle(el) {
         setTimeout(() => {
@@ -870,7 +1228,6 @@
         if (cb.checked) panel.classList.add('active');
         else panel.classList.remove('active');
     }
-
     function getWeekDate(startDateStr, weekNumber, dayOfWeek) {
         const start = new Date(startDateStr);
         const result = new Date(start);
@@ -916,9 +1273,8 @@
             const t = getDayTime(d);
             return `${dayName(d)} (${t.start}-${t.end})`;
         }).join('\n');
-        const focusText = getFocusLabel(tahun);
 
-        if (!confirm(`Jana ${totalRPH} RPH lengkap untuk TAHUN ${tahun} (${focusText})?\n\n${data.year} • ${data.kelas}\n\nHari & Masa PdPC:\n${daysInfo}\n\n(${teachingWeeks.length} minggu × ${selectedDays.length} hari = ${totalRPH} RPH)`)) return;
+        if (!confirm(`Jana ${totalRPH} RPH lengkap untuk TAHUN ${tahun}?\n\n${data.year} • ${data.kelas}\n\nHari & Masa PdPC:\n${daysInfo}\n\n(${teachingWeeks.length} minggu × ${selectedDays.length} hari = ${totalRPH} RPH)`)) return;
 
         const btn = event.target;
         btn.disabled = true;
@@ -944,7 +1300,6 @@
                         const worksheetIndex = Math.floor(Math.random() * 3);
                         const fText = tahun === '5' ? 'kehidupan bermasyarakat' : 'kesan dan impak kepada negara';
 
-                        // ===== PEMBETULAN: Buang rptPak.steps.map() — guna rptPakDetail sahaja =====
                         const mainSteps = [
                             `Langkah 1 (Set Induksi - 5 minit): Guru memulakan dengan tayangan video pendek atau soalan rangsangan tentang ${topic} dalam ${fText}.`,
                             `Langkah 2 (Penerokaan - 10 minit): Menggunakan teknik PAK21: ${rptPak.name}.`,
@@ -971,10 +1326,10 @@
                         const emk = "TMK, Keusahawanan, Nilai Murni";
                         const assessment = "Pemerhatian aktiviti kumpulan, hasil lembaran kerja, pembentangan, refleksi lisan";
                         const bil = Math.floor(Math.random() * 10) + 20;
-                        const reflection = `Seramai ${bil}/${bil+2} murid mencapai objektif. Murid dapat mengaitkan ${topic} dengan ${fText}.`;
-                        const remedial = `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic} dalam ${fText}.`;
-                        const reinforcement = `1. Lengkapkan peta minda tentang kepentingan ${topic} dalam ${fText}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`;
-                        const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic} dan kesannya.\n2. Projek mini: "Kempen ${topic}".\n3. Refleksi peribadi tentang impak amalan ${topic}.`;
+                        const reflection = `Seramai ${bil}/${bil+2} murid mencapai objektif.`;
+                        const remedial = `1. Ulangkaji maksud ${topic} menggunakan kad imbasan bergambar.\n2. Latihan padanan gambar dengan nilai (secara lisan).\n3. Tulis 1 contoh perlakuan ${topic}.`;
+                        const reinforcement = `1. Lengkapkan peta minda tentang kepentingan ${topic}.\n2. Tulis 3 contoh ${topic} di sekolah dan di rumah.\n3. Perbincangan kumpulan kecil.`;
+                        const enrichment = `1. Hasilkan komik pendek tentang konflik moral berkaitan ${topic}.\n2. Projek mini: "Kempen ${topic}".\n3. Refleksi peribadi.`;
                         const worksheetHTML = generateWorksheetHTML(topic, unit, kelas, worksheetIndex, tahun);
 
                         rphData.push({
@@ -999,6 +1354,8 @@
                 let msg = `✅ ${count} RPH Tahun ${tahun} berjaya dijana!`;
                 if (skipped > 0) msg += ` (${skipped} dilangkau)`;
                 showToast(msg);
+                // Auto-sync jika diaktifkan
+                if (cloudSettings.autoSync && cloudSettings.gistId && cloudSettings.token) saveToCloud(true);
                 setTimeout(() => { switchTab('list', document.querySelectorAll('.nav-btn')[0]); }, 800);
             } catch (e) {
                 btn.disabled = false;
@@ -1015,12 +1372,18 @@
         renderSavedAnnual();
         updateFocusInfo('f');
         updateFocusInfo('a');
+        updateCloudUI();
         document.getElementById('search-input')?.addEventListener('keydown', function(e) { if (e.key === 'Escape') { this.value = ''; renderList(); this.blur(); } });
         document.querySelectorAll('.day-checkbox').forEach(el => {
             const cb = el.querySelector('input[type="checkbox"]');
             if (cb && cb.checked) el.classList.add('checked');
         });
         for (let d = 1; d <= 5; d++) toggleDayTime(d);
+
+        // Tutup modal bila klik di luar
+        document.getElementById('cloud-modal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeCloudModal();
+        });
     }
     init();
 </script>
