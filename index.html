@@ -473,11 +473,11 @@
     };
     let isCloudSyncing = false;
 
-    // ===== UTILITI: Bersihkan aksara bukan-ASCII (untuk GitHub header) =====
+    // ===== PEMBETULAN: Bersihkan aksara bukan sahaja ASCII, tapi hanya aksara sah token/gist =====
     function sanitizeHeaderValue(str) {
         if (!str) return '';
-        // Buang semua aksara di luar ASCII cetak (0x21 - 0x7E)
-        return String(str).replace(/[^\x21-\x7E]/g, '');
+        // Hanya benarkan aksara yang sah dalam token/gist ID
+        return String(str).replace(/[^A-Za-z0-9_\-\.]/g, '');
     }
 
     // ===== PANGKALAN DATA SK/SP =====
@@ -802,7 +802,7 @@
     }
 
     // ============================================================
-    // ===== GITHUB GIST INTEGRATION (DENGAN PEMBETULAN) =====
+    // ===== GITHUB GIST INTEGRATION (DENGAN PEMBETULAN PENUH) =====
     // ============================================================
 
     function updateCloudUI() {
@@ -840,9 +840,8 @@
         document.getElementById('cloud-modal').classList.remove('active');
     }
 
-    // ===== PEMBETULAN 1: saveCloudSettings — bersihkan aksara bukan-ASCII =====
+    // ===== PEMBETULAN 1: saveCloudSettings =====
     function saveCloudSettings() {
-        // Bersihkan input — buang semua aksara bukan-ASCII & ruang
         const gistId = sanitizeHeaderValue(document.getElementById('setting-gist-id').value);
         const token = sanitizeHeaderValue(document.getElementById('setting-gist-token').value);
         const autoSync = document.getElementById('setting-auto-sync').checked;
@@ -852,12 +851,10 @@
             return;
         }
 
-        // Validasi format token GitHub (ghp_... atau github_pat_...)
         if (!token.startsWith('ghp_') && !token.startsWith('github_pat_') && !token.startsWith('gho_') && !token.startsWith('ghs_')) {
             if (!confirm('Token tidak nampak seperti token GitHub biasa (ghp_...).\nTeruskan?')) return;
         }
 
-        // Validasi Gist ID (biasanya 20-40 aksara hex)
         if (!/^[a-f0-9]{15,40}$/i.test(gistId)) {
             if (!confirm('Gist ID tidak nampak sah (patut 20-40 aksara hex).\nTeruskan?')) return;
         }
@@ -868,7 +865,6 @@
         showToast('✅ Tetapan disimpan!');
         closeCloudModal();
 
-        // Uji sambungan automatik
         setTimeout(() => testCloudConnection(true), 300);
     }
 
@@ -881,32 +877,61 @@
         showToast('🗑️ Tetapan awan dipadam.');
     }
 
-    // ===== PEMBETULAN 2: testCloudConnection =====
+    // ===== PEMBETULAN 2: testCloudConnection (dengan Bearer + AbortController + diagnostic) =====
     async function testCloudConnection(silent = false) {
         if (!cloudSettings.gistId || !cloudSettings.token) {
             if (!silent) showToast('Sila set Gist ID & Token dahulu.', 'error');
             return false;
         }
-        // Bersihkan sekali lagi untuk pastikan tiada aksara pelik
         const gistId = sanitizeHeaderValue(cloudSettings.gistId);
         const token = sanitizeHeaderValue(cloudSettings.token);
 
+        // Diagnostik dalam console
+        console.log('[Cloud Test] Gist ID:', gistId.substring(0, 8) + '...', '(len:', gistId.length + ')');
+        console.log('[Cloud Test] Token:', token.substring(0, 8) + '...', '(len:', token.length + ')');
+
+        if (gistId.length < 15 || token.length < 20) {
+            const msg = 'Gist ID atau Token terlalu pendek. Sila semak semula.';
+            if (!silent) showToast('❌ ' + msg, 'error');
+            console.error('[Cloud Test]', msg);
+            return false;
+        }
+
         const statusEl = document.getElementById('cloud-status');
         statusEl.className = 'cloud-status syncing';
+
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 20000);
+
             const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
-                headers: { 'Authorization': `token ${token}` }
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28'
+                },
+                mode: 'cors',
+                credentials: 'omit',
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
+
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
                 throw new Error(err.message || `HTTP ${res.status}`);
             }
             statusEl.className = 'cloud-status connected';
             if (!silent) showToast('✅ Sambungan berjaya!');
+            console.log('[Cloud Test] ✅ Berjaya');
             return true;
         } catch (e) {
             statusEl.className = 'cloud-status error';
-            if (!silent) showToast(`❌ Sambungan gagal: ${e.message}`, 'error');
+            let errMsg = e.message;
+            if (e.name === 'AbortError') errMsg = 'Sambungan timeout (20s)';
+            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke api.github.com — mungkin firewall/CORS/offline';
+            console.error('[Cloud Test] ❌', e);
+            if (!silent) showToast(`❌ Sambungan gagal: ${errMsg}`, 'error');
             setTimeout(updateCloudUI, 2500);
             return false;
         }
@@ -919,8 +944,6 @@
             if (!isAuto) showToast('Sila set tetapan awan dahulu.', 'error');
             return;
         }
-
-        // Bersihkan aksara sekali lagi (defensive)
         const gistId = sanitizeHeaderValue(cloudSettings.gistId);
         const token = sanitizeHeaderValue(cloudSettings.token);
 
@@ -935,14 +958,19 @@
                 rphData: rphData,
                 annualPlans: annualPlans,
                 updatedAt: new Date().toISOString(),
-                appVersion: '2.0'
+                appVersion: '2.1'
             };
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 25000);
 
             const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `token ${token}`,
-                    'Content-Type': 'application/json; charset=utf-8'
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     files: {
@@ -950,8 +978,12 @@
                             content: JSON.stringify(payload, null, 2)
                         }
                     }
-                })
+                }),
+                mode: 'cors',
+                credentials: 'omit',
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
@@ -965,7 +997,11 @@
         } catch (e) {
             statusEl.className = 'cloud-status error';
             statusText.textContent = 'Awan: Ralat';
-            showToast(`❌ Gagal simpan: ${e.message}`, 'error');
+            let errMsg = e.message;
+            if (e.name === 'AbortError') errMsg = 'Timeout 25s';
+            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke GitHub — semak internet atau firewall';
+            showToast(`❌ Gagal simpan: ${errMsg}`, 'error');
+            console.error('[Cloud Save] ❌', e);
             setTimeout(updateCloudUI, 3000);
         } finally {
             isCloudSyncing = false;
@@ -990,9 +1026,21 @@
         statusText.textContent = 'Awan: Memuat...';
 
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 20000);
+
             const res = await fetch(`https://api.github.com/gists/${encodeURIComponent(gistId)}`, {
-                headers: { 'Authorization': `token ${token}` }
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28'
+                },
+                mode: 'cors',
+                credentials: 'omit',
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             if (!res.ok) {
                 const err = await res.json().catch(() => ({}));
@@ -1008,10 +1056,7 @@
             const cloudAnnual = data.annualPlans || [];
 
             const msg = `Data dari awan:\n• ${cloudRPH.length} RPH\n• ${cloudAnnual.length} RPT\n\nIni akan GANTIKAN data semasa (${rphData.length} RPH, ${annualPlans.length} RPT).\n\nTeruskan?`;
-            if (!confirm(msg)) {
-                updateCloudUI();
-                return;
-            }
+            if (!confirm(msg)) { updateCloudUI(); return; }
 
             rphData = cloudRPH;
             annualPlans = cloudAnnual;
@@ -1026,7 +1071,11 @@
         } catch (e) {
             statusEl.className = 'cloud-status error';
             statusText.textContent = 'Awan: Ralat';
-            showToast(`❌ Gagal muat: ${e.message}`, 'error');
+            let errMsg = e.message;
+            if (e.name === 'AbortError') errMsg = 'Timeout 20s';
+            else if (errMsg === 'Failed to fetch') errMsg = 'Gagal sambung ke GitHub — semak internet';
+            showToast(`❌ Gagal muat: ${errMsg}`, 'error');
+            console.error('[Cloud Load] ❌', e);
             setTimeout(updateCloudUI, 3000);
         } finally {
             isCloudSyncing = false;
